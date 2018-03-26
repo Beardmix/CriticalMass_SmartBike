@@ -3,9 +3,13 @@ import { NavController } from 'ionic-angular';
 
 import { BLE } from '@ionic-native/ble';
 
-const SERVICE_UUID_UART = '6E400001-B5A3-F393-­E0A9-­E50E24DCCA9E';
-const CHARAC_UUID_UART_RX = '0x0003';
-const CHARAC_UUID_UART_TX = '0x0002';
+const SERVICE_UUID_UART = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const CHARAC_UUID_UART_RX = '0003';
+const CHARAC_UUID_UART_TX = '0002';
+
+const HASHTAG_START = "#"
+const SERVICE_MODE = "M";
+const SERVICE_TIME_SERVER = "T";
 
 class Periph {
     name: string = "";
@@ -46,7 +50,7 @@ export class HomePage {
         this.ble.connect(periph.id).subscribe((data) => {
             console.log("connected", data);
             this.listConnectedPeriphs.push(periph);
-            this.startTimeNotification(periph);
+            //this.startTimeNotification(periph);
             var index = -1;
             this.listPeriphs.forEach((periphlist, idx) => {
                 if (periph.id == periphlist.id)
@@ -65,27 +69,29 @@ export class HomePage {
     {        
         this.ble.startNotification(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_RX)
         .subscribe((data) => {
-            var reply = Date.now(); // Time since 1970 in milliseconds
-            this.writeBLE(periph, "" + reply)
-            .then(data => {
-                console.log("success", data);            
-            })
-            .catch(err => {
-                console.log("error", err);            
-            }) 
+            console.log(data);
+            
+            // var reply = Date.now(); // Time since 1970 in milliseconds
+            // this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
+            // .then(data => {
+            //     console.log("success", data);            
+            // })
+            // .catch(err => {
+            //     console.log("error", err);            
+            // }) 
         });
     }
 
     switchOn(){
         console.log("switchOn");
         this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, "42")
+            this.writeBLE(periph, SERVICE_MODE, "1")
             .then(data => {
                 console.log("success", data);            
             })
-            .catch(err => {
-                console.log("error", err);            
-            }) 
+            // .catch(err => {
+            //     console.log("error", err);            
+            // }) 
         });
     }
 
@@ -102,9 +108,9 @@ export class HomePage {
         
     }
 
-    private writeBLE(periph : Periph, message: string)
+    private writeBLE(periph : Periph, service: string, message: string)
     {
-        return this.ble.write(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_TX, this.stringToBytes(message)); 
+        return this.ble.write(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_TX, this.stringToBytes(HASHTAG_START + service + message)); 
     }
 
     // ASCII only
@@ -113,6 +119,8 @@ export class HomePage {
         for (var i = 0, l = string.length; i < l; i++) {
             array[i] = string.charCodeAt(i);
         }
+        console.log(string, array.buffer);
+        
         return array.buffer;
     }
 
