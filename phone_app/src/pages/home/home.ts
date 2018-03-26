@@ -3,8 +3,9 @@ import { NavController } from 'ionic-angular';
 
 import { BLE } from '@ionic-native/ble';
 
-const LIGHTBULB_SERVICE = 'ff10';
-const DIMMER_CHARACTERISTIC = 'ff12';
+const SERVICE_UUID_UART = '6E400001-B5A3-F393-­E0A9-­E50E24DCCA9E';
+const CHARAC_UUID_UART_RX = '0x0003';
+const CHARAC_UUID_UART_TX = '0x0002';
 
 class Periph {
     name: string = "";
@@ -29,7 +30,7 @@ export class HomePage {
         this.scan ();
     }
 
-    scan ()
+    scan()
     {
         this.listPeriphs = [];
         this.ble.scan([], 10000).subscribe((periph) => {
@@ -45,6 +46,7 @@ export class HomePage {
         this.ble.connect(periph.id).subscribe((data) => {
             console.log("connected", data);
             this.listConnectedPeriphs.push(periph);
+            this.startTimeNotification(periph);
             var index = -1;
             this.listPeriphs.forEach((periphlist, idx) => {
                 if (periph.id == periphlist.id)
@@ -59,10 +61,25 @@ export class HomePage {
         });
     }
 
+    startTimeNotification(periph: Periph)
+    {        
+        this.ble.startNotification(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_RX)
+        .subscribe((data) => {
+            var reply = Date.now(); // Time since 1970 in milliseconds
+            this.writeBLE(periph, "" + reply)
+            .then(data => {
+                console.log("success", data);            
+            })
+            .catch(err => {
+                console.log("error", err);            
+            }) 
+        });
+    }
+
     switchOn(){
         console.log("switchOn");
         this.listConnectedPeriphs.forEach(periph => {
-            this.ble.write(periph.id, "00001530-1212-efde-1523-785feabcd123", "00001531-1212-efde-1523-785feabcd123", this.stringToBytes(42))
+            this.writeBLE(periph, "42")
             .then(data => {
                 console.log("success", data);            
             })
@@ -85,8 +102,13 @@ export class HomePage {
         
     }
 
+    private writeBLE(periph : Periph, message: string)
+    {
+        return this.ble.write(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_TX, this.stringToBytes(message)); 
+    }
+
     // ASCII only
-    stringToBytes(string) {
+    private stringToBytes(string) {
         var array = new Uint8Array(string.length);
         for (var i = 0, l = string.length; i < l; i++) {
             array[i] = string.charCodeAt(i);
@@ -95,7 +117,7 @@ export class HomePage {
     }
 
     // ASCII only
-    bytesToString(buffer) {
+    private bytesToString(buffer) {
         return String.fromCharCode.apply(null, new Uint8Array(buffer));
     }
 }
