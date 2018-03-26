@@ -3,9 +3,10 @@ import { NavController } from 'ionic-angular';
 
 import { BLE } from '@ionic-native/ble';
 
-const SERVICE_UUID_UART = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-const CHARAC_UUID_UART_RX = '0003';
-const CHARAC_UUID_UART_TX = '0002';
+const SERVICE_UUID_UART   = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const CHARAC_UUID_UART_RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+const CHARAC_UUID_UART_TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+
 
 const HASHTAG_START = "#"
 const SERVICE_MODE = "M";
@@ -89,22 +90,49 @@ export class HomePage {
             .then(data => {
                 console.log("success", data);            
             })
-            // .catch(err => {
-            //     console.log("error", err);            
-            // }) 
+            .catch(err => {
+                console.log("error", err);            
+            }) 
         });
     }
 
     switchOff(){
         console.log("switchOff");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.writeBLE(periph, SERVICE_MODE, "0")
+            .then(data => {
+                console.log("success", data);            
+            })
+            .catch(err => {
+                console.log("error", err);            
+            }) 
+        });
         
     }
     flash(){
         console.log("flash");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.writeBLE(periph, SERVICE_MODE, "2")
+            .then(data => {
+                console.log("success", data);            
+            })
+            .catch(err => {
+                console.log("error", err);            
+            }) 
+        });
         
     }
     pulse(){
         console.log("pulse");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.writeBLE(periph, SERVICE_MODE, "3")
+            .then(data => {
+                console.log("success", data);            
+            })
+            .catch(err => {
+                console.log("error", err);            
+            }) 
+        });
         
     }
 
