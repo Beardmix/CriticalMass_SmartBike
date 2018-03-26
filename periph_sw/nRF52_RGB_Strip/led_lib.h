@@ -39,7 +39,7 @@ public:
 
   void pulse(float period_ms)
   {
-    int intensity = (sin(3.1415f * global_millis() / period_ms) + 1.0f) * 127;
+    int intensity = (sin(3.1415f * (float)(global_millis()) / period_ms) + 1.0f) * 127;
     int valR = 0;
     int valG = 0;
     int valB = 0;

@@ -1,5 +1,5 @@
 #include <bluefruit.h>
-#include "led.h"
+#include "led_lib.h"
 
 /*
  * Advertising packets can be simulated with the "nRF Connect for Mobile" app
@@ -13,6 +13,17 @@
  *    0x02 - flash
  *    0x03 - pulse
  */
+
+enum SpecialChars
+{
+  START = 0x23 // #
+};
+
+enum Services
+{
+  MODE = 0x4D, // M
+  TIME = 0x54 // T
+};
 
 enum LEDMode
 {
@@ -77,37 +88,60 @@ void startAdv(void)
   Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds  
 }
 
-void loop() 
+void readUART()
 {
   // Wait for new data to arrive
   uint8_t len = readPacket(&bleuart, 500);
   if (len == 0) return;
-  ledMode = packetbuffer[1] - '0';
-
   printHex(packetbuffer, len);
+
+  // Check that it is a valid command
+  if(packetbuffer[0] == START)
+  {
+    // Switch to the correct service
+    switch (packetbuffer[1])
+    {
+    case TIME:
+      Serial.println("[SERVICE] TIME");
+      break;
+    case MODE:
+      Serial.println("[SERVICE] MODE");
+      ledMode = packetbuffer[2] - '0';
+      Serial.print("[MODE] ");
+      Serial.println(ledMode);
+      break;
+    default:
+      Serial.println("[SERVICE] unknown");  
+      delay(1000);  
+      break; 
+    }
+  }
+
+}
+
+void loop() 
+{
+  // Reads UART to collect new messages
+  readUART();
   
   switch (ledMode)
   {
     case OFF_MODE:
       led.switchOff();
-      Serial.println("[MODE] OFF_MODE");
       break;
     case ON_MODE:
       led.white();
-      Serial.println("[MODE] ON_MODE");
       break;
     case FLASH_MODE:
       led.flash(100);
       delay(1000 - 100);
-      Serial.println("[MODE] FLASH_MODE");
       break;
     case PULSE_MODE:
       led.pulse(1000);
-      Serial.println("[MODE] PULSE_MODE");
       break;
     default:
       Serial.println("[MODE] unknown");  
-      delay(1000);  
+      delay(2000);  
       break;  
   }
 }
