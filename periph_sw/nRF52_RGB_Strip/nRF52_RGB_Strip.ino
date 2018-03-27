@@ -34,6 +34,10 @@ enum LEDMode
   PULSE_MODE      = '3'
 };
 
+const int pinRed = LED_BUILTIN; // 11;
+const int pinGreen = 27;
+const int pinBlue = 16;
+  
 uint8_t ledMode = OFF_MODE;
 unsigned long last_sent = 0;
 unsigned long local_time_offset = 0;
@@ -66,7 +70,7 @@ void setup()
   
   bleuart.begin();
 
-  led.configure(LED_BUILTIN, 9, 9);
+  led.configure(pinRed, pinGreen, pinBlue);
   led.setRGB(255, 255, 255);
 
   // Set up and start advertising

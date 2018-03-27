@@ -42,11 +42,13 @@ export class HomePage {
     scan()
     {
         this.listPeriphs = [];
-        this.ble.scan([], 10000).subscribe((periph) => {
-            this.listPeriphs.push(new Periph(periph.id, periph.name));
-            if (periph.name == "MyFahrrad")
+        this.ble.scan([], 5000).subscribe((periph) => {
+            if(periph.name)
             {
-                console.log("found", periph);
+                if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
+                {
+                    this.listPeriphs.push(new Periph(periph.id, periph.name));
+                }
             }
         });
     }
@@ -76,11 +78,12 @@ export class HomePage {
         .subscribe((data) => {
             var string_received = this.bytesToString(data);
 
-            if(string_received[0] == CHAR_START && string_received[string_received.length - 1] == CHAR_END)
+            if(this.stringRecValid(string_received))
             {
-                if(string_received[1] == SERVICE_TIME_SERVER)
+                if(this.isService(string_received, SERVICE_TIME_SERVER))
                 {
-                    if(string_received[2] == SERVICE_TIME_SERVER_REQUEST)
+                    var payload = this.getPayload(string_received);
+                    if(payload[0] == SERVICE_TIME_SERVER_REQUEST)
                     {
                         var now = new Date().getTime(); // "now"
                         var reply = Math.abs(now - this.d_start_app); // Time since app start in milliseconds
@@ -102,49 +105,28 @@ export class HomePage {
         });
     }
 
-    switchOn(){
-        console.log("switchOn");
-        this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_MODE, "1")
-            .then(data => {
-                console.log("success", data);            
-            })
-            .catch(err => {
-                console.log("error", err);            
-            }) 
-        });
-    }
 
     switchOff(){
         console.log("switchOff");
-        this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_MODE, "0")
-            .then(data => {
-                console.log("success", data);            
-            })
-            .catch(err => {
-                console.log("error", err);            
-            }) 
-        });
-        
+        this.changeMode("0"); 
+    }
+    switchOn(){
+        console.log("switchOn");
+        this.changeMode("1"); 
     }
     flash(){
         console.log("flash");
-        this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_MODE, "2")
-            .then(data => {
-                console.log("success", data);            
-            })
-            .catch(err => {
-                console.log("error", err);            
-            }) 
-        });
-        
+        this.changeMode("2"); 
     }
     pulse(){
         console.log("pulse");
+        this.changeMode("3");        
+    }
+
+    private changeMode(code_mode)
+    {
         this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_MODE, "3")
+            this.writeBLE(periph, SERVICE_MODE, code_mode)
             .then(data => {
                 console.log("success", data);            
             })
@@ -152,13 +134,25 @@ export class HomePage {
                 console.log("error", err);            
             }) 
         });
-        
     }
 
     private writeBLE(periph : Periph, service: string, message: string)
     {
         var uart_message = CHAR_START + service + message + CHAR_END;
         return this.ble.write(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_TX, this.stringToBytes(uart_message)); 
+    }
+
+    private getPayload(string_received): string {
+        return string_received.substr(2, string_received.length - 2);
+    }
+
+    private isService(string_received, code_service): boolean
+    {
+        return string_received[1] == code_service;
+    }
+
+    private stringRecValid(string_received): boolean {
+        return ((string_received[0] == CHAR_START) && (string_received[string_received.length - 1] == CHAR_END));
     }
 
     // ASCII only
