@@ -32,8 +32,10 @@ export class HomePage {
 
     listPeriphs: Periph[] = [];
     listConnectedPeriphs: Periph[] = [];
+    d_start_app: number = 0;
 
     constructor(public navCtrl: NavController, private ble: BLE) {
+        this.d_start_app = new Date().getTime(); // "now"
         this.scan ();
     }
 
@@ -80,7 +82,8 @@ export class HomePage {
                 {
                     if(string_received[2] == SERVICE_TIME_SERVER_REQUEST)
                     {
-                        var reply = Date.now(); // Time since 1970 in milliseconds
+                        var now = new Date().getTime(); // "now"
+                        var reply = Math.abs(now - this.d_start_app); // Time since app start in milliseconds
                         this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
                         .then(data => {
                             console.log("success", data);            

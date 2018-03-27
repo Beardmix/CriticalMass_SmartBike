@@ -39,10 +39,10 @@ float parsefloat(uint8_t *buffer)
     @brief  Waits for incoming data and parses it
 */
 /**************************************************************************/
-boolean readPacket(BLEUart *ble_uart) 
+uint16_t readPacket(BLEUart *ble_uart) 
 {
   static uint16_t replyidx = -1;
-  boolean packet_complete = false;
+  uint16_t packet_length = 0;
 
   memset(packetbuffer, 0, READ_BUFSIZE);
 
@@ -59,7 +59,7 @@ boolean readPacket(BLEUart *ble_uart)
     }
     if(c == '!')
     {
-      packet_complete = true;
+      packet_length = replyidx;
       packetbuffer[replyidx] = 0;  // null term to close the packet - used only to display in the terminal
       replyidx = -1;
       break;
@@ -68,5 +68,5 @@ boolean readPacket(BLEUart *ble_uart)
     replyidx++;
   }
   
-  return packet_complete;
+  return packet_length;
 }

@@ -36,17 +36,23 @@ enum LEDMode
 
 uint8_t ledMode = OFF_MODE;
 unsigned long last_sent = 0;
+unsigned long local_time_offset = 0;
 
 CtrlLED led;
 BLEUart bleuart;
 
 // Function prototypes for packetparser.cpp
-boolean readPacket (BLEUart *ble_uart);
+uint16_t readPacket (BLEUart *ble_uart);
 float   parsefloat (uint8_t *buffer);
 void    printHex   (const uint8_t * data, const uint32_t numBytes);
 
 // Packet buffer
 extern uint8_t packetbuffer[];
+
+unsigned long global_millis()
+{
+  return millis() + local_time_offset;
+}
 
 void setup() 
 {
@@ -92,15 +98,27 @@ void startAdv(void)
 
 void readUART()
 {
+  unsigned long server_clock = 0;
+  unsigned long delay_transm = 0;
   // Wait for new data to arrive
-  boolean complete = readPacket(&bleuart);
-  if (complete == false) return;
+  uint16_t len = readPacket(&bleuart);
+  if (len == 0) return;
 
   // Switch to the correct service
   switch (packetbuffer[0])
   {
   case TIME:
     Serial.println("[SERVICE] TIME");
+    delay_transm = (millis() - last_sent) / 2;
+    Serial.print("[TIME] Delay [ms]: ");
+    Serial.println(delay_transm);
+    Serial.print("[TIME] server clock [ms]: ");
+    for(uint16_t i = 0; i < (len - 1); i++)
+    {
+      server_clock += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
+    }
+    Serial.println(server_clock);
+    local_time_offset = server_clock - (last_sent + millis()) / 2;
     break;
   case MODE:
     Serial.println("[SERVICE] MODE");
@@ -121,10 +139,12 @@ void sendUART()
   
   if(millis() - last_sent > 10000) // every 10 seconds
   {
+    Serial.print("Local Time [ms]: ");
+    Serial.println(global_millis());
     last_sent = millis();
 
     // Forward data from our peripheral to Mobile
-    Serial.print("Sending");
+    Serial.print("Sending: ");
     Serial.println(str);
     bleuart.print( str );
   }
