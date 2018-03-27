@@ -7,23 +7,23 @@
 </ion-header>
 
 <ion-content padding>
-    <button ion-button color="light" (click)="scan()">Scan</button>
-    Available Devices
-    <ion-list>
-        <button ion-item *ngFor="let periph of listPeriphs" (click)="connect(periph)">
-            {{ periph.name }}
-        </button>
-    </ion-list>
-    Connected Devices
-    <ion-list>
-        <button ion-item *ngFor="let periph of listConnectedPeriphs">
-            {{ periph.name }}
-        </button>
-    </ion-list>
-    <ion-list>
-        <button ion-button color="light" (click)="switchOff()">Off</button>
-        <button ion-button color="light" (click)="switchOn()">On</button>
-        <button ion-button color="light" (click)="flash()">Flash</button>
-        <button ion-button color="light" (click)="pulse()">Pulse</button>
-    </ion-list>
+    <ion-card>
+        <ion-card-header>
+            Devices
+            <ion-badge item-end>{{ listConnectedPeriphs.length }}</ion-badge>
+        </ion-card-header>
+        <button ion-button block color="light" (click)="connectAll()">Connect</button>
+        <button ion-button block color="light" (click)="disconnectAll()">Disconnect</button>
+    </ion-card>
+    <ion-card>
+        <ion-card-header>
+            Modes
+        </ion-card-header>
+        <ion-list>
+            <button ion-button block color="dark" (click)="switchOff()">Off</button>
+            <button ion-button block color="light" (click)="switchOn()">On</button>
+            <button ion-button block color="danger" (click)="flash()">Flash</button>
+            <button ion-button block color="secondary" (click)="pulse()">Pulse</button>
+        </ion-list>
+    </ion-card>
 </ion-content>
