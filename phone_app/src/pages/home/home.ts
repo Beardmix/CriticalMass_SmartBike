@@ -8,9 +8,10 @@ const CHARAC_UUID_UART_RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 const CHARAC_UUID_UART_TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 
 
-const HASHTAG_START = "#"
-const SERVICE_MODE = "M";
-const SERVICE_TIME_SERVER = "T";
+const CHAR_START = '#'
+const CHAR_END = '!'
+const SERVICE_MODE = 'M';
+const SERVICE_TIME_SERVER = 'T';
 
 class Periph {
     name: string = "";
@@ -138,7 +139,8 @@ export class HomePage {
 
     private writeBLE(periph : Periph, service: string, message: string)
     {
-        return this.ble.write(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_TX, this.stringToBytes(HASHTAG_START + service + message)); 
+        var uart_message = CHAR_START + service + message + CHAR_END;
+        return this.ble.write(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_TX, this.stringToBytes(uart_message)); 
     }
 
     // ASCII only

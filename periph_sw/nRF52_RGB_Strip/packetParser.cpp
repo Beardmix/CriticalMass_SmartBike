@@ -71,37 +71,41 @@ void printHex(const uint8_t * data, const uint32_t numBytes)
     @brief  Waits for incoming data and parses it
 */
 /**************************************************************************/
-uint8_t readPacket(BLEUart *ble_uart, uint16_t timeout) 
+uint8_t readPacket(BLEUart *ble_uart) 
 {
-  uint16_t origtimeout = timeout, replyidx = 0;
+  static uint16_t replyidx = -1;
+  boolean packet_complete = false;
 
   memset(packetbuffer, 0, READ_BUFSIZE);
 
-  while (timeout--) {
-    if (replyidx >= 20) break;
-    if ((packetbuffer[1] == 'C') && (replyidx == PACKET_COLOR_LEN))
+  while (ble_uart->available()) {
+    char c =  ble_uart->read();
+    if(c == '#')
+    {
+      replyidx = 0;
       break;
-
-    while (ble_uart->available()) {
-      char c =  ble_uart->read();
-      if (c == '!') {
-        replyidx = 0;
-      }
-      packetbuffer[replyidx] = c;
-      replyidx++;
-      timeout = origtimeout;
     }
-    
-    if (timeout == 0) break;
-    delay(1);
+    else if (replyidx == -1)
+    {
+      break;
+    }
+    if(c == '!')
+    {
+      packet_complete = true;
+      replyidx = -1;
+      break;
+    }
+    packetbuffer[replyidx] = c;
+    replyidx++;
   }
-
-  packetbuffer[replyidx] = 0;  // null term
-
-  if (!replyidx)  // no data or timeout 
+  
+  if(packet_complete == true)
+  {
+    packetbuffer[replyidx] = 0;  // null term to close the packet - used only to display in the terminal
+    return replyidx;
+  }
+  else
+  {
     return 0;
-  if (packetbuffer[0] != '#')  // First packet character must match.
-    return 0;
-
-  return replyidx;
+  }
 }

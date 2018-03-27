@@ -16,21 +16,22 @@
 
 enum SpecialChars
 {
-  START = 0x23 // #
+  CHAR_START = '#',
+  CHAR_END = '!'
 };
 
 enum Services
 {
-  MODE = 0x4D, // M
-  TIME = 0x54 // T
+  MODE = 'M',
+  TIME = 'T'
 };
 
 enum LEDMode
 {
-  OFF_MODE        = 0x00,
-  ON_MODE         = 0x01,
-  FLASH_MODE      = 0x02,
-  PULSE_MODE      = 0x03
+  OFF_MODE        = '0',
+  ON_MODE         = '1',
+  FLASH_MODE      = '2',
+  PULSE_MODE      = '3'
 };
 
 uint8_t ledMode = OFF_MODE;
@@ -39,7 +40,7 @@ CtrlLED led;
 BLEUart bleuart;
 
 // Function prototypes for packetparser.cpp
-uint8_t readPacket (BLEUart *ble_uart, uint16_t timeout);
+uint8_t readPacket (BLEUart *ble_uart);
 float   parsefloat (uint8_t *buffer);
 void    printHex   (const uint8_t * data, const uint32_t numBytes);
 
@@ -91,30 +92,26 @@ void startAdv(void)
 void readUART()
 {
   // Wait for new data to arrive
-  uint8_t len = readPacket(&bleuart, 500);
+  uint8_t len = readPacket(&bleuart);
   if (len == 0) return;
   printHex(packetbuffer, len);
 
-  // Check that it is a valid command
-  if(packetbuffer[0] == START)
+  // Switch to the correct service
+  switch (packetbuffer[0])
   {
-    // Switch to the correct service
-    switch (packetbuffer[1])
-    {
-    case TIME:
-      Serial.println("[SERVICE] TIME");
-      break;
-    case MODE:
-      Serial.println("[SERVICE] MODE");
-      ledMode = packetbuffer[2] - '0';
-      Serial.print("[MODE] ");
-      Serial.println(ledMode);
-      break;
-    default:
-      Serial.println("[SERVICE] unknown");  
-      delay(1000);  
-      break; 
-    }
+  case TIME:
+    Serial.println("[SERVICE] TIME");
+    break;
+  case MODE:
+    Serial.println("[SERVICE] MODE");
+    ledMode = packetbuffer[1];
+    Serial.print("[MODE] ");
+    Serial.println(ledMode);
+    break;
+  default:
+    Serial.println("[SERVICE] unknown");  
+    delay(1000);  
+    break; 
   }
 
 }
