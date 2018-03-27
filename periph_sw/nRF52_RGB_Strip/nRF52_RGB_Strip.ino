@@ -35,12 +35,13 @@ enum LEDMode
 };
 
 uint8_t ledMode = OFF_MODE;
+unsigned long last_sent = 0;
 
 CtrlLED led;
 BLEUart bleuart;
 
 // Function prototypes for packetparser.cpp
-uint8_t readPacket (BLEUart *ble_uart);
+boolean readPacket (BLEUart *ble_uart);
 float   parsefloat (uint8_t *buffer);
 void    printHex   (const uint8_t * data, const uint32_t numBytes);
 
@@ -92,9 +93,8 @@ void startAdv(void)
 void readUART()
 {
   // Wait for new data to arrive
-  uint8_t len = readPacket(&bleuart);
-  if (len == 0) return;
-  printHex(packetbuffer, len);
+  boolean complete = readPacket(&bleuart);
+  if (complete == false) return;
 
   // Switch to the correct service
   switch (packetbuffer[0])
@@ -113,13 +113,29 @@ void readUART()
     delay(1000);  
     break; 
   }
+}
 
+void sendUART()
+{
+  char str[5] = "#TR!";
+  
+  if(millis() - last_sent > 10000) // every 10 seconds
+  {
+    last_sent = millis();
+
+    // Forward data from our peripheral to Mobile
+    Serial.print("Sending");
+    Serial.println(str);
+    bleuart.print( str );
+  }
 }
 
 void loop() 
 {
   // Reads UART to collect new messages
   readUART();
+
+  sendUART();
   
   switch (ledMode)
   {

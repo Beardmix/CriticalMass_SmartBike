@@ -12,6 +12,7 @@ const CHAR_START = '#'
 const CHAR_END = '!'
 const SERVICE_MODE = 'M';
 const SERVICE_TIME_SERVER = 'T';
+const SERVICE_TIME_SERVER_REQUEST = 'R';
 
 class Periph {
     name: string = "";
@@ -52,7 +53,7 @@ export class HomePage {
         this.ble.connect(periph.id).subscribe((data) => {
             console.log("connected", data);
             this.listConnectedPeriphs.push(periph);
-            //this.startTimeNotification(periph);
+            this.startTimeNotification(periph);
             var index = -1;
             this.listPeriphs.forEach((periphlist, idx) => {
                 if (periph.id == periphlist.id)
@@ -71,16 +72,30 @@ export class HomePage {
     {        
         this.ble.startNotification(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_RX)
         .subscribe((data) => {
-            console.log(data);
+            var string_received = this.bytesToString(data);
+
+            if(string_received[0] == CHAR_START && string_received[string_received.length - 1] == CHAR_END)
+            {
+                if(string_received[1] == SERVICE_TIME_SERVER)
+                {
+                    if(string_received[2] == SERVICE_TIME_SERVER_REQUEST)
+                    {
+                        var reply = Date.now(); // Time since 1970 in milliseconds
+                        this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
+                        .then(data => {
+                            console.log("success", data);            
+                        })
+                        .catch(err => {
+                            console.log("error", err);            
+                        }) 
+                    }
+                }
+            }
+            else
+            {
+                console.log("non supported message", string_received);
+            }
             
-            // var reply = Date.now(); // Time since 1970 in milliseconds
-            // this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
-            // .then(data => {
-            //     console.log("success", data);            
-            // })
-            // .catch(err => {
-            //     console.log("error", err);            
-            // }) 
         });
     }
 

@@ -35,43 +35,11 @@ float parsefloat(uint8_t *buffer)
 }
 
 /**************************************************************************/
-/*! 
-    @brief  Prints a hexadecimal value in plain characters
-    @param  data      Pointer to the byte data
-    @param  numBytes  Data length in bytes
-*/
-/**************************************************************************/
-void printHex(const uint8_t * data, const uint32_t numBytes)
-{
-  uint32_t szPos;
-  for (szPos=0; szPos < numBytes; szPos++) 
-  {
-    Serial.print(F("0x"));
-    // Append leading 0 for small values
-    if (data[szPos] <= 0xF)
-    {
-      Serial.print(F("0"));
-      Serial.print(data[szPos] & 0xf, HEX);
-    }
-    else
-    {
-      Serial.print(data[szPos] & 0xff, HEX);
-    }
-    // Add a trailing space if appropriate
-    if ((numBytes > 1) && (szPos != numBytes - 1))
-    {
-      Serial.print(F(" "));
-    }
-  }
-  Serial.println();
-}
-
-/**************************************************************************/
 /*!
     @brief  Waits for incoming data and parses it
 */
 /**************************************************************************/
-uint8_t readPacket(BLEUart *ble_uart) 
+boolean readPacket(BLEUart *ble_uart) 
 {
   static uint16_t replyidx = -1;
   boolean packet_complete = false;
@@ -92,6 +60,7 @@ uint8_t readPacket(BLEUart *ble_uart)
     if(c == '!')
     {
       packet_complete = true;
+      packetbuffer[replyidx] = 0;  // null term to close the packet - used only to display in the terminal
       replyidx = -1;
       break;
     }
@@ -99,13 +68,5 @@ uint8_t readPacket(BLEUart *ble_uart)
     replyidx++;
   }
   
-  if(packet_complete == true)
-  {
-    packetbuffer[replyidx] = 0;  // null term to close the packet - used only to display in the terminal
-    return replyidx;
-  }
-  else
-  {
-    return 0;
-  }
+  return packet_complete;
 }
