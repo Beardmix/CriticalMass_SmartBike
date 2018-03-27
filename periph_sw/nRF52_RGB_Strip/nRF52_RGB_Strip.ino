@@ -119,6 +119,7 @@ void readUART()
     }
     Serial.println(server_clock);
     local_time_offset = server_clock - (last_sent + millis()) / 2;
+    led.setTimeOffset(local_time_offset);
     break;
   case MODE:
     Serial.println("[SERVICE] MODE");
@@ -166,8 +167,7 @@ void loop()
       led.white();
       break;
     case FLASH_MODE:
-      led.flash(100);
-      delay(1000 - 100);
+      led.flash(1000, 100);
       break;
     case PULSE_MODE:
       led.pulse(1000);

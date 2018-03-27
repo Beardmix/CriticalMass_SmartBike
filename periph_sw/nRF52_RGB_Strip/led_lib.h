@@ -53,18 +53,16 @@ public:
     analogWrite(ledBlue, valB);
   }
 
-  void flash(float max_duration)
+  void flash(unsigned int period_ms, float max_duration_ms)
   {
-    long start_time = global_millis();
-    int valR = 0;
-    int valG = 0;
-    int valB = 0;
-    int intensity = 0;
-
-    while(global_millis() - start_time < max_duration)
+    if(global_millis() % period_ms < max_duration_ms)
     {
-      intensity = (sin(3.1415f * (float)(global_millis() - start_time) / max_duration)) * 255;
-      
+      int valR = 0;
+      int valG = 0;
+      int valB = 0;
+      int intensity = 0;
+    
+      intensity = (sin(3.1415f * (float)(global_millis()) / max_duration_ms)) * 255;
       valR = map(intensity, 0, 255, 0, this->valRed);
       valG = map(intensity, 0, 255, 0, this->valGreen);
       valB = map(intensity, 0, 255, 0, this->valBlue);
@@ -73,7 +71,10 @@ public:
       analogWrite(ledGreen, valG);
       analogWrite(ledBlue, valB);
     }
-    switchOff();
+    else
+    {
+      switchOff();
+    }
   }
 
   void lightLED()
