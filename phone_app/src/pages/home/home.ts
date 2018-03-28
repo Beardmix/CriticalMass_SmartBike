@@ -76,12 +76,19 @@ export class HomePage {
     }
 
     connect(periph: Periph) {
-        this.ble.connect(periph.id).subscribe((data) => {
-            console.log("connected", data);
-            this.listConnectedPeriphs.push(periph);
-            this.startTimeNotification(periph);
-            this.removePeriphFromList(this.listPeriphs, periph);
-        });
+        this.ble.connect(periph.id).subscribe(
+            data => {
+                console.log("connected", data);
+                this.listConnectedPeriphs.push(periph);
+                this.startTimeNotification(periph);
+                this.removePeriphFromList(this.listPeriphs, periph);
+            },
+            error => {
+                console.log("error", error);
+            },
+            () => {
+                console.log("finished");
+            });
     }
 
     startTimeNotification(periph: Periph) {
