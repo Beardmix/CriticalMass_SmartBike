@@ -41,25 +41,40 @@ export class HomePage {
 
     scan() {
         this.listPeriphs = [];
-        this.ble.scan([], 5000).subscribe((periph) => {
-            if (periph.name) {
-                if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
-                {
-                    this.listPeriphs.push(new Periph(periph.id, periph.name));
+        this.ble.scan([], 5000).subscribe(
+            periph => {
+                if (periph.name) {
+                    if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
+                    {
+                        this.listPeriphs.push(new Periph(periph.id, periph.name));
+                    }
                 }
-            }
-        });
+            },
+            error => {
+                console.log("scan_error", error);
+            },
+            () => {
+                console.log("scan_finished");
+            });
     }
 
     connectAll() {
-        this.ble.scan([], 5000).subscribe((periph) => {
-            if (periph.name) {
-                if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
-                {
-                    this.connect(new Periph(periph.id, periph.name));
+        this.ble.scan([], 5000).subscribe(
+            periph => {
+                if (periph.name) {
+                    if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
+                    {
+                        console.log("scan", periph);
+                        this.connect(new Periph(periph.id, periph.name));
+                    }
                 }
-            }
-        });
+            },
+            error => {
+                console.log("scan_error", error);
+            },
+            () => {
+                console.log("scan_finished");
+            });
     }
 
     disconnectAll()
