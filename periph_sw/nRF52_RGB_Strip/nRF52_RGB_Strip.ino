@@ -36,6 +36,7 @@ enum LEDMode
 };
 
 const int pinDebug = LED_BUILTIN;
+const int pinRed = 11;
 const int pinGreen = 27;
 const int pinBlue = 16;
   
