@@ -31,10 +31,11 @@ enum LEDMode
   OFF_MODE        = '0',
   ON_MODE         = '1',
   FLASH_MODE      = '2',
-  PULSE_MODE      = '3'
+  PULSE_MODE      = '3',
+  HUE_FLOW        = '4'
 };
 
-const int pinRed = LED_BUILTIN; // 11;
+const int pinDebug = LED_BUILTIN;
 const int pinGreen = 27;
 const int pinBlue = 16;
   
@@ -70,7 +71,7 @@ void setup()
   
   bleuart.begin();
 
-  led.configure(pinRed, pinGreen, pinBlue);
+  led.configure(pinRed, pinGreen, pinBlue, pinDebug);
   led.setRGB(255, 255, 255);
 
   // Set up and start advertising
@@ -175,6 +176,9 @@ void loop()
       break;
     case PULSE_MODE:
       led.pulse(1000);
+      break;
+    case HUE_FLOW:
+      led.hueFlow();
       break;
     default:
       Serial.println("[MODE] unknown");  

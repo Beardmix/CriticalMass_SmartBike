@@ -3,6 +3,7 @@
 
 class CtrlLED {
 public:
+  int ledDebug;
   int ledRed;
   int ledGreen;
   int ledBlue;
@@ -13,14 +14,17 @@ public:
 
   unsigned long time_offset = 0;
   
-  void configure(int pinRed, int pinGreen, int pinBlue) {
+  void configure(int pinRed, int pinGreen, int pinBlue, int pinDebug) {
     ledRed = pinRed;
     ledGreen = pinGreen;
     ledBlue = pinBlue;
+    ledDebug = pinDebug;
+    
     // declare the ledPin as an OUTPUT:
     pinMode(ledRed, OUTPUT);
     pinMode(ledGreen, OUTPUT);
     pinMode(ledBlue, OUTPUT);
+    pinMode(ledDebug, OUTPUT);
 
     valRed = 0;
     valGreen = 0;
@@ -48,6 +52,7 @@ public:
     valG = map(intensity, 0, 255, 0, this->valGreen);
     valB = map(intensity, 0, 255, 0, this->valBlue);
 
+    analogWrite(ledDebug, valR);
     analogWrite(ledRed, valR);
     analogWrite(ledGreen, valG);
     analogWrite(ledBlue, valB);
@@ -67,6 +72,7 @@ public:
       valG = map(intensity, 0, 255, 0, this->valGreen);
       valB = map(intensity, 0, 255, 0, this->valBlue);
   
+      analogWrite(ledDebug, valR);
       analogWrite(ledRed, valR);
       analogWrite(ledGreen, valG);
       analogWrite(ledBlue, valB);
@@ -79,6 +85,7 @@ public:
 
   void lightLED()
   {
+    analogWrite(ledDebug, valRed);
     analogWrite(ledRed, valRed);
     analogWrite(ledGreen, valGreen);
     analogWrite(ledBlue, valBlue);
@@ -93,6 +100,7 @@ public:
   
   void white()
   {
+    analogWrite(ledDebug, 255);
     analogWrite(ledRed, 255);
     analogWrite(ledGreen, 255);
     analogWrite(ledBlue, 255);
@@ -100,6 +108,7 @@ public:
   
   void switchOff()
   {
+    analogWrite(ledDebug, 0);
     analogWrite(ledRed, 0);
     analogWrite(ledGreen, 0);
     analogWrite(ledBlue, 0);
@@ -118,6 +127,7 @@ public:
     valG = map(valG, 0, 255, 0, intensity);
     valB = map(valB, 0, 255, 0, intensity);
 
+    analogWrite(ledDebug, valR);
     analogWrite(ledRed, valR);
     analogWrite(ledGreen, valG);
     analogWrite(ledBlue, valB);

@@ -151,6 +151,10 @@ export class HomePage {
         console.log("pulse");
         this.changeMode("3");
     }
+    hueFlow() {
+        console.log("hueFlow");
+        this.changeMode("4");
+    }
 
     private changeMode(code_mode) {
         this.listConnectedPeriphs.forEach(periph => {
