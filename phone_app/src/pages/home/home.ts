@@ -10,6 +10,7 @@ const CHARAC_UUID_UART_TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 
 const CHAR_START = '#'
 const CHAR_END = '!'
+const SERVICE_COLOR = 'C';
 const SERVICE_MODE = 'M';
 const SERVICE_TIME_SERVER = 'T';
 const SERVICE_TIME_SERVER_REQUEST = 'R';
@@ -154,6 +155,22 @@ export class HomePage {
     hueFlow() {
         console.log("hueFlow");
         this.changeMode("4");
+    }
+    setColor(r, g, b) {
+        console.log("changeColor", r, g, b);
+        this.changeColor(r, g, b);
+    }
+
+    private changeColor(r, g, b) {
+        this.listConnectedPeriphs.forEach(periph => {
+            this.writeBLE(periph, SERVICE_COLOR, "" + r + "" + g + "" + b)
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+        });
     }
 
     private changeMode(code_mode) {

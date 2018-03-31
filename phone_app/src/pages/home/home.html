@@ -27,4 +27,15 @@
             <button ion-button block                   (click)="hueFlow()">Hue Flow</button>
         </ion-list>
     </ion-card>
+    <ion-card>
+        <ion-card-header>
+            Color 
+        </ion-card-header>
+        <ion-list>
+            <button ion-button round color="light"     (click)="setColor(255, 255, 255)"></button>
+            <button ion-button round color="danger"    (click)="setColor(255, 0, 0)"></button>
+            <button ion-button round color="secondary" (click)="setColor(0, 255, 0)"></button>
+            <button ion-button round                   (click)="setColor(0, 0, 255)"></button>
+        </ion-list>
+    </ion-card>
 </ion-content>

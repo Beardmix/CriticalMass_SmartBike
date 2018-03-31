@@ -22,8 +22,9 @@ enum SpecialChars
 
 enum Services
 {
-  MODE = 'M',
-  TIME = 'T'
+  COLOR = 'C',
+  MODE  = 'M',
+  TIME  = 'T'
 };
 
 enum LEDMode
@@ -105,6 +106,7 @@ void startAdv(void)
 void readUART()
 {
   unsigned long server_clock = 0;
+  unsigned long new_time_offset = 0;
   unsigned long delay_transm = 0;
   // Wait for new data to arrive
   uint16_t len = readPacket(&bleuart);
@@ -124,7 +126,15 @@ void readUART()
       server_clock += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
     }
     Serial.println(server_clock);
-    local_time_offset = server_clock - (last_sent + millis()) / 2;
+    new_time_offset = server_clock - (last_sent + millis()) / 2;
+    if(abs(new_time_offset - local_time_offset) > delay_transm * 2)
+    {
+      local_time_offset = new_time_offset;
+    }
+    else
+    {
+      local_time_offset = (local_time_offset + new_time_offset) / 2;
+    }
     led.setTimeOffset(local_time_offset);
     break;
   case MODE:
@@ -132,6 +142,19 @@ void readUART()
     ledMode = packetbuffer[1];
     Serial.print("[MODE] ");
     Serial.println(ledMode);
+    break;
+  case COLOR:
+    Serial.println("[SERVICE] COLOR");
+    uint8_t r = packetbuffer[1] - '0';
+    uint8_t g = packetbuffer[2] - '0';
+    uint8_t b = packetbuffer[3] - '0';
+    led.setColor(r, g, b);
+    Serial.print("[COLOR] ");
+    Serial.print(r);
+    Serial.print('-');
+    Serial.print(g);
+    Serial.print('-');
+    Serial.print(b);
     break;
   default:
     Serial.println("[SERVICE] unknown");  
