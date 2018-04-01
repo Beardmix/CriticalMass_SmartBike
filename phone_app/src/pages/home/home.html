@@ -71,18 +71,35 @@
         </ion-card-header>
         <ion-grid>
             <ion-row>
-                <ion-col>
-                    <button ion-button round color="light" (click)="setColor(255, 255, 255)"></button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button round color="danger" (click)="setColor(255, 0, 0)"></button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button round color="secondary" (click)="setColor(0, 255, 0)"></button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button round (click)="setColor(0, 0, 255)"></button>
-                </ion-col>
+                <ion-chip id="color-preview" [ngStyle]="{'background-color': hexcolor}">
+                </ion-chip>
+            </ion-row>
+            <ion-row>
+                <ion-item>
+                    <ion-label stacked>Hue</ion-label>
+                    <ion-range min="0" max="360" debounce="500" (ionChange)="setColor()" [(ngModel)]="hue">
+                        <ion-icon range-left small name="md-color-palette"></ion-icon>
+                        <ion-icon range-right name="md-color-palette"></ion-icon>
+                    </ion-range>
+                </ion-item>
+            </ion-row>
+            <ion-row>
+                <ion-item>
+                    <ion-label stacked>Brightness</ion-label>
+                    <ion-range min="0" max="100" debounce="500" (ionChange)="setColor()" [(ngModel)]="brightness">
+                        <ion-icon range-left small name="md-sunny"></ion-icon>
+                        <ion-icon range-right name="md-sunny"></ion-icon>
+                    </ion-range>
+                </ion-item>
+            </ion-row>
+            <ion-row>
+                <ion-item>
+                    <ion-label stacked>Saturation</ion-label>
+                    <ion-range min="0" max="100" debounce="500" (ionChange)="setColor()" [(ngModel)]="saturation">
+                        <ion-icon range-left small name="md-brush"></ion-icon>
+                        <ion-icon range-right name="md-brush"></ion-icon>
+                    </ion-range>
+                </ion-item>
             </ion-row>
         </ion-grid>
     </ion-card>

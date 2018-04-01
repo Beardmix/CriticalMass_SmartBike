@@ -36,6 +36,10 @@ export class HomePage {
     listConnectedPeriphs: Periph[] = [];
     d_start_app: number = 0;
     tempo: number = 60;
+    hue = 0;
+    brightness = 100;
+    saturation = 100;
+    hexcolor = "rgb(255,0,0)";
 
     constructor(public navCtrl: NavController, private ble: BLE) {
         this.d_start_app = new Date().getTime(); // "now"
@@ -172,9 +176,69 @@ export class HomePage {
         console.log("hueFlow");
         this.changeMode("4");
     }
-    setColor(r, g, b) {
+    setColor() {
+        var rgb = this.hue2rgb(this.hue);
+        var r = rgb[0];
+        var g = rgb[1]; 
+        var b = rgb[2];
+        var max_val = Math.max(r, g, b);
+        r = r + (max_val - r) * (100 - this.saturation) / 100.0;
+        g = g + (max_val - g) * (100 - this.saturation) / 100.0;
+        b = b + (max_val - b) * (100 - this.saturation) / 100.0;
+        r = r * this.brightness / 100.0;
+        g = g * this.brightness / 100.0;
+        b = b * this.brightness / 100.0;
+        r = Math.round(r * 255);
+        g = Math.round(g * 255);
+        b = Math.round(b * 255);
         console.log("changeColor", r, g, b);
         this.changeColor(r, g, b);
+        this.hexcolor = "rgb(" + r + "," + g + "," + b + ")";
+        
+        // var rgb = this.hue2rgb();
+        // console.log("changeColor", rgb[0], rgb[1], rgb[2]);
+        // this.changeColor(rgb[0], rgb[1], rgb[2]);
+    }
+    private hue2rgb(h){
+        var r, g, b;
+        h = h / 60.0;
+        var t = h - Math.floor(h);
+        if(h < 1) {
+            r = 1;
+            g = t;
+            b = 0;
+        }
+        else if(h < 2) {
+            r = 1 - t;
+            g = 1;
+            b = 0;
+        }
+        else if(h < 3) {
+            r = 0;
+            g = 1;
+            b = t;
+        }
+        else if(h < 4) {
+            r = 0;
+            g = 1 - t;
+            b = 1;
+        }
+        else if(h < 5) {
+            r = t;
+            g = 0;
+            b = 1;
+        }
+        else if(h < 6) {
+            r = 1;
+            g = 0;
+            b = 1 - t;
+        }
+        else {
+            r = 1;
+            g = 0;
+            b = 0;
+        }
+        return [r, g, b];
     }
 
     setTempo() {
