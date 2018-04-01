@@ -45,7 +45,7 @@ const int pinBlue = 16;
 uint8_t ledMode = FLASH_MODE;
 unsigned long last_sent = 0;
 int local_time_offset = 1000;
-#define NB_OFFSETS (5)
+#define NB_OFFSETS (10)
 int local_time_offsets[NB_OFFSETS];
 uint8_t local_time_offset_idx = 0;
 
@@ -165,11 +165,8 @@ void readUART()
         }
         else
         {
-            if (abs(new_time_offset - local_time_offset) < 15) // remove outliers
-            {
-                local_time_offsets[local_time_offset_idx] = (new_time_offset + local_time_offset) / 2;
-                local_time_offset_idx = (local_time_offset_idx + 1) % NB_OFFSETS;
-            }
+            local_time_offsets[local_time_offset_idx] = new_time_offset;
+            local_time_offset_idx = (local_time_offset_idx + 1) % NB_OFFSETS;
         }
         Serial.print("[TIME] offsets: ");
         local_time_offset = 0;
