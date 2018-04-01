@@ -163,7 +163,7 @@ export class HomePage {
 
     private changeColor(r, g, b) {
         this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_COLOR, "" + r + "" + g + "" + b)
+            this.writeBLE(periph, SERVICE_COLOR, String.fromCharCode(r, g, b))
                 .then(data => {
                     console.log("success", data);
                 })

@@ -108,6 +108,9 @@ void readUART()
   unsigned long server_clock = 0;
   unsigned long new_time_offset = 0;
   unsigned long delay_transm = 0;
+  uint8_t r = 0;
+  uint8_t g = 0;
+  uint8_t b = 0;
   // Wait for new data to arrive
   uint16_t len = readPacket(&bleuart);
   if (len == 0) return;
@@ -145,10 +148,10 @@ void readUART()
     break;
   case COLOR:
     Serial.println("[SERVICE] COLOR");
-    uint8_t r = packetbuffer[1] - '0';
-    uint8_t g = packetbuffer[2] - '0';
-    uint8_t b = packetbuffer[3] - '0';
-    led.setColor(r, g, b);
+    r = packetbuffer[1];
+    g = packetbuffer[2];
+    b = packetbuffer[3];
+    led.setRGB(r, g, b);
     Serial.print("[COLOR] ");
     Serial.print(r);
     Serial.print('-');
