@@ -196,7 +196,7 @@ void loop()
       led.switchOff();
       break;
     case ON_MODE:
-      led.white();
+      led.lightLED();
       break;
     case FLASH_MODE:
       led.flash(1000, 100);
