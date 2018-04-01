@@ -22,9 +22,10 @@ enum SpecialChars
 
 enum Services
 {
-  COLOR = 'C',
-  MODE  = 'M',
-  TIME  = 'T'
+  COLOR  = 'C',
+  MODE   = 'M',
+  TIME   = 'S',
+  TEMPO  = 'T'
 };
 
 enum LEDMode
@@ -111,6 +112,7 @@ void readUART()
   uint8_t r = 0;
   uint8_t g = 0;
   uint8_t b = 0;
+  uint8_t tempo = 0;
   // Wait for new data to arrive
   uint16_t len = readPacket(&bleuart);
   if (len == 0) return;
@@ -159,6 +161,13 @@ void readUART()
     Serial.print('-');
     Serial.print(b);
     break;
+  case TEMPO:
+    Serial.println("[SERVICE] TEMPO");
+    tempo = packetbuffer[1];
+    led.setTempo(tempo);
+    Serial.print("[TEMPO] ");
+    Serial.println(tempo);
+    break;
   default:
     Serial.println("[SERVICE] unknown");  
     delay(1000);  
@@ -168,7 +177,8 @@ void readUART()
 
 void sendUART()
 {
-  char str[5] = "#TR!";
+  char str[5] = "#-R!";
+  str[1] = TIME;
   
   if(millis() - last_sent > 10000) // every 10 seconds
   {
@@ -199,10 +209,10 @@ void loop()
       led.lightLED();
       break;
     case FLASH_MODE:
-      led.flash(1000, 100);
+      led.flash();
       break;
     case PULSE_MODE:
-      led.pulse(1000);
+      led.pulse();
       break;
     case HUE_FLOW:
       led.hueFlow();

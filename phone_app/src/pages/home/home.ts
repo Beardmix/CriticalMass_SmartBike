@@ -12,7 +12,8 @@ const CHAR_START = '#'
 const CHAR_END = '!'
 const SERVICE_COLOR = 'C';
 const SERVICE_MODE = 'M';
-const SERVICE_TIME_SERVER = 'T';
+const SERVICE_TEMPO = 'T';
+const SERVICE_TIME_SERVER = 'S';
 const SERVICE_TIME_SERVER_REQUEST = 'R';
 
 class Periph {
@@ -34,6 +35,7 @@ export class HomePage {
     listPeriphs: Periph[] = [];
     listConnectedPeriphs: Periph[] = [];
     d_start_app: number = 0;
+    tempo: number = 60;
 
     constructor(public navCtrl: NavController, private ble: BLE) {
         this.d_start_app = new Date().getTime(); // "now"
@@ -98,6 +100,20 @@ export class HomePage {
                 this.listConnectedPeriphs.push(periph);
                 this.startTimeNotification(periph);
                 this.removePeriphFromList(this.listPeriphs, periph);
+                this.writeBLE(periph, SERVICE_MODE, "4") // sets default mode as hue flow
+                    .then(data => {
+                        console.log("success", data);
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    });
+                this.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
+                    .then(data => {
+                        console.log("success", data);
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    })
             },
             error => {
                 console.log("error", error);
@@ -159,6 +175,19 @@ export class HomePage {
     setColor(r, g, b) {
         console.log("changeColor", r, g, b);
         this.changeColor(r, g, b);
+    }
+
+    setTempo() {
+        console.log("changeTempo", this.tempo);
+        this.listConnectedPeriphs.forEach(periph => {
+            this.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+        });
     }
 
     private changeColor(r, g, b) {

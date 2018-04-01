@@ -13,6 +13,7 @@ public:
   int valBlue;
 
   unsigned long time_offset = 0;
+  float period_ms = 1000;
   
   void configure(int pinRed, int pinGreen, int pinBlue, int pinDebug) {
     ledRed = pinRed;
@@ -41,9 +42,9 @@ public:
     setRGB(random(256), random(256), random(256));
   }
 
-  void pulse(float period_ms)
+  void pulse()
   {
-    int intensity = (sin(3.1415f * (float)(global_millis()) / period_ms) + 1.0f) * 127;
+    int intensity = (sin(3.1415f * 2 * (float)(global_millis()) / period_ms) + 1.0f) * 127;
     int valR = 0;
     int valG = 0;
     int valB = 0;
@@ -58,9 +59,10 @@ public:
     analogWrite(ledBlue, valB);
   }
 
-  void flash(unsigned int period_ms, float max_duration_ms)
+  void flash()
   {
-    if(global_millis() % period_ms < max_duration_ms)
+    float max_duration_ms = period_ms / 10;
+    if(global_millis() % (int)period_ms < max_duration_ms)
     {
       int valR = 0;
       int valG = 0;
@@ -116,12 +118,11 @@ public:
 
   void hueFlow()
   {
-    float period_ms = 2000;
     int intensity = 255;
     
-    int valR = (sin(3.1415f * global_millis() / period_ms) + 1.0f) * 127;
-    int valG = (sin(3.1415f * global_millis() / period_ms + 3.1415f / 3.0f) + 1.0f) * 127;
-    int valB = (sin(3.1415f * global_millis() / period_ms + 2.0f * 3.1415f / 3.0f) + 1.0f) * 127;
+    int valR = (sin(3.1415f * global_millis() / (2 * period_ms)) + 1.0f) * 127;
+    int valG = (sin(3.1415f * global_millis() / (2 * period_ms) + 3.1415f / 3.0f) + 1.0f) * 127;
+    int valB = (sin(3.1415f * global_millis() / (2 * period_ms) + 2.0f * 3.1415f / 3.0f) + 1.0f) * 127;
       
     valR = map(valR, 0, 255, 0, intensity);
     valG = map(valG, 0, 255, 0, intensity);
@@ -136,6 +137,10 @@ public:
   void setTimeOffset(unsigned long offset)
   {
     time_offset = offset;
+  }
+
+  void setTempo(uint8_t tempo) {
+    period_ms = 60000.0f / (float)tempo;
   }
 
 private:

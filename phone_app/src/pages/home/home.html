@@ -47,7 +47,7 @@
             <ion-row>
                 <ion-col>
                     <button ion-button block icon-left color="danger" (click)="flash()">
-                        <ion-icon name="md-pulse"></ion-icon>Flash
+                        <ion-icon name="md-sunny"></ion-icon>Flash
                     </button>
                 </ion-col>
                 <ion-col>
@@ -82,6 +82,22 @@
                 </ion-col>
                 <ion-col>
                     <button ion-button round (click)="setColor(0, 0, 255)"></button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </ion-card>
+    <ion-card>
+        <ion-card-header>
+            Tempo
+            <ion-badge item-end>{{ tempo }}</ion-badge>
+        </ion-card-header>
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <ion-range min="30" max="180" debounce="500" (ionChange)="setTempo()" [(ngModel)]="tempo">
+                        <ion-icon range-left small name="md-pulse"></ion-icon>
+                        <ion-icon range-right name="md-pulse"></ion-icon>
+                    </ion-range>
                 </ion-col>
             </ion-row>
         </ion-grid>
