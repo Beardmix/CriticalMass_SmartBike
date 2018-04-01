@@ -34,7 +34,6 @@ export class HomePage {
 
     listPeriphs: Periph[] = [];
     listConnectedPeriphs: Periph[] = [];
-    d_start_app: number = 0;
     tempo: number = 60;
     hue = 0;
     brightness = 100;
@@ -42,7 +41,6 @@ export class HomePage {
     hexcolor = "rgb(255,0,0)";
 
     constructor(public navCtrl: NavController, private ble: BLE) {
-        this.d_start_app = new Date().getTime(); // "now"
         this.scan();
     }
 
@@ -104,13 +102,6 @@ export class HomePage {
                 this.listConnectedPeriphs.push(periph);
                 this.startTimeNotification(periph);
                 this.removePeriphFromList(this.listPeriphs, periph);
-                this.writeBLE(periph, SERVICE_MODE, "4") // sets default mode as hue flow
-                    .then(data => {
-                        console.log("success", data);
-                    })
-                    .catch(err => {
-                        console.log("error", err);
-                    });
                 this.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
                     .then(data => {
                         console.log("success", data);
@@ -136,8 +127,7 @@ export class HomePage {
                     if (this.isService(string_received, SERVICE_TIME_SERVER)) {
                         var payload = this.getPayload(string_received);
                         if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
-                            var now = new Date().getTime(); // "now"
-                            var reply = Math.abs(now - this.d_start_app); // Time since app start in milliseconds
+                            var reply = (new Date()).getMilliseconds(); // Time milliseconds
                             this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
                                 .then(data => {
                                     console.log("success", data);

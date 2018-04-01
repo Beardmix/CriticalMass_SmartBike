@@ -42,9 +42,12 @@ const int pinRed = 11;
 const int pinGreen = 27;
 const int pinBlue = 16;
   
-uint8_t ledMode = OFF_MODE;
+uint8_t ledMode = FLASH_MODE;
 unsigned long last_sent = 0;
-unsigned long local_time_offset = 0;
+int local_time_offset = 1000;
+#define NB_OFFSETS (5)
+int local_time_offsets[NB_OFFSETS];
+uint8_t local_time_offset_idx = 0;
 
 CtrlLED led;
 BLEUart bleuart;
@@ -106,9 +109,11 @@ void startAdv(void)
 
 void readUART()
 {
-  unsigned long server_clock = 0;
-  unsigned long new_time_offset = 0;
-  unsigned long delay_transm = 0;
+  int server_clock_ms = 0;
+  int local_clock_ms = 0;
+  unsigned long local_clock = 0;
+  int new_time_offset = 0;
+  unsigned int delay_transm = 0;
   uint8_t r = 0;
   uint8_t g = 0;
   uint8_t b = 0;
@@ -128,19 +133,54 @@ void readUART()
     Serial.print("[TIME] server clock [ms]: ");
     for(uint16_t i = 0; i < (len - 1); i++)
     {
-      server_clock += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
+      server_clock_ms += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
     }
-    Serial.println(server_clock);
-    new_time_offset = server_clock - (last_sent + millis()) / 2;
-    if(abs(new_time_offset - local_time_offset) > delay_transm * 2)
+    Serial.println(server_clock_ms);
+    local_clock = (last_sent + millis()) / 2;
+    local_clock_ms = 1000 * ((local_clock) / 1000.0 - int((local_clock) / 1000.0));
+    Serial.print("[TIME] local clock [ms]: ");
+    Serial.println(local_clock_ms);
+    new_time_offset = server_clock_ms - local_clock_ms;
+    if(abs(new_time_offset) >= 500)
     {
-      local_time_offset = new_time_offset;
+        if(new_time_offset > 0)
+        {
+            new_time_offset = new_time_offset - 999;
+        }
+        else
+        {
+            new_time_offset = 999 + new_time_offset;
+        }
+    }
+    Serial.print("[TIME] new offset: ");
+    Serial.println(new_time_offset);
+    if(local_time_offset == 1000) // first synchronisation
+    {
+      for(uint8_t i = 0; i < NB_OFFSETS; i++)
+      {
+        local_time_offsets[i] = new_time_offset;
+      }
+      ledMode = PULSE_MODE;
     }
     else
     {
-      local_time_offset = (local_time_offset + new_time_offset) / 2;
+      if(abs(new_time_offset - local_time_offset) < 15) // remove outliers
+      {
+        local_time_offsets[local_time_offset_idx] = (new_time_offset + local_time_offset) / 2;
+        local_time_offset_idx = (local_time_offset_idx + 1) % NB_OFFSETS;
+      }
     }
+    Serial.print("[TIME] offsets: ");
+    local_time_offset = 0;
+    for(uint8_t i = 0; i < NB_OFFSETS; i++)
+    {
+      local_time_offset += local_time_offsets[i];
+      Serial.print(local_time_offsets[i]);
+      Serial.print("|");
+    }
+    local_time_offset = local_time_offset / NB_OFFSETS;
     led.setTimeOffset(local_time_offset);
+    Serial.println(local_time_offset);
     break;
   case MODE:
     Serial.println("[SERVICE] MODE");

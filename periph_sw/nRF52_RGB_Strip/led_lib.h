@@ -12,7 +12,7 @@ public:
   int valGreen;
   int valBlue;
 
-  unsigned long time_offset = 0;
+  int time_offset = 0;
   float period_ms = 1000;
   
   void configure(int pinRed, int pinGreen, int pinBlue, int pinDebug) {
@@ -134,7 +134,7 @@ public:
     analogWrite(ledBlue, valB);
   }
 
-  void setTimeOffset(unsigned long offset)
+  void setTimeOffset(int offset)
   {
     time_offset = offset;
   }
