@@ -1,7 +1,7 @@
 <ion-header>
     <ion-navbar>
         <ion-title>
-            Ionic Blank
+            Critical Mass
         </ion-title>
     </ion-navbar>
 </ion-header>
@@ -12,30 +12,78 @@
             Devices
             <ion-badge item-end>{{ listConnectedPeriphs.length }}</ion-badge>
         </ion-card-header>
-        <button ion-button block color="light" (click)="connectAll()">Connect</button>
-        <button ion-button block color="light" (click)="disconnectAll()">Disconnect</button>
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="connectAll()">
+                        <ion-icon name="md-lock"></ion-icon>Connect
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="disconnectAll()">
+                        <ion-icon name="md-unlock"></ion-icon>Disconnect
+                    </button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     </ion-card>
     <ion-card>
         <ion-card-header>
             Modes
         </ion-card-header>
-        <ion-list>
-            <button ion-button block color="dark"      (click)="switchOff()">Off</button>
-            <button ion-button block color="light"     (click)="switchOn()">On</button>
-            <button ion-button block color="danger"    (click)="flash()">Flash</button>
-            <button ion-button block color="secondary" (click)="pulse()">Pulse</button>
-            <button ion-button block                   (click)="hueFlow()">Hue Flow</button>
-        </ion-list>
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <button ion-button block icon-left color="dark" (click)="switchOff()">
+                        <ion-icon name="md-power"></ion-icon>Off
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="switchOn()">
+                        <ion-icon name="md-bulb"></ion-icon>On
+                    </button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <button ion-button block icon-left color="danger" (click)="flash()">
+                        <ion-icon name="md-pulse"></ion-icon>Flash
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="secondary" (click)="pulse()">
+                        <ion-icon name="md-infinite"></ion-icon>Pulse
+
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left (click)="hueFlow()">
+                        <ion-icon name="md-refresh"></ion-icon>Hue Flow
+
+                    </button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     </ion-card>
     <ion-card>
         <ion-card-header>
-            Color 
+            Color
         </ion-card-header>
-        <ion-list>
-            <button ion-button round color="light"     (click)="setColor(255, 255, 255)"></button>
-            <button ion-button round color="danger"    (click)="setColor(255, 0, 0)"></button>
-            <button ion-button round color="secondary" (click)="setColor(0, 255, 0)"></button>
-            <button ion-button round                   (click)="setColor(0, 0, 255)"></button>
-        </ion-list>
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <button ion-button round color="light" (click)="setColor(255, 255, 255)"></button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button round color="danger" (click)="setColor(255, 0, 0)"></button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button round color="secondary" (click)="setColor(0, 255, 0)"></button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button round (click)="setColor(0, 0, 255)"></button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     </ion-card>
 </ion-content>
