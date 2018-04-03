@@ -46,7 +46,8 @@ uint8_t ledMode = FLASH_MODE;
 unsigned long last_sent = 0;
 int local_time_offset = 1000;
 #define NB_OFFSETS (10)
-int local_time_offsets[NB_OFFSETS];
+unsigned int local_time_offsets[NB_OFFSETS];
+unsigned int local_time_delays[NB_OFFSETS];
 uint8_t local_time_offset_idx = 0;
 
 CtrlLED led;
@@ -109,10 +110,10 @@ void startAdv(void)
 
 void readUART()
 {
-    int server_clock_ms = 0;
-    int local_clock_ms = 0;
+    unsigned int server_clock_ms = 0;
+    unsigned int local_clock_ms = 0;
     unsigned long local_clock = 0;
-    int new_time_offset = 0;
+    unsigned int new_time_offset = 0;
     unsigned int delay_transm = 0;
     uint8_t r = 0;
     uint8_t g = 0;
@@ -127,8 +128,9 @@ void readUART()
     switch (packetbuffer[0])
     {
     case TIME:
-        Serial.println("[SERVICE] TIME");
+        local_clock = (last_sent + millis()) / 2;
         delay_transm = (millis() - last_sent) / 2;
+        Serial.println("[SERVICE] TIME");
         Serial.print("[TIME] Delay [ms]: ");
         Serial.println(delay_transm);
         Serial.print("[TIME] server clock [ms]: ");
@@ -137,21 +139,14 @@ void readUART()
             server_clock_ms += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
         }
         Serial.println(server_clock_ms);
-        local_clock = (last_sent + millis()) / 2;
         local_clock_ms = 1000 * ((local_clock) / 1000.0 - int((local_clock) / 1000.0));
         Serial.print("[TIME] local clock [ms]: ");
         Serial.println(local_clock_ms);
         new_time_offset = server_clock_ms - local_clock_ms;
-        if (abs(new_time_offset) >= 500)
+        new_time_offset -= 1.04 * delay_transm; // it seems that there is a correlation between the offset and the delay
+        if (new_time_offset < 0)
         {
-            if (new_time_offset > 0)
-            {
-                new_time_offset = new_time_offset - 999;
-            }
-            else
-            {
-                new_time_offset = 999 + new_time_offset;
-            }
+            new_time_offset = 999 + new_time_offset;
         }
         Serial.print("[TIME] new offset: ");
         Serial.println(new_time_offset);
@@ -160,14 +155,23 @@ void readUART()
             for (uint8_t i = 0; i < NB_OFFSETS; i++)
             {
                 local_time_offsets[i] = new_time_offset;
+                local_time_delays[i] = delay_transm;
             }
             ledMode = PULSE_MODE;
         }
         else
         {
             local_time_offsets[local_time_offset_idx] = new_time_offset;
+            local_time_delays[local_time_offset_idx] = delay_transm;
             local_time_offset_idx = (local_time_offset_idx + 1) % NB_OFFSETS;
         }
+        Serial.print("[TIME]  delays: ");
+        for (uint8_t i = 0; i < NB_OFFSETS; i++)
+        {
+            Serial.print(local_time_delays[i]);
+            Serial.print("|");
+        }
+        Serial.println("");
         Serial.print("[TIME] offsets: ");
         local_time_offset = 0;
         for (uint8_t i = 0; i < NB_OFFSETS; i++)
