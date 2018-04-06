@@ -1,13 +1,27 @@
 <ion-header>
     <ion-navbar>
-        <ion-title>
-            Critical Mass
-        </ion-title>
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <ion-badge item-end>{{ listConnectedPeriphs.length }}</ion-badge>
+                </ion-col>
+                <ion-col>
+                    <button ion-button icon-left color="light" (click)="connectAll()">
+                        <ion-icon name="md-lock"></ion-icon>
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button icon-left color="light" (click)="disconnectAll()">
+                        <ion-icon name="md-unlock"></ion-icon>
+                    </button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     </ion-navbar>
 </ion-header>
 
-<ion-content padding>
-    <ion-card>
+<ion-content>
+    <!-- <ion-card>
         <ion-card-header>
             Devices
             <ion-badge item-end>{{ listConnectedPeriphs.length }}</ion-badge>
@@ -26,11 +40,8 @@
                 </ion-col>
             </ion-row>
         </ion-grid>
-    </ion-card>
+    </ion-card> -->
     <ion-card>
-        <ion-card-header>
-            Modes
-        </ion-card-header>
         <ion-grid>
             <ion-row>
                 <ion-col>
@@ -65,10 +76,7 @@
             </ion-row>
         </ion-grid>
     </ion-card>
-    <ion-card>
-        <ion-card-header>
-            Color
-        </ion-card-header>
+    <ion-card> 
         <ion-grid>
             <ion-row>
                 <ion-chip id="color-preview" [ngStyle]="{'background-color': hexcolor}">

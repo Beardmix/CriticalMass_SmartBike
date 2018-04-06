@@ -37,8 +37,13 @@ export class HomePage {
     tempo: number = 60;
     hue = 0;
     brightness = 100;
-    saturation = 100;
-    hexcolor = "rgb(255,0,0)";
+    saturation = 0;
+    hexcolor = "rgb(255,255,255)";
+    r = 255;
+    g = 255;
+    b = 255;
+    timeoutID = -1;
+
 
     constructor(public navCtrl: NavController, private ble: BLE) {
         this.scan();
@@ -63,6 +68,17 @@ export class HomePage {
             });
     }
 
+    timeout()
+    {
+        if(this.timeoutID != -1)
+        {
+            clearTimeout(this.timeoutID);
+        }
+        this.timeoutID = setTimeout(() => {
+            this.disconnectAll();
+        }, 60000);
+    }
+
     connectAll() {
         this.ble.scan([], 5000).subscribe(
             periph => {
@@ -82,16 +98,15 @@ export class HomePage {
             });
     }
 
-    disconnectAll()
-    {
+    disconnectAll() {
         this.listConnectedPeriphs.forEach((periph, idx) => {
             this.ble.disconnect(periph.id)
-            .then(() => {
-                this.removePeriphFromList(this.listConnectedPeriphs, periph);
-            })
-            .catch(() => {
-                this.removePeriphFromList(this.listConnectedPeriphs, periph);
-            })
+                .then(() => {
+                    this.removePeriphFromList(this.listConnectedPeriphs, periph);
+                })
+                .catch(() => {
+                    this.removePeriphFromList(this.listConnectedPeriphs, periph);
+                })
         });
     }
 
@@ -102,13 +117,8 @@ export class HomePage {
                 this.listConnectedPeriphs.push(periph);
                 this.startTimeNotification(periph);
                 this.removePeriphFromList(this.listPeriphs, periph);
-                this.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
-                    .then(data => {
-                        console.log("success", data);
-                    })
-                    .catch(err => {
-                        console.log("error", err);
-                    })
+                this.changeTempo(periph);
+                this.changeColor(periph);
             },
             error => {
                 console.log("error", error);
@@ -135,6 +145,9 @@ export class HomePage {
                                 .catch(err => {
                                     console.log("error", err);
                                 })
+                            setTimeout(() => {
+                                this.changeTempo(periph);
+                            }, 2000);
                         }
                     }
                 }
@@ -148,28 +161,38 @@ export class HomePage {
 
     switchOff() {
         console.log("switchOff");
-        this.changeMode("0");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph, "0");
+        });
     }
     switchOn() {
         console.log("switchOn");
-        this.changeMode("1");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph, "1");
+        });
     }
     flash() {
         console.log("flash");
-        this.changeMode("2");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph, "2");
+        });
     }
     pulse() {
         console.log("pulse");
-        this.changeMode("3");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph, "3");
+        });
     }
     hueFlow() {
         console.log("hueFlow");
-        this.changeMode("4");
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph, "4");
+        });
     }
     setColor() {
         var rgb = this.hue2rgb(this.hue);
         var r = rgb[0];
-        var g = rgb[1]; 
+        var g = rgb[1];
         var b = rgb[2];
         var max_val = Math.max(r, g, b);
         r = r + (max_val - r) * (100 - this.saturation) / 100.0;
@@ -178,47 +201,46 @@ export class HomePage {
         r = r * this.brightness / 100.0;
         g = g * this.brightness / 100.0;
         b = b * this.brightness / 100.0;
-        r = Math.round(r * 255);
-        g = Math.round(g * 255);
-        b = Math.round(b * 255);
-        console.log("changeColor", r, g, b);
-        this.changeColor(r, g, b);
-        this.hexcolor = "rgb(" + r + "," + g + "," + b + ")";
-        
-        // var rgb = this.hue2rgb();
-        // console.log("changeColor", rgb[0], rgb[1], rgb[2]);
-        // this.changeColor(rgb[0], rgb[1], rgb[2]);
+        this.r = Math.round(r * 255);
+        this.g = Math.round(g * 255);
+        this.b = Math.round(b * 255);
+        console.log("changeColor", this.r, this.g, this.b);
+
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeColor(periph);
+        });
+        this.hexcolor = "rgb(" + this.r + "," + this.g + "," + this.b + ")";
     }
-    private hue2rgb(h){
+    private hue2rgb(h) {
         var r, g, b;
         h = h / 60.0;
         var t = h - Math.floor(h);
-        if(h < 1) {
+        if (h < 1) {
             r = 1;
             g = t;
             b = 0;
         }
-        else if(h < 2) {
+        else if (h < 2) {
             r = 1 - t;
             g = 1;
             b = 0;
         }
-        else if(h < 3) {
+        else if (h < 3) {
             r = 0;
             g = 1;
             b = t;
         }
-        else if(h < 4) {
+        else if (h < 4) {
             r = 0;
             g = 1 - t;
             b = 1;
         }
-        else if(h < 5) {
+        else if (h < 5) {
             r = t;
             g = 0;
             b = 1;
         }
-        else if(h < 6) {
+        else if (h < 6) {
             r = 1;
             g = 0;
             b = 1 - t;
@@ -234,38 +256,38 @@ export class HomePage {
     setTempo() {
         console.log("changeTempo", this.tempo);
         this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
-                .then(data => {
-                    console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                })
+            this.changeTempo(periph);
         });
     }
 
-    private changeColor(r, g, b) {
-        this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_COLOR, String.fromCharCode(r, g, b))
-                .then(data => {
-                    console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                })
-        });
+    private changeTempo(periph) {
+        this.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
+            .then(data => {
+                console.log("success", data);
+            })
+            .catch(err => {
+                console.log("error", err);
+            })
     }
 
-    private changeMode(code_mode) {
-        this.listConnectedPeriphs.forEach(periph => {
-            this.writeBLE(periph, SERVICE_MODE, code_mode)
-                .then(data => {
-                    console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                })
-        });
+    private changeColor(periph) {
+        this.writeBLE(periph, SERVICE_COLOR, String.fromCharCode(this.r, this.g, this.b))
+            .then(data => {
+                console.log("success", data);
+            })
+            .catch(err => {
+                console.log("error", err);
+            })
+    }
+
+    private changeMode(periph, code_mode) {
+        this.writeBLE(periph, SERVICE_MODE, code_mode)
+            .then(data => {
+                console.log("success", data);
+            })
+            .catch(err => {
+                console.log("error", err);
+            })
     }
 
     private writeBLE(periph: Periph, service: string, message: string) {
@@ -314,8 +336,7 @@ export class HomePage {
         return String.fromCharCode.apply(null, new Uint8Array(buffer));
     }
 
-    private removePeriphFromList(list, periph)
-    {
+    private removePeriphFromList(list, periph) {
         var index = -1;
         list.forEach((periphlist, idx) => {
             if (periph.id == periphlist.id) {

@@ -38,14 +38,14 @@ enum LEDMode
 };
 
 const int pinDebug = LED_BUILTIN;
-const int pinRed = 11;
-const int pinGreen = 27;
-const int pinBlue = 16;
+const int pinRed = 30;
+const int pinGreen = 31;
+const int pinBlue = 27;
 
 uint8_t ledMode = FLASH_MODE;
 unsigned long last_sent = 0;
 int local_time_offset = 1000;
-#define NB_OFFSETS (10)
+#define NB_OFFSETS (5)
 unsigned int local_time_offsets[NB_OFFSETS];
 unsigned int local_time_delays[NB_OFFSETS];
 uint8_t local_time_offset_idx = 0;
@@ -143,7 +143,7 @@ void readUART()
         Serial.print("[TIME] local clock [ms]: ");
         Serial.println(local_clock_ms);
         new_time_offset = server_clock_ms - local_clock_ms;
-        new_time_offset -= 1.04 * delay_transm; // it seems that there is a correlation between the offset and the delay
+        // new_time_offset -= 1.04 * delay_transm; // it seems that there is a correlation between the offset and the delay
         if (new_time_offset < 0)
         {
             new_time_offset = 999 + new_time_offset;
