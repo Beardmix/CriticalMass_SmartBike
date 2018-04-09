@@ -167,7 +167,7 @@ void sendUART()
     char payload[8] = "#-R000!";
     payload[1] = TIME;
 
-    if (millis() - last_sent > 10000) // every 10 seconds
+    if (millis() - last_sent > 10000 || last_sent == 0) // every 10 seconds
     {
         last_sent = millis();
         int globalTimerModulusMs = led.getGlobalTimerModulusMs() % 1000;
