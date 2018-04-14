@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
 import { BLE } from '@ionic-native/ble';
@@ -45,7 +45,10 @@ export class HomePage {
     timeoutID = -1;
 
 
-    constructor(public navCtrl: NavController, private ble: BLE) {
+    constructor(public navCtrl: NavController,
+                private ble: BLE,
+                private zone: NgZone, // UI updated when wrapped up in this.zone.run().
+                ) {
         this.scan();
     }
 
