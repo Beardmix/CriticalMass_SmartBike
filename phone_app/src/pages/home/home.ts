@@ -117,7 +117,9 @@ export class HomePage {
         this.ble.connect(periph.id).subscribe(
             data => {
                 console.log("connected", data);
-                this.listConnectedPeriphs.push(periph);
+                this.zone.run(() => {
+                  this.listConnectedPeriphs.push(periph);
+                });
                 this.startTimeNotification(periph);
                 this.removePeriphFromList(this.listPeriphs, periph);
                 this.changeTempo(periph);

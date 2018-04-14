@@ -3,7 +3,9 @@
         <ion-grid>
             <ion-row>
                 <ion-col>
-                    <ion-badge item-end>{{ listConnectedPeriphs.length }}</ion-badge>
+                    <ion-icon name="bicycle" style="zoom:2.0;" icon-right>
+                        <ion-badge>{{ listConnectedPeriphs.length }}</ion-badge>
+                    </ion-icon>
                 </ion-col>
                 <ion-col>
                     <button ion-button icon-left color="light" (click)="connectAll()">
