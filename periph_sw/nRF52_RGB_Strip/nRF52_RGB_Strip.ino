@@ -219,8 +219,8 @@ void readUART()
 
 void sendUART()
 {
-    char str[5] = "#-R!";
-    str[1] = TIME;
+    char payload[8] = "#-R000!";
+    payload[1] = TIME;
 
     if (millis() - last_sent > 10000) // every 10 seconds
     {
@@ -228,10 +228,23 @@ void sendUART()
         Serial.println(global_millis());
         last_sent = millis();
 
+        int globalTimerModulusMs = led.getGlobalTimerModulusMs() % 1000;
+        //Serial.print("globalTimerModulusMs: " );
+        //Serial.println(globalTimerModulusMs);
+        
+        // Write %100 ms.
+        int u = globalTimerModulusMs % 10;
+        int d = (globalTimerModulusMs / 10) % 10;
+        int c = (globalTimerModulusMs / 100) % 10;
+        
+        payload[3] = c + '0';
+        payload[4] = d + '0';
+        payload[5] = u + '0';
+        
         // Forward data from our peripheral to Mobile
         Serial.print("Sending: ");
-        Serial.println(str);
-        bleuart.print(str);
+        Serial.println(payload);
+        bleuart.print(payload);
     }
 }
 

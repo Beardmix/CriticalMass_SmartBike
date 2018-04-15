@@ -145,6 +145,11 @@ class CtrlLED
     {
         period_ms = 60000.0f / (float)tempo;
     }
+    
+    int getGlobalTimerModulusMs()
+    {
+        return global_millis() % 1000;
+    }
 
   private:
     unsigned long global_millis()
