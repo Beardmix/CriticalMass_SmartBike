@@ -19,6 +19,7 @@ const SERVICE_TIME_SERVER_REQUEST = 'R';
 class Periph {
     name: string = "";
     id: string = "";
+    globalTimerModulusMs;
 
     constructor(id, name) {
         this.id = id;
@@ -34,6 +35,7 @@ export class HomePage {
 
     listPeriphs: Periph[] = [];
     listConnectedPeriphs: Periph[] = [];
+    displayConnectedPeriphs: boolean = false; // Display the list of connected devices with their properties.
     tempo: number = 60;
     hue = 0;
     brightness = 100;
@@ -142,6 +144,12 @@ export class HomePage {
                     if (this.isService(string_received, SERVICE_TIME_SERVER)) {
                         var payload = this.getPayload(string_received);
                         if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
+                            if (payload.length >= 3) {
+                                this.zone.run(() => {
+                                    periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
+                                });
+                            }
+                          
                             var reply = (new Date()).getMilliseconds(); // Time milliseconds
                             this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
                                 .then(data => {
@@ -325,6 +333,13 @@ export class HomePage {
         return ((string_received[0] == CHAR_START) && (string_received[string_received.length - 1] == CHAR_END));
     }
 
+    /*
+    *   Buttons actions.
+    */
+    public displayConnectedPeriphsClick() {
+        this.displayConnectedPeriphs = !this.displayConnectedPeriphs;
+    }
+    
     // ASCII only
     private stringToBytes(string) {
         var array = new Uint8Array(string.length);

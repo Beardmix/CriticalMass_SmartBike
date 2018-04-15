@@ -3,7 +3,7 @@
         <ion-grid>
             <ion-row>
                 <ion-col>
-                    <ion-icon name="bicycle" style="zoom:2.0;" icon-right>
+                    <ion-icon name="bicycle" style="zoom:2.0;" icon-right (click)="displayConnectedPeriphsClick()">
                         <ion-badge>{{ listConnectedPeriphs.length }}</ion-badge>
                     </ion-icon>
                 </ion-col>
@@ -23,6 +23,19 @@
 </ion-header>
 
 <ion-content>
+    <ion-card *ngIf="true == displayConnectedPeriphs">
+        <ng-container *ngIf="listConnectedPeriphs?.length > 0">
+            <ion-list *ngFor="let periph of listConnectedPeriphs">
+                <ion-item>
+                    <ion-icon name="bicycle" item-start></ion-icon>
+                    <h2>Name: {{ periph.name }}</h2>
+                    <h3>Id: {{ periph.id }}</h3>
+                    <h3>Ms: {{ periph.globalTimerModulusMs }}</h3>
+                </ion-item>
+            </ion-list>
+        </ng-container>
+        <h2 *ngIf="listConnectedPeriphs?.length == 0">No connected devices.</h2>
+    </ion-card>
     <!-- <ion-card>
         <ion-card-header>
             Devices
