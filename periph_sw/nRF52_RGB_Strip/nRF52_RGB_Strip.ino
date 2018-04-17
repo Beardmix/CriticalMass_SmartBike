@@ -25,6 +25,7 @@ enum Services
     COLOR = 'C',
     MODE = 'M',
     TIME = 'S',
+    TIME_ADJUST = 'A',
     TEMPO = 'T'
 };
 
@@ -37,6 +38,8 @@ enum LEDMode
     HUE_FLOW = '4'
 };
 
+bool debug = true;
+
 const int pinDebug = LED_BUILTIN;
 const int pinRed = 30;
 const int pinGreen = 31;
@@ -44,12 +47,10 @@ const int pinBlue = 27;
 
 uint8_t ledMode = FLASH_MODE;
 unsigned long last_sent = 0;
-int local_time_offset = 1000;
-#define NB_OFFSETS (5)
-unsigned int local_time_offsets[NB_OFFSETS];
-unsigned int local_time_delays[NB_OFFSETS];
-uint8_t local_time_offset_idx = 0;
-
+long local_time_offset = 0;
+unsigned long server_clock_ms = 0;
+unsigned long server_clock_adjust_ms = 0xFFFF;
+    
 CtrlLED led;
 BLEUart bleuart;
 
@@ -61,16 +62,11 @@ void printHex(const uint8_t *data, const uint32_t numBytes);
 // Packet buffer
 extern uint8_t packetbuffer[];
 
-unsigned long global_millis()
-{
-    return millis() + local_time_offset;
-}
-
 void setup()
 {
     Serial.begin(115200);
 
-    Serial.println("--- Peripheral---\n");
+    //Serial.println("--- Peripheral---\n");
 
     Bluefruit.begin();
     Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
@@ -110,11 +106,6 @@ void startAdv(void)
 
 void readUART()
 {
-    unsigned int server_clock_ms = 0;
-    unsigned int local_clock_ms = 0;
-    unsigned long local_clock = 0;
-    unsigned int new_time_offset = 0;
-    unsigned int delay_transm = 0;
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0;
@@ -128,87 +119,41 @@ void readUART()
     switch (packetbuffer[0])
     {
     case TIME:
-        local_clock = (last_sent + millis()) / 2;
-        delay_transm = (millis() - last_sent) / 2;
-        Serial.println("[SERVICE] TIME");
-        Serial.print("[TIME] Delay [ms]: ");
-        Serial.println(delay_transm);
-        Serial.print("[TIME] server clock [ms]: ");
+        server_clock_ms = 0;
         for (uint16_t i = 0; i < (len - 1); i++)
         {
             server_clock_ms += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
         }
-        Serial.println(server_clock_ms);
-        local_clock_ms = 1000 * ((local_clock) / 1000.0 - int((local_clock) / 1000.0));
-        Serial.print("[TIME] local clock [ms]: ");
-        Serial.println(local_clock_ms);
-        new_time_offset = server_clock_ms - local_clock_ms;
-        // new_time_offset -= 1.04 * delay_transm; // it seems that there is a correlation between the offset and the delay
-        if (new_time_offset < 0)
+        local_time_offset = server_clock_ms;
+        break;
+    case TIME_ADJUST:
+        // First sync.
+        if (0xFFFF == server_clock_adjust_ms)
         {
-            new_time_offset = 999 + new_time_offset;
-        }
-        Serial.print("[TIME] new offset: ");
-        Serial.println(new_time_offset);
-        if (local_time_offset == 1000) // first synchronisation
-        {
-            for (uint8_t i = 0; i < NB_OFFSETS; i++)
-            {
-                local_time_offsets[i] = new_time_offset;
-                local_time_delays[i] = delay_transm;
-            }
             ledMode = PULSE_MODE;
         }
-        else
+    
+        server_clock_adjust_ms = 0;
+        for (uint16_t i = 0; i < (len - 1); i++)
         {
-            local_time_offsets[local_time_offset_idx] = new_time_offset;
-            local_time_delays[local_time_offset_idx] = delay_transm;
-            local_time_offset_idx = (local_time_offset_idx + 1) % NB_OFFSETS;
+            server_clock_adjust_ms += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
         }
-        Serial.print("[TIME]  delays: ");
-        for (uint8_t i = 0; i < NB_OFFSETS; i++)
-        {
-            Serial.print(local_time_delays[i]);
-            Serial.print("|");
-        }
-        Serial.println("");
-        Serial.print("[TIME] offsets: ");
-        local_time_offset = 0;
-        for (uint8_t i = 0; i < NB_OFFSETS; i++)
-        {
-            local_time_offset += local_time_offsets[i];
-            Serial.print(local_time_offsets[i]);
-            Serial.print("|");
-        }
-        local_time_offset = local_time_offset / NB_OFFSETS;
+        
+        local_time_offset += server_clock_adjust_ms;
         led.setTimeOffset(local_time_offset);
-        Serial.println(local_time_offset);
         break;
     case MODE:
-        Serial.println("[SERVICE] MODE");
         ledMode = packetbuffer[1];
-        Serial.print("[MODE] ");
-        Serial.println(ledMode);
         break;
     case COLOR:
-        Serial.println("[SERVICE] COLOR");
         r = packetbuffer[1];
         g = packetbuffer[2];
         b = packetbuffer[3];
         led.setRGB(r, g, b);
-        Serial.print("[COLOR] ");
-        Serial.print(r);
-        Serial.print('-');
-        Serial.print(g);
-        Serial.print('-');
-        Serial.print(b);
         break;
     case TEMPO:
-        Serial.println("[SERVICE] TEMPO");
         tempo = packetbuffer[1];
         led.setTempo(tempo);
-        Serial.print("[TEMPO] ");
-        Serial.println(tempo);
         break;
     default:
         Serial.println("[SERVICE] unknown");
@@ -224,15 +169,10 @@ void sendUART()
 
     if (millis() - last_sent > 10000) // every 10 seconds
     {
-        Serial.print("Local Time [ms]: ");
-        Serial.println(global_millis());
         last_sent = millis();
-
         int globalTimerModulusMs = led.getGlobalTimerModulusMs() % 1000;
-        //Serial.print("globalTimerModulusMs: " );
-        //Serial.println(globalTimerModulusMs);
         
-        // Write %100 ms.
+        // Write %1000 ms.
         int u = globalTimerModulusMs % 10;
         int d = (globalTimerModulusMs / 10) % 10;
         int c = (globalTimerModulusMs / 100) % 10;
@@ -242,8 +182,8 @@ void sendUART()
         payload[5] = u + '0';
         
         // Forward data from our peripheral to Mobile
-        Serial.print("Sending: ");
-        Serial.println(payload);
+        //Serial.print("Sending: ");
+        //Serial.println(payload);
         bleuart.print(payload);
     }
 }
@@ -273,7 +213,7 @@ void loop()
         led.hueFlow();
         break;
     default:
-        Serial.println("[MODE] unknown");
+        //Serial.println("[MODE] unknown");
         delay(2000);
         break;
     }

@@ -14,6 +14,7 @@ const SERVICE_COLOR = 'C';
 const SERVICE_MODE = 'M';
 const SERVICE_TEMPO = 'T';
 const SERVICE_TIME_SERVER = 'S';
+const SERVICE_TIME_SERVER_ADJUST = 'A';
 const SERVICE_TIME_SERVER_REQUEST = 'R';
 
 class Periph {
@@ -52,6 +53,7 @@ export class HomePage {
                 private zone: NgZone, // UI updated when wrapped up in this.zone.run().
                 ) {
         this.scan();
+        this.sendServerTime();
     }
 
     scan() {
@@ -145,22 +147,10 @@ export class HomePage {
                         var payload = this.getPayload(string_received);
                         if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
                             if (payload.length >= 3) {
-                                this.zone.run(() => {
+                                // this.zone.run(() => {
                                     periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
-                                });
+                                // });
                             }
-                          
-                            var reply = (new Date()).getMilliseconds(); // Time milliseconds
-                            this.writeBLE(periph, SERVICE_TIME_SERVER, "" + reply)
-                                .then(data => {
-                                    console.log("success", data);
-                                })
-                                .catch(err => {
-                                    console.log("error", err);
-                                })
-                            setTimeout(() => {
-                                this.changeTempo(periph);
-                            }, 2000);
                         }
                     }
                 }
@@ -171,6 +161,35 @@ export class HomePage {
             });
     }
 
+    sendServerTime() {
+        setInterval(() => {
+          var startTstamp = (new Date()).getTime(); // Time milliseconds
+          let devicesTstamp = [0, 0];
+          this.listConnectedPeriphs.forEach((periph, idx) => {
+            this.writeBLE(periph, SERVICE_TIME_SERVER, "" + (startTstamp % 1000))
+                .then(data => {
+                    devicesTstamp[idx] = (new Date()).getTime();
+                    // console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                });
+          });
+          
+          setTimeout(() => {
+              this.listConnectedPeriphs.forEach((periph, idx) => {
+                this.writeBLE(periph, SERVICE_TIME_SERVER_ADJUST, "" + (devicesTstamp[idx] - startTstamp))
+                    .then(data => {
+                        // console.log("success", data);
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    });
+                   periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
+              });
+          }, 500);
+        }, 4000);
+    }
 
     switchOff() {
         console.log("switchOff");

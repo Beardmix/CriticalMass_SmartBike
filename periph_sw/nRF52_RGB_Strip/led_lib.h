@@ -13,7 +13,7 @@ class CtrlLED
     int valGreen;
     int valBlue;
 
-    int time_offset = 0;
+    long time_offset = 0;
     float period_ms = 1000;
 
     void configure(int pinRed, int pinGreen, int pinBlue, int pinDebug)
@@ -136,9 +136,9 @@ class CtrlLED
         analogWrite(ledBlue, valB);
     }
 
-    void setTimeOffset(int offset)
+    void setTimeOffset(int utc_millis)
     {
-        time_offset = offset;
+        time_offset = utc_millis - millis() ;
     }
 
     void setTempo(uint8_t tempo)
