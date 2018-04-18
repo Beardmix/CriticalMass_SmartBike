@@ -76,6 +76,9 @@ export class HomePage {
     isAuto: boolean = false;
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
+    private NB_TAPS = 10;
+    private taps_idx = 0;
+    private taps = new Array(this.NB_TAPS);
 
     public colorsPresetsList: Color[] = [
         new Color(255, 0, 0), // red
@@ -251,6 +254,40 @@ export class HomePage {
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeTempo(periph);
         });
+    }
+
+    tapTempo(){
+        this.taps[this.taps_idx] = new Date().getTime();
+        this.taps_idx = (this.taps_idx + 1) % this.NB_TAPS;
+        var bpms = [];
+        for (var i = 1; i < this.NB_TAPS; i++) {
+            var delta = this.taps[i] - this.taps[i-1];
+            if(delta > 0 && delta < 5000)
+            {
+                var bpm = (60 * 1000) / delta;
+    
+                while (bpm < 60)
+                {
+                    bpm * 2;
+                }
+                while (bpm > 180)
+                {
+                    bpm / 2;
+                }
+                bpms.push(bpm);
+            }
+        }
+        if(bpms.length > 0)
+        {
+            var average = 0;
+            bpms.forEach((bpm) => {
+                average += bpm;
+            })
+            average = average / bpms.length;
+            this.tempo = average;
+            console.log(average);
+        }
+        
     }
 
     requestSettings(periph: Periph) {
