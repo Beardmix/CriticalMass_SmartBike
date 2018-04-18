@@ -17,6 +17,15 @@ const SERVICE_TIME_SERVER = 'S';
 const SERVICE_TIME_SERVER_ADJUST = 'A';
 const SERVICE_TIME_SERVER_REQUEST = 'R';
 
+var LEDMode = 
+{
+    OFF_MODE: '0',
+    ON_MODE: '1',
+    FLASH_MODE: '2',
+    PULSE_MODE: '3',
+    HUE_FLOW: '4'
+};
+
 class Periph {
     name: string = "";
     id: string = "";
@@ -45,6 +54,7 @@ export class HomePage {
     r = 255;
     g = 255;
     b = 255;
+    mode = LEDMode.OFF_MODE;
     intervalScanNewDevices_ID = -1;
     intervalScanNewDevices_ms = 20000;
     intervalSendServerTime_ID = -1;
@@ -126,10 +136,11 @@ export class HomePage {
                 this.zone.run(() => {
                     this.listConnectedPeriphs.push(periph);
                 });
-                this.startTimeNotification(periph);
+                this.startNotificationUART(periph);
                 this.removePeriphFromList(this.listPeriphs, periph);
                 this.changeTempo(periph);
                 this.changeColor(periph);
+                this.changeMode(periph);
             },
             error => {
                 console.log("error", error);
@@ -139,12 +150,14 @@ export class HomePage {
             });
     }
 
-    startTimeNotification(periph: Periph) {
+    startNotificationUART(periph: Periph) {
         this.ble.startNotification(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_RX)
             .subscribe((data) => {
+                // Data from the peripherique received
                 var string_received = this.bytesToString(data);
-
+    	        // The string received is valid
                 if (this.stringRecValid(string_received)) {
+                    // The string received is about the time service
                     if (this.isService(string_received, SERVICE_TIME_SERVER)) {
                         var payload = this.getPayload(string_received);
                         if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
@@ -195,32 +208,37 @@ export class HomePage {
 
     switchOff() {
         console.log("switchOff");
+        this.mode = LEDMode.OFF_MODE;
         this.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph, "0");
+            this.changeMode(periph);
         });
     }
     switchOn() {
         console.log("switchOn");
+        this.mode = LEDMode.ON_MODE;
         this.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph, "1");
+            this.changeMode(periph);
         });
     }
     flash() {
         console.log("flash");
+        this.mode = LEDMode.FLASH_MODE;
         this.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph, "2");
+            this.changeMode(periph);
         });
     }
     pulse() {
         console.log("pulse");
+        this.mode = LEDMode.PULSE_MODE;
         this.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph, "3");
+            this.changeMode(periph);
         });
     }
     hueFlow() {
         console.log("hueFlow");
+        this.mode = LEDMode.HUE_FLOW;
         this.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph, "4");
+            this.changeMode(periph);
         });
     }
     setColor() {
@@ -314,8 +332,8 @@ export class HomePage {
             })
     }
 
-    private changeMode(periph, code_mode) {
-        this.writeBLE(periph, SERVICE_MODE, code_mode)
+    private changeMode(periph) {
+        this.writeBLE(periph, SERVICE_MODE, this.mode)
             .then(data => {
                 console.log("success", data);
             })
