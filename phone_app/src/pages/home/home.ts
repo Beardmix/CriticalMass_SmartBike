@@ -45,15 +45,17 @@ export class HomePage {
     r = 255;
     g = 255;
     b = 255;
-    timeoutID = -1;
+    intervalScanNewDevices_ID = -1;
+    intervalScanNewDevices_ms = 20000;
+    intervalSendServerTime_ID = -1;
+    intervalSendServerTime_ms = 4000;
 
 
     constructor(public navCtrl: NavController,
-                private ble: BLE,
-                private zone: NgZone, // UI updated when wrapped up in this.zone.run().
-                ) {
+        private ble: BLE,
+        private zone: NgZone, // UI updated when wrapped up in this.zone.run().
+    ) {
         this.scan();
-        this.sendServerTime();
     }
 
     scan() {
@@ -75,37 +77,37 @@ export class HomePage {
             });
     }
 
-    timeout()
-    {
-        if(this.timeoutID != -1)
-        {
-            clearTimeout(this.timeoutID);
-        }
-        this.timeoutID = setTimeout(() => {
-            this.disconnectAll();
-        }, 60000);
-    }
-
     connectAll() {
-        this.ble.scan([], 5000).subscribe(
-            periph => {
-                if (periph.name) {
-                    if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
-                    {
-                        console.log("scan", periph);
-                        this.connect(new Periph(periph.id, periph.name));
+        this.intervalScanNewDevices_ID = setInterval(() => {
+            this.sendServerTime();
+            this.ble.scan([], 5000).subscribe(
+                periph => {
+                    if (periph.name) {
+                        if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
+                        {
+                            console.log("scan", periph);
+                            this.connect(new Periph(periph.id, periph.name));
+                        }
                     }
-                }
-            },
-            error => {
-                console.log("scan_error", error);
-            },
-            () => {
-                console.log("scan_finished");
-            });
+                },
+                error => {
+                    console.log("scan_error", error);
+                },
+                () => {
+                    console.log("scan_finished");
+                });
+        }, this.intervalScanNewDevices_ms);
     }
 
     disconnectAll() {
+        // remove interval to stop connecting to new devices
+        if (this.intervalScanNewDevices_ID != -1) {
+            clearTimeout(this.intervalScanNewDevices_ID);
+        }
+        // remove interval to save battery
+        if (this.intervalSendServerTime_ID != -1) {
+            clearTimeout(this.intervalSendServerTime_ID);
+        }
         this.listConnectedPeriphs.forEach((periph, idx) => {
             this.ble.disconnect(periph.id)
                 .then(() => {
@@ -122,7 +124,7 @@ export class HomePage {
             data => {
                 console.log("connected", data);
                 this.zone.run(() => {
-                  this.listConnectedPeriphs.push(periph);
+                    this.listConnectedPeriphs.push(periph);
                 });
                 this.startTimeNotification(periph);
                 this.removePeriphFromList(this.listPeriphs, periph);
@@ -148,7 +150,7 @@ export class HomePage {
                         if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
                             if (payload.length >= 3) {
                                 // this.zone.run(() => {
-                                    periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
+                                periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
                                 // });
                             }
                         }
@@ -162,33 +164,33 @@ export class HomePage {
     }
 
     sendServerTime() {
-        setInterval(() => {
-          var startTstamp = (new Date()).getTime(); // Time milliseconds
-          let devicesTstamp = [0, 0];
-          this.listConnectedPeriphs.forEach((periph, idx) => {
-            this.writeBLE(periph, SERVICE_TIME_SERVER, "" + (startTstamp % 1000))
-                .then(data => {
-                    devicesTstamp[idx] = (new Date()).getTime();
-                    // console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                });
-          });
-          
-          setTimeout(() => {
-              this.listConnectedPeriphs.forEach((periph, idx) => {
-                this.writeBLE(periph, SERVICE_TIME_SERVER_ADJUST, "" + (devicesTstamp[idx] - startTstamp))
+        this.intervalSendServerTime_ID = setInterval(() => {
+            var startTstamp = (new Date()).getTime(); // Time milliseconds
+            let devicesTstamp = [0, 0];
+            this.listConnectedPeriphs.forEach((periph, idx) => {
+                this.writeBLE(periph, SERVICE_TIME_SERVER, "" + (startTstamp % 1000))
                     .then(data => {
+                        devicesTstamp[idx] = (new Date()).getTime();
                         // console.log("success", data);
                     })
                     .catch(err => {
                         console.log("error", err);
                     });
-                   periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
-              });
-          }, 500);
-        }, 4000);
+            });
+
+            setTimeout(() => {
+                this.listConnectedPeriphs.forEach((periph, idx) => {
+                    this.writeBLE(periph, SERVICE_TIME_SERVER_ADJUST, "" + (devicesTstamp[idx] - startTstamp))
+                        .then(data => {
+                            // console.log("success", data);
+                        })
+                        .catch(err => {
+                            console.log("error", err);
+                        });
+                    periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
+                });
+            }, 500);
+        }, this.intervalSendServerTime_ms);
     }
 
     switchOff() {
@@ -358,7 +360,7 @@ export class HomePage {
     public displayConnectedPeriphsClick() {
         this.displayConnectedPeriphs = !this.displayConnectedPeriphs;
     }
-    
+
     // ASCII only
     private stringToBytes(string) {
         var array = new Uint8Array(string.length);
