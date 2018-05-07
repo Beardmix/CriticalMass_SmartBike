@@ -41,9 +41,8 @@ enum LEDMode
 bool debug = true;
 
 const int pinDebug = LED_BUILTIN;
-const int pinRed = 30;
-const int pinGreen = 31;
-const int pinBlue = 27;
+const int pinData = 15;
+const int numpixels = 48;
 
 uint8_t ledMode = FLASH_MODE;
 unsigned long last_sent = 0;
@@ -74,7 +73,7 @@ void setup()
 
     bleuart.begin();
 
-    led.configure(pinRed, pinGreen, pinBlue, pinDebug);
+    led.configure(numpixels, pinData, pinDebug);
     led.setRGB(255, 255, 255);
 
     // Set up and start advertising

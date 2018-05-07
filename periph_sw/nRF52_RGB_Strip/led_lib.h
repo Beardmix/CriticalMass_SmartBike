@@ -1,13 +1,14 @@
 #ifndef LED_H
 #define LED_H
 
+#include <Adafruit_NeoPixel.h>
+
 class CtrlLED
 {
   public:
-    int ledDebug;
-    int ledRed;
-    int ledGreen;
-    int ledBlue;
+    int pinDebug;
+    int pinData;
+    int numpixels;
 
     int valRed;
     int valGreen;
@@ -16,18 +17,19 @@ class CtrlLED
     long time_offset = 0;
     float period_ms = 1000;
 
-    void configure(int pinRed, int pinGreen, int pinBlue, int pinDebug)
+    Adafruit_NeoPixel pixels;
+
+    void configure(int numpixels, int pinData, int pinDebug)
     {
-        ledRed = pinRed;
-        ledGreen = pinGreen;
-        ledBlue = pinBlue;
-        ledDebug = pinDebug;
+        this->pinDebug = pinDebug;
+        this->pinData = pinData;
+        this->numpixels = numpixels;
+
+        pixels = Adafruit_NeoPixel(numpixels, pinData, NEO_GRB + NEO_KHZ800);
 
         // declare the ledPin as an OUTPUT:
-        pinMode(ledRed, OUTPUT);
-        pinMode(ledGreen, OUTPUT);
-        pinMode(ledBlue, OUTPUT);
-        pinMode(ledDebug, OUTPUT);
+        pinMode(pinData, OUTPUT);
+        pinMode(pinDebug, OUTPUT);
 
         valRed = 0;
         valGreen = 0;
@@ -37,6 +39,9 @@ class CtrlLED
         delay(1000);
         switchOff();
         delay(1000);
+
+        
+        pixels.begin(); // This initializes the NeoPixel library.
     }
 
     void randomColor()
@@ -55,10 +60,8 @@ class CtrlLED
         valG = map(intensity, 0, 255, 0, this->valGreen);
         valB = map(intensity, 0, 255, 0, this->valBlue);
 
-        analogWrite(ledDebug, valR);
-        analogWrite(ledRed, valR);
-        analogWrite(ledGreen, valG);
-        analogWrite(ledBlue, valB);
+        analogWrite(pinDebug, valR);
+        writeEach(pixels.Color(valR, valG, valB));
     }
 
     void flash()
@@ -76,10 +79,8 @@ class CtrlLED
             valG = map(intensity, 0, 255, 0, this->valGreen);
             valB = map(intensity, 0, 255, 0, this->valBlue);
 
-            analogWrite(ledDebug, valR);
-            analogWrite(ledRed, valR);
-            analogWrite(ledGreen, valG);
-            analogWrite(ledBlue, valB);
+            analogWrite(pinDebug, valR);
+            writeEach(pixels.Color(valR, valG, valB));
         }
         else
         {
@@ -89,10 +90,8 @@ class CtrlLED
 
     void lightLED()
     {
-        analogWrite(ledDebug, valRed);
-        analogWrite(ledRed, valRed);
-        analogWrite(ledGreen, valGreen);
-        analogWrite(ledBlue, valBlue);
+        analogWrite(pinDebug, valRed);
+        writeEach(pixels.Color(valRed, valGreen, valBlue));
     }
 
     void setRGB(int valRed, int valGreen, int valBlue)
@@ -104,18 +103,14 @@ class CtrlLED
 
     void white()
     {
-        analogWrite(ledDebug, 255);
-        analogWrite(ledRed, 255);
-        analogWrite(ledGreen, 255);
-        analogWrite(ledBlue, 255);
+        analogWrite(pinDebug, 255);
+        writeEach(pixels.Color(255, 255, 255));
     }
 
     void switchOff()
     {
-        analogWrite(ledDebug, 0);
-        analogWrite(ledRed, 0);
-        analogWrite(ledGreen, 0);
-        analogWrite(ledBlue, 0);
+        analogWrite(pinDebug, 0);
+        writeEach(pixels.Color(0, 0, 0));
     }
 
     void hueFlow()
@@ -130,10 +125,8 @@ class CtrlLED
         valG = map(valG, 0, 255, 0, intensity);
         valB = map(valB, 0, 255, 0, intensity);
 
-        analogWrite(ledDebug, valR);
-        analogWrite(ledRed, valR);
-        analogWrite(ledGreen, valG);
-        analogWrite(ledBlue, valB);
+        analogWrite(pinDebug, valR);
+        writeEach(pixels.Color(valR, valG, valB));
     }
 
     void setTimeOffset(int utc_millis)
@@ -155,6 +148,15 @@ class CtrlLED
     unsigned long global_millis()
     {
         return millis() + time_offset;
+    }
+
+    void writeEach(uint32_t color) 
+    {
+        for(int i = 0; i < numpixels; i++)
+        {
+            pixels.setPixelColor(i, color);
+        }
+        pixels.show(); // This sends the updated pixel color to the hardware.
     }
 };
 
