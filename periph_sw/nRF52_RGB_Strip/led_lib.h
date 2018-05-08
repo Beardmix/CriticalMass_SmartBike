@@ -132,9 +132,13 @@ class CtrlLED
     void theaterchase()
     {
         int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
+        for(int i = 0; i < numpixels; i++)
+        {
+            strip.setPixelColor(i, strip.Color(0, 0, 0));
+        }
         for(int i = 0; i < 4; i++)
         {
-            strip.setPixelColor(i + offset, strip.Color(valGreen, valRed, valBlue));
+            strip.setPixelColor(i + offset, strip.Color(valRed, valGreen, valBlue));
         }
         strip.show(); // This sends the updated pixel color to the hardware.
 
