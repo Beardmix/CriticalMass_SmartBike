@@ -136,10 +136,12 @@ class CtrlLED
         {
             strip.setPixelColor(i, strip.Color(0, 0, 0));
         }
-        for(int i = 0; i < 4; i++)
-        {
-            strip.setPixelColor(i + offset, strip.Color(valRed, valGreen, valBlue));
-        }
+        strip.setPixelColor(offset + 0, rgbiToColor(valRed, valGreen, valBlue, 50));
+        strip.setPixelColor(offset + 1, rgbiToColor(valRed, valGreen, valBlue, 100));
+        strip.setPixelColor(offset + 2, rgbiToColor(valRed, valGreen, valBlue, 150));
+        strip.setPixelColor(offset + 3, rgbiToColor(valRed, valGreen, valBlue, 200));
+        strip.setPixelColor(offset + 4, rgbiToColor(valRed, valGreen, valBlue, 250));
+        strip.setPixelColor(offset + 5, rgbiToColor(valRed, valGreen, valBlue, 100));
         strip.show(); // This sends the updated pixel color to the hardware.
 
         // analogWrite(pinDebug, valR);
@@ -173,6 +175,14 @@ class CtrlLED
             strip.setPixelColor(i, color);
         }
         strip.show(); // This sends the updated pixel color to the hardware.
+    }
+
+    uint32_t rgbiToColor(int r, int g, int b, int intensity)
+    {
+        r = map(r, 0, 255, 0, intensity);
+        g = map(g, 0, 255, 0, intensity);
+        b = map(b, 0, 255, 0, intensity);
+        return strip.Color(r, g, b);
     }
 };
 
