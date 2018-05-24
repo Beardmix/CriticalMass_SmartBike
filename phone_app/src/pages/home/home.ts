@@ -89,37 +89,41 @@ export class HomePage {
     }
 
     connectAll() {
-        this.intervalScanNewDevices_ID = setInterval(() => {
+        if (this.intervalScanNewDevices_ID == -1) {
             console.log("Scanning new devices");
-            this.sendServerTime();
-            this.ble.scan([], 5000).subscribe(
-                periph => {
-                    if (periph.name) {
-                        if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
-                        {
-                            console.log("scan", periph);
-                            this.connect(new Periph(periph.id, periph.name));
+            this.intervalScanNewDevices_ID = setInterval(() => {
+                this.sendServerTime();
+                this.ble.scan([], 5000).subscribe(
+                    periph => {
+                        if (periph.name) {
+                            if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
+                            {
+                                console.log("scan", periph);
+                                this.connect(new Periph(periph.id, periph.name));
+                            }
                         }
-                    }
-                },
-                error => {
-                    console.log("scan_error", error);
-                },
-                () => {
-                    console.log("scan_finished");
-                });
-        }, this.intervalScanNewDevices_ms);
+                    },
+                    error => {
+                        console.log("scan_error", error);
+                    },
+                    () => {
+                        console.log("scan_finished");
+                    });
+            }, this.intervalScanNewDevices_ms);
+        }
     }
 
     disconnectAll() {
-        console.log("Disconnecting all devices");
         // remove interval to stop connecting to new devices
         if (this.intervalScanNewDevices_ID != -1) {
+            console.log("Disconnecting all devices");
             clearTimeout(this.intervalScanNewDevices_ID);
+            this.intervalScanNewDevices_ID = -1;
         }
         // remove interval to save battery
         if (this.intervalSendServerTime_ID != -1) {
             clearTimeout(this.intervalSendServerTime_ID);
+            this.intervalSendServerTime_ID = -1;
         }
         this.listConnectedPeriphs.forEach((periph, idx) => {
             this.ble.disconnect(periph.id)
