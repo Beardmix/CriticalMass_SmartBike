@@ -45,10 +45,11 @@ const int pinData = 15;
 const int numpixels = 48;
 
 uint8_t ledMode = FLASH_MODE;
-unsigned long last_sent = 0;
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 unsigned long server_clock_adjust_ms = 0xFFFF;
+    
+unsigned long g_millis = 0;
     
 CtrlLED led;
 BLEUart bleuart;
@@ -166,9 +167,10 @@ void sendUART()
     char payload[8] = "#-R000!";
     payload[1] = TIME;
 
-    if (millis() - last_sent > 10000 || last_sent == 0) // every 10 seconds
+    static unsigned long last_sent = 0;
+    if (g_millis - last_sent > 10000 || last_sent == 0) // every 10 seconds
     {
-        last_sent = millis();
+        last_sent = g_millis;
         int globalTimerModulusMs = led.getGlobalTimerModulusMs() % 1000;
         
         // Write %1000 ms.
@@ -189,6 +191,8 @@ void sendUART()
 
 void loop()
 {
+    g_millis = millis();
+  
     // Reads UART to collect new messages
     readUART();
 
