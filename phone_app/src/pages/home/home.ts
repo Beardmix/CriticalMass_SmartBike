@@ -23,7 +23,8 @@ var LEDMode =
     ON_MODE: '1',
     FLASH_MODE: '2',
     PULSE_MODE: '3',
-    HUE_FLOW: '4'
+    HUE_FLOW: '4',
+    THEATER_CHASE_MODE: '5'
 };
 
 class Periph {
@@ -245,6 +246,13 @@ export class HomePage {
     hueFlow() {
         console.log("hueFlow");
         this.mode = LEDMode.HUE_FLOW;
+        this.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph);
+        });
+    }
+    theaterChase() {
+        console.log("theaterChase");
+        this.mode = LEDMode.THEATER_CHASE_MODE;
         this.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });

@@ -35,7 +35,8 @@ enum LEDMode
     ON_MODE = '1',
     FLASH_MODE = '2',
     PULSE_MODE = '3',
-    HUE_FLOW = '4'
+    HUE_FLOW = '4',
+    THEATER_CHASE_MODE = '5'
 };
 
 bool debug = true;
@@ -215,11 +216,12 @@ void loop()
     case HUE_FLOW:
         led.hueFlow();
         break;
+    case THEATER_CHASE_MODE:
+        led.theaterchase();
+        break;
     default:
         //Serial.println("[MODE] unknown");
         delay(2000);
         break;
     }
-
-    // led.theaterchase();
 }
