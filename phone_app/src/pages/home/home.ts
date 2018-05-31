@@ -88,10 +88,8 @@ export class HomePage {
             });
     }
 
-    connectAll() {
-        if (this.intervalScanNewDevices_ID == -1) {
-            console.log("Scanning new devices");
-            this.intervalScanNewDevices_ID = setInterval(() => {
+    // connects to all devices that are compatible
+    private scanAndConnectAll() {
                 this.sendServerTime();
                 this.ble.scan([], 5000).subscribe(
                     periph => {
@@ -109,6 +107,14 @@ export class HomePage {
                     () => {
                         console.log("scan_finished");
                     });
+    }
+
+    connectAll() {
+        console.log("Scanning new devices");
+        this.scanAndConnectAll();
+        if (this.intervalScanNewDevices_ID == -1) {
+            this.intervalScanNewDevices_ID = setInterval(() => {
+                this.scanAndConnectAll();
             }, this.intervalScanNewDevices_ms);
         }
     }
@@ -190,7 +196,7 @@ export class HomePage {
             this.intervalSendServerTime_ID = setInterval(() => {
                 console.log("Sending server time to devices");
                 var startTstamp = (new Date()).getTime(); // Time milliseconds
-                let devicesTstamp = [0, 0];
+                let devicesTstamp = [0, 0, 0, 0, 0, 0, 0, 0]; // MAX 8 devices
                 this.listConnectedPeriphs.forEach((periph, idx) => {
                     this.writeBLE(periph, SERVICE_TIME_SERVER, "" + (startTstamp % 1000))
                         .then(data => {
@@ -198,6 +204,7 @@ export class HomePage {
                             // console.log("success", data);
                         })
                         .catch(err => {
+                            devicesTstamp[idx] = startTstamp;
                             console.log("error", err);
                         });
                 });
