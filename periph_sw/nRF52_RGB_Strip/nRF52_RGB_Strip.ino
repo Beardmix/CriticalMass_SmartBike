@@ -194,7 +194,7 @@ void loop()
     // Reads UART to collect new messages
     uint8_t ledMode = readUART();
 
-    // sendUART();
+    sendUART();
 
     switch (ledMode)
     {
