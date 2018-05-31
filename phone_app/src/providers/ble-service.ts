@@ -16,11 +16,12 @@ const SERVICE_TIME_SERVER_REQUEST = 'R';
 
 @Injectable()
 export class BleServiceProvider {
-  listConnectedPeriphs: Periph[] = [];
-  intervalScanNewDevices_ID = -1;
-  intervalScanNewDevices_ms = 20000;
-  intervalSendServerTime_ID = -1;
-  intervalSendServerTime_ms = 4000;
+  public listConnectedPeriphs: Periph[] = [];
+
+  private intervalScanNewDevices_ID = -1;
+  private intervalScanNewDevices_ms = 20000;
+  private intervalSendServerTime_ID = -1;
+  private intervalSendServerTime_ms = 4000;
 
   constructor(private ble: BLE) {
     console.log('Hello BleServiceProvider Provider');
@@ -31,7 +32,7 @@ export class BleServiceProvider {
           data => {
               console.log("connected", data);
               this.listConnectedPeriphs.push(periph);
-              this.startNotificationUART(periph);
+              // this.startNotificationUART(periph);
               // TODO: provide a callback to send a trigger when a new device connected (subscribe?)
               // this.changeTempo(periph);
               // this.changeColor(periph);
@@ -47,7 +48,6 @@ export class BleServiceProvider {
 
   // connects to all devices that are compatible
   private scanAndConnectAll() {
-    this.sendServerTime();
     this.ble.scan([], 5000).subscribe(
       periph => {
         if (periph.name) {
@@ -104,9 +104,9 @@ export class BleServiceProvider {
   }
 
   connectAll() {
-    console.log("Scanning new devices");
     this.scanAndConnectAll();
     if (this.intervalScanNewDevices_ID == -1) {
+      // this.sendServerTime();
       this.intervalScanNewDevices_ID = setInterval(() => {
         this.scanAndConnectAll();
       }, this.intervalScanNewDevices_ms);
@@ -116,7 +116,6 @@ export class BleServiceProvider {
   disconnectAll() {
       // remove interval to stop connecting to new devices
       if (this.intervalScanNewDevices_ID != -1) {
-          console.log("Disconnecting all devices");
           clearTimeout(this.intervalScanNewDevices_ID);
           this.intervalScanNewDevices_ID = -1;
       }

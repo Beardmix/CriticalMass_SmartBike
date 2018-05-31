@@ -24,7 +24,6 @@ const SERVICE_TEMPO = 'T';
     templateUrl: 'home.html'
 })
 export class HomePage {
-    listConnectedPeriphs: Periph[] = [];
     displayConnectedPeriphs: boolean = false; // Display the list of connected devices with their properties.
     tempo: number = 60;
     hue = 0;
@@ -56,42 +55,42 @@ export class HomePage {
     switchOff() {
         console.log("switchOff");
         this.mode = LEDMode.OFF_MODE;
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
     switchOn() {
         console.log("switchOn");
         this.mode = LEDMode.ON_MODE;
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
     flash() {
         console.log("flash");
         this.mode = LEDMode.FLASH_MODE;
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
     pulse() {
         console.log("pulse");
         this.mode = LEDMode.PULSE_MODE;
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
     hueFlow() {
         console.log("hueFlow");
         this.mode = LEDMode.HUE_FLOW;
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
     theaterChase() {
         console.log("theaterChase");
         this.mode = LEDMode.THEATER_CHASE_MODE;
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
@@ -112,7 +111,7 @@ export class HomePage {
         this.b = Math.round(b * 255);
         console.log("changeColor", this.r, this.g, this.b);
 
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeColor(periph);
         });
         this.hexcolor = "rgb(" + this.r + "," + this.g + "," + this.b + ")";
@@ -161,7 +160,7 @@ export class HomePage {
 
     setTempo() {
         console.log("changeTempo", this.tempo);
-        this.listConnectedPeriphs.forEach(periph => {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeTempo(periph);
         });
     }

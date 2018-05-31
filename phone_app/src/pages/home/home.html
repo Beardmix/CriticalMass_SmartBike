@@ -24,8 +24,8 @@
 
 <ion-content>
     <ion-card *ngIf="true == displayConnectedPeriphs">
-        <ng-container *ngIf="listConnectedPeriphs?.length > 0">
-            <ion-list *ngFor="let periph of listConnectedPeriphs">
+        <ng-container *ngIf="bleService.listConnectedPeriphs?.length > 0">
+            <ion-list *ngFor="let periph of bleService.listConnectedPeriphs">
                 <ion-item>
                     <ion-icon name="bicycle" item-start></ion-icon>
                     <h2>Name: {{ periph.name }}</h2>
@@ -34,28 +34,8 @@
                 </ion-item>
             </ion-list>
         </ng-container>
-        <h2 *ngIf="listConnectedPeriphs?.length == 0">No connected devices.</h2>
+        <h2 *ngIf="bleService.listConnectedPeriphs?.length == 0">No connected devices.</h2>
     </ion-card>
-    <!-- <ion-card>
-        <ion-card-header>
-            Devices
-            <ion-badge item-end>{{ listConnectedPeriphs.length }}</ion-badge>
-        </ion-card-header>
-        <ion-grid>
-            <ion-row>
-                <ion-col>
-                    <button ion-button block icon-left color="light" (click)="connectAll()">
-                        <ion-icon name="md-lock"></ion-icon>Connect
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="light" (click)="disconnectAll()">
-                        <ion-icon name="md-unlock"></ion-icon>Disconnect
-                    </button>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-    </ion-card> -->
     <ion-card>
         <ion-grid>
             <ion-row>
