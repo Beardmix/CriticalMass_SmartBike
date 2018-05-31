@@ -11,7 +11,14 @@
                     <ion-spinner name="dots" *ngIf="isScanning"></ion-spinner>
                 </ion-col>
                 <ion-col>
-                    <ion-toggle (ionChange)="toggleScan($event)"></ion-toggle>
+                    <button ion-button icon-left color="light" (click)="connectAll()">
+                        <ion-icon name="md-lock"></ion-icon>
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button icon-left color="light" (click)="disconnectAll()">
+                        <ion-icon name="md-unlock"></ion-icon>
+                    </button>
                 </ion-col>
             </ion-row>
         </ion-grid>

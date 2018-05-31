@@ -80,15 +80,14 @@ export class HomePage {
         });
     }
 
-    public toggleScan(event) {
-        if (event.checked) {
-            console.log("Connecting all new devices");
-            this.bleService.connectAll();
-        }
-        else {
-            console.log("Disconnecting all devices");
-            this.bleService.disconnectAll();
-        }
+    connectAll() {
+        console.log("Connecting all new devices");
+        this.bleService.connectAll();
+    }
+
+    disconnectAll() {
+        console.log("Disconnecting all devices");
+        this.bleService.disconnectAll();
     }
 
     switchOff() {
