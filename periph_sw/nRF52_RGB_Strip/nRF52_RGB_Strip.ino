@@ -42,10 +42,9 @@ enum LEDMode
 bool debug = true;
 
 const int pinDebug = LED_BUILTIN;
-const int pinData = 15;
-const int numpixels = 48;
+const int pinData = 2;
+const int numpixels = 51;
 
-uint8_t ledMode = FLASH_MODE;
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 unsigned long server_clock_adjust_ms = 0xFFFF;
@@ -105,8 +104,9 @@ void startAdv(void)
     Bluefruit.Advertising.start(0);             // 0 = Don't stop advertising after n seconds
 }
 
-void readUART()
+uint8_t readUART()
 {
+    static uint8_t mode = FLASH_MODE;
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0;
@@ -114,7 +114,7 @@ void readUART()
     // Wait for new data to arrive
     uint16_t len = readPacket(&bleuart);
     if (len == 0)
-        return;
+        return mode;
 
     // Switch to the correct service
     switch (packetbuffer[0])
@@ -131,7 +131,7 @@ void readUART()
         // First sync.
         if (0xFFFF == server_clock_adjust_ms)
         {
-            ledMode = PULSE_MODE;
+            mode = PULSE_MODE;
         }
     
         server_clock_adjust_ms = 0;
@@ -144,7 +144,7 @@ void readUART()
         led.setTimeOffset(local_time_offset);
         break;
     case MODE:
-        ledMode = packetbuffer[1];
+        mode = packetbuffer[1];
         break;
     case COLOR:
         r = packetbuffer[1];
@@ -161,6 +161,8 @@ void readUART()
         delay(1000);
         break;
     }
+
+    return mode;
 }
 
 void sendUART()
@@ -195,7 +197,7 @@ void loop()
     g_millis = millis();
   
     // Reads UART to collect new messages
-    readUART();
+    uint8_t ledMode = readUART();
 
     sendUART();
 
