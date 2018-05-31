@@ -8,6 +8,7 @@ import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { BleServiceProvider } from '../providers/ble-service';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { HomePage } from '../pages/home/home';
     StatusBar,
     SplashScreen,
     BLE,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    BleServiceProvider
   ]
 })
 export class AppModule {}
