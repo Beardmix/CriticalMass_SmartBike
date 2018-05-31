@@ -34,7 +34,7 @@ export class HomePage {
     r = 255;
     g = 255;
     b = 255;
-    mode = LEDMode.OFF_MODE;
+    mode = LEDMode.PULSE_MODE;
 
 
     constructor(public navCtrl: NavController,

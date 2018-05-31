@@ -128,13 +128,7 @@ uint8_t readUART()
         }
         local_time_offset = server_clock_ms;
         break;
-    case TIME_ADJUST:
-        // First sync.
-        if (0xFFFF == server_clock_adjust_ms)
-        {
-            mode = PULSE_MODE;
-        }
-    
+    case TIME_ADJUST:    
         server_clock_adjust_ms = 0;
         for (uint16_t i = 0; i < (len - 1); i++)
         {
