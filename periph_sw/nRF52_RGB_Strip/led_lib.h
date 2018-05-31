@@ -129,22 +129,38 @@ class CtrlLED
         writeEach(strip.Color(valR, valG, valB));
     }
 
-    void theaterchase()
+    /* Dimmed multi chase. */
+    void dimmedMultiChase(unsigned int nbChases = 2, unsigned int trainLength = 5)
     {
-        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
-        for(int i = 0; i < numpixels; i++)
+      // Minimum parameter values.
+      nbChases = max(1, nbChases);
+      trainLength = max(1, trainLength);
+      
+      // Compute useful info.
+      int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
+      int gapBetweenChases = (this->numpixels / nbChases);
+      int intensityStep = 0xFF / trainLength;
+      
+      // Init: switch evertyhing off.
+      for(int i = 0; i < numpixels; i++)
+      {
+          strip.setPixelColor(i, strip.Color(0, 0, 0));
+      }
+      
+      for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
+      {
+        // Get first chase
+        int leaderIdx = (offset + (chaseIdx * gapBetweenChases)) % this->numpixels;
+        // Switch on the leds.
+        for (int followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
         {
-            strip.setPixelColor(i, rgbiToColor(valRed, valGreen, valBlue, 10));
+          int ledIdx = (leaderIdx + followerIdx) % this->numpixels;
+          int ledIntensity = intensityStep * followerIdx;
+          strip.setPixelColor(ledIdx, rgbiToColor(valRed, valGreen, valBlue, ledIntensity));
         }
-        strip.setPixelColor(offset + 0, rgbiToColor(valRed, valGreen, valBlue, 50));
-        strip.setPixelColor(offset + 1, rgbiToColor(valRed, valGreen, valBlue, 100));
-        strip.setPixelColor(offset + 2, rgbiToColor(valRed, valGreen, valBlue, 150));
-        strip.setPixelColor(offset + 3, rgbiToColor(valRed, valGreen, valBlue, 200));
-        strip.setPixelColor(offset + 4, rgbiToColor(valRed, valGreen, valBlue, 250));
-        strip.setPixelColor(offset + 5, rgbiToColor(valRed, valGreen, valBlue, 100));
-        strip.show(); // This sends the updated pixel color to the hardware.
-
-        // analogWrite(pinDebug, valR);
+      }
+      
+      strip.show();
     }
 
     void pileUp()
