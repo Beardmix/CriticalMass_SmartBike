@@ -40,6 +40,32 @@ export class HomePage {
         private bleService: BleServiceProvider,
         private zone: NgZone, // UI updated when wrapped up in this.zone.run().
     ) {
+        this.bleService.newPeriphObs.subscribe(
+            value => {
+                this.callbackNewPeriph(value);
+            },
+            error => {
+                console.log('Observer: onError: ', error)
+            },
+            () => {
+                console.log('Observer: onCompleted');
+            }
+        );
+    }
+
+    listConnectedPeriphs() {
+        return this.bleService.listConnectedPeriphs;
+    }
+
+    callbackNewPeriph(periph: any) {
+        this.changeTempo(periph);
+        this.changeColor(periph);
+        this.changeMode(periph);
+
+        // To refresh the UI
+        this.zone.run(() => {
+            this.displayConnectedPeriphs = this.displayConnectedPeriphs;
+        });
     }
 
     connectAll() {

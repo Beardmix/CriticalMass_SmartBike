@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BLE } from '@ionic-native/ble';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 import { Periph } from '../classes/periph';
 
@@ -23,27 +25,27 @@ export class BleServiceProvider {
   private intervalSendServerTime_ID = -1;
   private intervalSendServerTime_ms = 4000;
 
+  public newPeriphObs = new Subject();
+
   constructor(private ble: BLE) {
     console.log('Hello BleServiceProvider Provider');
   }
 
   private connect(periph: Periph) {
-      this.ble.connect(periph.id).subscribe(
-          data => {
-              console.log("connected", data);
-              this.listConnectedPeriphs.push(periph);
-              // this.startNotificationUART(periph);
-              // TODO: provide a callback to send a trigger when a new device connected (subscribe?)
-              // this.changeTempo(periph);
-              // this.changeColor(periph);
-              // this.changeMode(periph);
-          },
-          error => {
-              console.log("error", error);
-          },
-          () => {
-              console.log("finished");
-          });
+    this.ble.connect(periph.id).subscribe(
+      data => {
+        console.log("connected", data);
+        this.listConnectedPeriphs.push(periph);
+        // this.startNotificationUART(periph);
+        this.newPeriphObs.next(periph);
+      },
+      error => {
+        this.removePeriphFromList(this.listConnectedPeriphs, periph);
+        console.log("error", error);
+      },
+      () => {
+        console.log("finished");
+      });
   }
 
   // connects to all devices that are compatible
@@ -67,40 +69,39 @@ export class BleServiceProvider {
   }
 
   sendServerTime() {
-      // If no interval has been set yet, start sending Time at regular intervals
-      if (this.intervalSendServerTime_ID == -1)
-      {
-          this.intervalSendServerTime_ID = setInterval(() => {
-              console.log("Sending server time to devices");
-              var startTstamp = (new Date()).getTime(); // Time milliseconds
-              let devicesTstamp = [0, 0, 0, 0, 0, 0, 0, 0]; // MAX 8 devices
-              this.listConnectedPeriphs.forEach((periph, idx) => {
-                  this.writeBLE(periph, SERVICE_TIME_SERVER, "" + (startTstamp % 1000))
-                      .then(data => {
-                          devicesTstamp[idx] = (new Date()).getTime();
-                          // console.log("success", data);
-                      })
-                      .catch(err => {
-                          devicesTstamp[idx] = startTstamp;
-                          console.log("error", err);
-                      });
+    // If no interval has been set yet, start sending Time at regular intervals
+    if (this.intervalSendServerTime_ID == -1) {
+      this.intervalSendServerTime_ID = setInterval(() => {
+        console.log("Sending server time to devices");
+        var startTstamp = (new Date()).getTime(); // Time milliseconds
+        let devicesTstamp = [0, 0, 0, 0, 0, 0, 0, 0]; // MAX 8 devices
+        this.listConnectedPeriphs.forEach((periph, idx) => {
+          this.writeBLE(periph, SERVICE_TIME_SERVER, "" + (startTstamp % 1000))
+            .then(data => {
+              devicesTstamp[idx] = (new Date()).getTime();
+              // console.log("success", data);
+            })
+            .catch(err => {
+              devicesTstamp[idx] = startTstamp;
+              console.log("error", err);
+            });
+        });
+
+        setTimeout(() => {
+          console.log("Sending time correction to devices");
+          this.listConnectedPeriphs.forEach((periph, idx) => {
+            this.writeBLE(periph, SERVICE_TIME_SERVER_ADJUST, "" + (devicesTstamp[idx] - startTstamp))
+              .then(data => {
+                // console.log("success", data);
+              })
+              .catch(err => {
+                console.log("error", err);
               });
-  
-              setTimeout(() => {
-                  console.log("Sending time correction to devices");
-                  this.listConnectedPeriphs.forEach((periph, idx) => {
-                      this.writeBLE(periph, SERVICE_TIME_SERVER_ADJUST, "" + (devicesTstamp[idx] - startTstamp))
-                          .then(data => {
-                              // console.log("success", data);
-                          })
-                          .catch(err => {
-                              console.log("error", err);
-                          });
-                      periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
-                  });
-              }, 500);
-          }, this.intervalSendServerTime_ms);
-      }
+            periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
+          });
+        }, 500);
+      }, this.intervalSendServerTime_ms);
+    }
   }
 
   connectAll() {
@@ -114,25 +115,25 @@ export class BleServiceProvider {
   }
 
   disconnectAll() {
-      // remove interval to stop connecting to new devices
-      if (this.intervalScanNewDevices_ID != -1) {
-          clearTimeout(this.intervalScanNewDevices_ID);
-          this.intervalScanNewDevices_ID = -1;
-      }
-      // remove interval to save battery
-      if (this.intervalSendServerTime_ID != -1) {
-          clearTimeout(this.intervalSendServerTime_ID);
-          this.intervalSendServerTime_ID = -1;
-      }
-      this.listConnectedPeriphs.forEach((periph, idx) => {
-          this.ble.disconnect(periph.id)
-              .then(() => {
-                  this.removePeriphFromList(this.listConnectedPeriphs, periph);
-              })
-              .catch(() => {
-                  this.removePeriphFromList(this.listConnectedPeriphs, periph);
-              })
-      });
+    // remove interval to stop connecting to new devices
+    if (this.intervalScanNewDevices_ID != -1) {
+      clearTimeout(this.intervalScanNewDevices_ID);
+      this.intervalScanNewDevices_ID = -1;
+    }
+    // remove interval to save battery
+    if (this.intervalSendServerTime_ID != -1) {
+      clearTimeout(this.intervalSendServerTime_ID);
+      this.intervalSendServerTime_ID = -1;
+    }
+    this.listConnectedPeriphs.forEach((periph, idx) => {
+      this.ble.disconnect(periph.id)
+        .then(() => {
+          this.removePeriphFromList(this.listConnectedPeriphs, periph);
+        })
+        .catch(() => {
+          this.removePeriphFromList(this.listConnectedPeriphs, periph);
+        })
+    });
   }
 
   public writeBLE(periph: Periph, service: string, message: string) {
@@ -162,14 +163,14 @@ export class BleServiceProvider {
         if (this.stringRecValid(string_received)) {
           // The string received is about the time service
           if (this.isService(string_received, SERVICE_TIME_SERVER)) {
-              var payload = this.getPayload(string_received);
-              if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
-                  if (payload.length >= 3) {
-                      // this.zone.run(() => {
-                      periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
-                      // });
-                  }
+            var payload = this.getPayload(string_received);
+            if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
+              if (payload.length >= 3) {
+                // this.zone.run(() => {
+                periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
+                // });
               }
+            }
           }
         }
         else {
