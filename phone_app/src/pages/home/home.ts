@@ -12,7 +12,8 @@ var LEDMode =
         FLASH_MODE: '2',
         PULSE_MODE: '3',
         HUE_FLOW: '4',
-        THEATER_CHASE_MODE: '5'
+        THEATER_CHASE_MODE: '5',
+        PILE_UP_MODE: '6'
     };
 
 const SERVICE_COLOR = 'C';
@@ -128,6 +129,13 @@ export class HomePage {
     theaterChase() {
         console.log("theaterChase");
         this.mode = LEDMode.THEATER_CHASE_MODE;
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph);
+        });
+    }
+    pileUp() {
+        console.log("pileUp");
+        this.mode = LEDMode.PILE_UP_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
