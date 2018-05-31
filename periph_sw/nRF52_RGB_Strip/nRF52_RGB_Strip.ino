@@ -36,7 +36,8 @@ enum LEDMode
     FLASH_MODE = '2',
     PULSE_MODE = '3',
     HUE_FLOW = '4',
-    THEATER_CHASE_MODE = '5'
+    THEATER_CHASE_MODE = '5',
+    PILE_UP_MODE = '6'
 };
 
 bool debug = true;
@@ -220,6 +221,9 @@ void loop()
         break;
     case THEATER_CHASE_MODE:
         led.theaterchase();
+        break;
+    case PILE_UP_MODE:
+        led.pileUp();
         break;
     default:
         //Serial.println("[MODE] unknown");

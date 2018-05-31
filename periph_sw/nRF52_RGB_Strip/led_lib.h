@@ -134,7 +134,7 @@ class CtrlLED
         int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
         for(int i = 0; i < numpixels; i++)
         {
-            strip.setPixelColor(i, strip.Color(0, 0, 0));
+            strip.setPixelColor(i, rgbiToColor(valRed, valGreen, valBlue, 10));
         }
         strip.setPixelColor(offset + 0, rgbiToColor(valRed, valGreen, valBlue, 50));
         strip.setPixelColor(offset + 1, rgbiToColor(valRed, valGreen, valBlue, 100));
@@ -145,6 +145,21 @@ class CtrlLED
         strip.show(); // This sends the updated pixel color to the hardware.
 
         // analogWrite(pinDebug, valR);
+    }
+
+    void pileUp()
+    {
+        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * (numpixels);
+        for(int i = 0; i < numpixels; i++)
+        {
+            int intensity = 0;
+            if (i <= offset)
+            {
+                intensity = 255;
+            }
+            strip.setPixelColor(i, rgbiToColor(valRed, valGreen, valBlue, intensity));
+        }
+        strip.show(); // This sends the updated pixel color to the hardware.
     }
 
     void setTimeOffset(int utc_millis)
