@@ -194,7 +194,7 @@ void loop()
     // Reads UART to collect new messages
     uint8_t ledMode = readUART();
 
-    sendUART();
+    // sendUART();
 
     switch (ledMode)
     {
@@ -214,7 +214,7 @@ void loop()
         led.hueFlow();
         break;
     case THEATER_CHASE_MODE:
-        led.theaterchase();
+        led.dimmedMultiChase();
         break;
     case PILE_UP_MODE:
         led.pileUp();
