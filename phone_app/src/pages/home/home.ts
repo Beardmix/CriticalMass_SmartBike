@@ -25,6 +25,7 @@ const SERVICE_TEMPO = 'T';
 })
 export class HomePage {
     displayConnectedPeriphs: boolean = false; // Display the list of connected devices with their properties.
+    isScanning: any = false;
     tempo: number = 60;
     hue = 0;
     brightness = 100;
@@ -51,6 +52,17 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
+        this.bleService.scanObs.subscribe(
+            value => {
+                this.isScanning = value;
+            },
+            error => {
+                console.log('Observer: onError: ', error)
+            },
+            () => {
+                console.log('Observer: onCompleted');
+            }
+        );
     }
 
     listConnectedPeriphs() {
@@ -68,14 +80,15 @@ export class HomePage {
         });
     }
 
-    connectAll() {
-        console.log("Connecting all new devices");
-        this.bleService.connectAll();
-    }
-
-    disconnectAll() {
-        console.log("Disconnecting all devices");
-        this.bleService.disconnectAll();
+    public toggleScan(event) {
+        if (event.checked) {
+            console.log("Connecting all new devices");
+            this.bleService.connectAll();
+        }
+        else {
+            console.log("Disconnecting all devices");
+            this.bleService.disconnectAll();
+        }
     }
 
     switchOff() {

@@ -26,6 +26,7 @@ export class BleServiceProvider {
   private intervalSendServerTime_ms = 4000;
 
   public newPeriphObs = new Subject();
+  public scanObs = new Subject();
 
   constructor(private ble: BLE) {
     console.log('Hello BleServiceProvider Provider');
@@ -36,7 +37,7 @@ export class BleServiceProvider {
       data => {
         console.log("connected", data);
         this.listConnectedPeriphs.push(periph);
-        // this.startNotificationUART(periph);
+        this.startNotificationUART(periph);
         this.newPeriphObs.next(periph);
       },
       error => {
@@ -50,7 +51,8 @@ export class BleServiceProvider {
 
   // connects to all devices that are compatible
   private scanAndConnectAll() {
-    this.ble.scan([], 5000).subscribe(
+    this.scanObs.next(true);
+    this.ble.startScan([]).subscribe(
       periph => {
         if (periph.name) {
           if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
@@ -62,10 +64,12 @@ export class BleServiceProvider {
       },
       error => {
         console.log("scan_error", error);
-      },
-      () => {
-        console.log("scan_finished");
+        this.scanObs.next(false);
       });
+    setTimeout(() => {
+      this.ble.stopScan();
+      this.scanObs.next(false);
+    }, 5000);
   }
 
   sendServerTime() {
@@ -97,7 +101,7 @@ export class BleServiceProvider {
               .catch(err => {
                 console.log("error", err);
               });
-            periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
+            // periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
           });
         }, 500);
       }, this.intervalSendServerTime_ms);
@@ -107,7 +111,7 @@ export class BleServiceProvider {
   connectAll() {
     this.scanAndConnectAll();
     if (this.intervalScanNewDevices_ID == -1) {
-      // this.sendServerTime();
+      this.sendServerTime();
       this.intervalScanNewDevices_ID = setInterval(() => {
         this.scanAndConnectAll();
       }, this.intervalScanNewDevices_ms);
@@ -115,6 +119,8 @@ export class BleServiceProvider {
   }
 
   disconnectAll() {
+    this.ble.stopScan();
+    this.scanObs.next(false);
     // remove interval to stop connecting to new devices
     if (this.intervalScanNewDevices_ID != -1) {
       clearTimeout(this.intervalScanNewDevices_ID);
@@ -159,6 +165,7 @@ export class BleServiceProvider {
       .subscribe((data) => {
         // Data from the peripherique received
         var string_received = this.bytesToString(data);
+        console.log("string_received", string_received);
         // The string received is valid
         if (this.stringRecValid(string_received)) {
           // The string received is about the time service

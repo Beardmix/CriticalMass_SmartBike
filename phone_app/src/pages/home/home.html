@@ -8,14 +8,10 @@
                     </ion-icon>
                 </ion-col>
                 <ion-col>
-                    <button ion-button icon-left color="light" (click)="connectAll()">
-                        <ion-icon name="md-lock"></ion-icon>
-                    </button>
+                    <ion-spinner name="dots" *ngIf="isScanning"></ion-spinner>
                 </ion-col>
                 <ion-col>
-                    <button ion-button icon-left color="light" (click)="disconnectAll()">
-                        <ion-icon name="md-unlock"></ion-icon>
-                    </button>
+                    <ion-toggle (ionChange)="toggleScan($event)"></ion-toggle>
                 </ion-col>
             </ion-row>
         </ion-grid>
