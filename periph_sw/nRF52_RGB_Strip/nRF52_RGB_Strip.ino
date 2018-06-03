@@ -67,14 +67,20 @@ void setup()
 {
     Serial.begin(115200);
 
-    //Serial.println("--- Peripheral---\n");
+    Serial.println("--- Peripheral---\n");
 
+    // Bluetooth.
     Bluefruit.begin();
     Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
     Bluefruit.setName("MyFahrrad2");
+    Bluefruit.setConnectCallback(connect_callback);
+    Bluefruit.setDisconnectCallback(disconnect_callback);
 
+    // BLE UART.
     bleuart.begin();
 
+     // LED strip.
+    Serial.println("led.configure");
     led.configure(numpixels, pinData, pinDebug);
     led.setRGB(255, 255, 255);
 
@@ -82,9 +88,25 @@ void setup()
     startAdv();
 }
 
+void connect_callback(uint16_t conn_handle)
+{
+    char central_name[32] = { 0 };
+    Bluefruit.Gap.getPeerName(conn_handle, central_name, sizeof(central_name));
+    Serial.println("+++ Connected +++");
+    Serial.println(central_name);
+}
+ 
+void disconnect_callback(uint16_t conn_handle, uint8_t reason)
+{
+    Serial.println("--- Disconnected ---");
+    Serial.println(conn_handle);
+    Serial.println(reason);
+}
+
 // Advertising packet
 void startAdv(void)
 {
+    Serial.println("startAdv");
     Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
     Bluefruit.Advertising.addTxPower();
     Bluefruit.Advertising.addService(bleuart);
