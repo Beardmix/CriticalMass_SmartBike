@@ -54,12 +54,17 @@ void setup()
 
     Serial.println("--- Peripheral---\n");
 
-    // Bluetooth.
-    Bluefruit.begin();
+    // BSP configuration - bluefruit.h
+    // - https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/hathach-memory-map.
+    // Functions affecting SoftDevice SRAM usage
+    // Bluefruit.configUuid128Count(6); // Default is: 10.
+    // Bluefruit.configPrphBandwidth(BANDWIDTH_LOW); // default is: BANDWIDTH_NORMAL.
+    Bluefruit.begin(1, 0);
+    Bluefruit.printInfo();
     Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
     Bluefruit.setName("MyFahrrad2");
     Bluefruit.setConnectCallback(connect_callback);
-    Bluefruit.setDisconnectCallback(disconnect_callback);
+    // Bluefruit.setDisconnectCallback(disconnect_callback);
 
     // BLE UART.
     bleuart.begin();
