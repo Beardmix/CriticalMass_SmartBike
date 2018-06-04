@@ -1,18 +1,13 @@
+#include <Arduino.h>
 #include <bluefruit.h>
 #include "led_lib.h"
+/* Need to undefine min and max in order to compile <String>. */
+#undef max
+#undef min
+#include <String>
 
-/*
- * Advertising packets can be simulated with the "nRF Connect for Mobile" app
- * https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp
- * 
- * Simulation:
- *  Service name: Cycling Speed and Cadence 0x1816
- *  Data:
- *    0x00 - off
- *    0x01 - on
- *    0x02 - flash
- *    0x03 - pulse
- */
+#define READ_BUFSIZE (20) /* Size of the read buffer for incoming packets */
+#define PAYLOAD_LENGTH 10
 
 enum SpecialChars
 {
@@ -50,18 +45,8 @@ long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 unsigned long server_clock_adjust_ms = 0xFFFF;
     
-unsigned long g_millis = 0;
-    
 CtrlLED led;
 BLEUart bleuart;
-
-// Function prototypes for packetparser.cpp
-uint16_t readPacket(BLEUart *ble_uart);
-float parsefloat(uint8_t *buffer);
-void printHex(const uint8_t *data, const uint32_t numBytes);
-
-// Packet buffer
-extern uint8_t packetbuffer[];
 
 void setup()
 {
@@ -127,97 +112,117 @@ void startAdv(void)
     Bluefruit.Advertising.start(0);             // 0 = Don't stop advertising after n seconds
 }
 
-uint8_t readUART()
+/**************************************************************************/
+/*!
+    @brief  Waits for incoming data and parses it
+*/
+/**************************************************************************/
+uint16_t readPacket(BLEUart *ble_uart, uint8_t* p_packetbuffer, uint8_t packetbuffer_size)
 {
-    static uint8_t mode = FLASH_MODE;
+    uint16_t packet_length = 0;
+    
+    memset(p_packetbuffer, 0, packetbuffer_size);
+
+    if (ble_uart->available())
+    {
+        packet_length = ble_uart->read(p_packetbuffer, packetbuffer_size);
+    
+        // Verify starting and ending characters.
+        if (!(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
+        {
+            Serial.println("Invalid packet");
+            packet_length = 0;
+        }
+
+        // todo: implement checksum verification.
+    }
+    
+    return packet_length;
+}
+
+void readUART(uint8_t* const p_ledMode)
+{
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0;
     uint8_t tempo = 0;
+    /* Buffer to hold incoming characters */
+    uint8_t packetbuffer[READ_BUFSIZE + 1];
     // Wait for new data to arrive
-    uint16_t len = readPacket(&bleuart);
+    uint16_t len = readPacket(&bleuart, packetbuffer, READ_BUFSIZE);
     if (len == 0)
-        return mode;
+        return;
 
     // Switch to the correct service
-    switch (packetbuffer[0])
+    switch (packetbuffer[1])
     {
     case TIME:
+        // Serial.println("TIME");
         server_clock_ms = 0;
-        for (uint16_t i = 0; i < (len - 1); i++)
+        for (uint16_t i = 0; i < 3; i++)
         {
-            server_clock_ms += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
+            server_clock_ms += (packetbuffer[2 + i]) * pow(10, 2 - i);
         }
         local_time_offset = server_clock_ms;
+        // Serial.println(local_time_offset);
         break;
     case TIME_ADJUST:    
-        server_clock_adjust_ms = 0;
-        for (uint16_t i = 0; i < (len - 1); i++)
-        {
-            server_clock_adjust_ms += (packetbuffer[1 + i] - '0') * pow(10, (len - 1) - i - 1);
-        }
-        
-        local_time_offset += server_clock_adjust_ms;
-        led.setTimeOffset(local_time_offset);
-        break;
+        // Serial.println("TIME"_ADJUST);
+       server_clock_adjust_ms = 0;
+       for (uint16_t i = 0; i < 3; i++)
+       {
+           server_clock_adjust_ms += (packetbuffer[2 + i]) * pow(10, 2 - i);
+       }
+       
+       local_time_offset += server_clock_adjust_ms;
+       led.setTimeOffset(local_time_offset);
+       
+       sendUART(TIME, String(led.getGlobalTimerModulusMs() % 10) +
+                      String((led.getGlobalTimerModulusMs() / 10) % 10) +
+                      String((led.getGlobalTimerModulusMs() / 100) % 10));
+       break;
     case MODE:
-        mode = packetbuffer[1];
+        // Serial.println("MODE");
+        *p_ledMode = packetbuffer[2];
+        sendUART(MODE, String(*p_ledMode));
         break;
     case COLOR:
-        r = packetbuffer[1];
-        g = packetbuffer[2];
-        b = packetbuffer[3];
+        // Serial.println("COLOR");
+        r = packetbuffer[2];
+        g = packetbuffer[3];
+        b = packetbuffer[4];
         led.setRGB(r, g, b);
+        sendUART(COLOR, String(r) + String(g) + String(b));
         break;
     case TEMPO:
-        tempo = packetbuffer[1];
+        // Serial.println("TEMPO");
+        tempo = packetbuffer[2];
         led.setTempo(tempo);
+        sendUART(TEMPO, String(tempo));
         break;
     default:
         Serial.println("[SERVICE] unknown");
-        delay(1000);
+        Serial.println(packetbuffer[2]);
+        // delay(1000);
         break;
     }
-
-    return mode;
 }
 
-void sendUART()
+// Send data from peripheral to master.
+void sendUART(Services service, String msg)
 {
-    char payload[8] = "#-R000!";
-    payload[1] = TIME;
-
-    static unsigned long last_sent = 0;
-    if (g_millis - last_sent > 10000 || last_sent == 0) // every 10 seconds
-    {
-        last_sent = g_millis;
-        int globalTimerModulusMs = led.getGlobalTimerModulusMs() % 1000;
-        
-        // Write %1000 ms.
-        int u = globalTimerModulusMs % 10;
-        int d = (globalTimerModulusMs / 10) % 10;
-        int c = (globalTimerModulusMs / 100) % 10;
-        
-        payload[3] = c + '0';
-        payload[4] = d + '0';
-        payload[5] = u + '0';
-        
-        // Forward data from our peripheral to Mobile
-        //Serial.print("Sending: ");
-        //Serial.println(payload);
-        bleuart.print(payload);
-    }
+  // todo: to be implemented.
 }
 
 void loop()
 {
-    g_millis = millis();
-  
-    // Reads UART to collect new messages
-    uint8_t ledMode = readUART();
-
-    sendUART();
-
+    static uint8_t ledMode = FLASH_MODE;
+    
+    if (Bluefruit.connected() && bleuart.notifyEnabled())
+    {
+      readUART(&ledMode);
+    }
+    
     switch (ledMode)
     {
     case OFF_MODE:
@@ -242,8 +247,8 @@ void loop()
         led.pileUp();
         break;
     default:
-        //Serial.println("[MODE] unknown");
-        delay(2000);
+        Serial.println("[MODE] unknown");
+        // delay(2000);
         break;
     }
 }
