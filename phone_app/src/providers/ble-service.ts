@@ -13,7 +13,6 @@ const CHAR_START = '#'
 const CHAR_END = '!'
 
 const SERVICE_TIME_SERVER = 'S';
-const SERVICE_TIME_SERVER_ADJUST = 'A';
 const SERVICE_TIME_SERVER_REQUEST = 'R';
 
 @Injectable()
@@ -90,20 +89,6 @@ export class BleServiceProvider {
               console.log("error", err);
             });
         });
-
-        setTimeout(() => {
-          console.log("Sending time correction to devices");
-          this.listConnectedPeriphs.forEach((periph, idx) => {
-            this.writeBLE(periph, SERVICE_TIME_SERVER_ADJUST, "" + (devicesTstamp[idx] - startTstamp))
-              .then(data => {
-                // console.log("success", data);
-              })
-              .catch(err => {
-                console.log("error", err);
-              });
-            // periph.globalTimerModulusMs = (devicesTstamp[idx] - startTstamp); // Read BLE device ms.
-          });
-        }, 500);
       }, this.intervalSendServerTime_ms);
     }
   }

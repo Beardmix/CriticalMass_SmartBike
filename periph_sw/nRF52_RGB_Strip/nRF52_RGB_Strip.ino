@@ -20,7 +20,6 @@ enum Services
     COLOR = 'C',
     MODE = 'M',
     TIME = 'S',
-    TIME_ADJUST = 'A',
     TEMPO = 'T'
 };
 
@@ -167,23 +166,12 @@ void readUART(uint8_t* const p_ledMode)
             server_clock_ms += (packetbuffer[2 + i]) * pow(10, 2 - i);
         }
         local_time_offset = server_clock_ms;
+        led.setTimeOffset(local_time_offset);
+        sendUART(TIME, String(led.getGlobalTimerModulusMs() % 10) +
+                       String((led.getGlobalTimerModulusMs() / 10) % 10) +
+                       String((led.getGlobalTimerModulusMs() / 100) % 10));
         // Serial.println(local_time_offset);
         break;
-    case TIME_ADJUST:    
-        // Serial.println("TIME"_ADJUST);
-       server_clock_adjust_ms = 0;
-       for (uint16_t i = 0; i < 3; i++)
-       {
-           server_clock_adjust_ms += (packetbuffer[2 + i]) * pow(10, 2 - i);
-       }
-       
-       local_time_offset += server_clock_adjust_ms;
-       led.setTimeOffset(local_time_offset);
-       
-       sendUART(TIME, String(led.getGlobalTimerModulusMs() % 10) +
-                      String((led.getGlobalTimerModulusMs() / 10) % 10) +
-                      String((led.getGlobalTimerModulusMs() / 100) % 10));
-       break;
     case MODE:
         // Serial.println("MODE");
         *p_ledMode = packetbuffer[2];
