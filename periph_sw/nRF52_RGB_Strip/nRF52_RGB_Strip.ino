@@ -45,7 +45,7 @@ long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 unsigned long server_clock_adjust_ms = 0xFFFF;
     
-CtrlLED led;
+CtrlLED led(numpixels, pinData, pinDebug);
 BLEUart bleuart;
 
 void setup()
@@ -69,13 +69,11 @@ void setup()
     // BLE UART.
     bleuart.begin();
 
-     // LED strip.
-    Serial.println("led.configure");
-    led.configure(numpixels, pinData, pinDebug);
-    led.setRGB(255, 255, 255);
-
     // Set up and start advertising
     startAdv();
+    
+    // Initialise the LED strip.
+    led.configure();
 }
 
 void connect_callback(uint16_t conn_handle)
