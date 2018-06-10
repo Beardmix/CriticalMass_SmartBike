@@ -9,11 +9,24 @@ const SERVICE_UUID_UART = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const CHARAC_UUID_UART_RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 const CHARAC_UUID_UART_TX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 
-const CHAR_START = '#'
-const CHAR_END = '!'
+const CHAR_START  = '#'
+const CHAR_END    = '!'
 
 const SERVICE_TIME_SERVER = 'S';
-const SERVICE_TIME_SERVER_REQUEST = 'R';
+const SERVICE_MODE        = 'M';
+const SERVICE_COLOR       = 'C';
+const SERVICE_TEMPO       = 'T';
+
+var MODES =
+    [
+        "OFF",
+        "ON",
+        "FLASH",
+        "PULSE",
+        "HUE_FLOW",
+        "THEATER",
+        "PILE_UP"
+    ];
 
 @Injectable()
 export class BleServiceProvider {
@@ -146,23 +159,28 @@ export class BleServiceProvider {
   }
 
   startNotificationUART(periph: Periph) {
-    this.ble.startNotification(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_RX)
-      .subscribe((data) => {
-        // Data from the peripherique received
+    this.ble.startNotification(periph.id, SERVICE_UUID_UART, CHARAC_UUID_UART_RX).subscribe((data) => {
+        // Data from the peripheral received
         var string_received = this.bytesToString(data);
         console.log("string_received", string_received);
-        // The string received is valid
+        
         if (this.stringRecValid(string_received)) {
-          // The string received is about the time service
+          var payload = this.getPayload(string_received);
+          
           if (this.isService(string_received, SERVICE_TIME_SERVER)) {
-            var payload = this.getPayload(string_received);
-            if (payload[0] == SERVICE_TIME_SERVER_REQUEST) {
-              if (payload.length >= 3) {
-                // this.zone.run(() => {
-                periph.globalTimerModulusMs = payload.substr(1, 3); // Read BLE device ms.
-                // });
-              }
-            }
+            periph.globalTimerModulusMs = payload;
+          }
+          else if (this.isService(string_received, SERVICE_MODE)) {
+            periph.mode = MODES[Number(payload)];
+          }
+          else if (this.isService(string_received, SERVICE_COLOR)) {
+            var colors = payload.split(",");
+            periph.color_r = Number(colors[0]);
+            periph.color_g = Number(colors[1]);
+            periph.color_b = Number(colors[2]);
+          }
+          else if (this.isService(string_received, SERVICE_TEMPO)) {
+            periph.tempo = payload;
           }
         }
         else {
@@ -174,7 +192,7 @@ export class BleServiceProvider {
 
 
   private getPayload(string_received): string {
-    return string_received.substr(2, string_received.length - 2);
+    return string_received.substr(2, string_received.length - 3);
   }
 
   private isService(string_received, code_service): boolean {

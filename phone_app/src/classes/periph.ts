@@ -4,6 +4,11 @@ export class Periph {
     name: string = "";
     id: string = "";
     globalTimerModulusMs;
+    mode: string = "";
+    color_r: Number = 0;
+    color_g: Number = 0;
+    color_b: Number = 0;
+    tempo: string = "";
 
     constructor(id, name) {
         this.id = id;

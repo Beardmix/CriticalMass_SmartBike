@@ -7,7 +7,7 @@
 #include <String>
 
 #define READ_BUFSIZE (20) /* Size of the read buffer for incoming packets */
-#define PAYLOAD_LENGTH 10
+#define PAYLOAD_LENGTH 20
 
 enum SpecialChars
 {
@@ -42,7 +42,6 @@ const int numpixels = 51;
 
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
-unsigned long server_clock_adjust_ms = 0xFFFF;
     
 CtrlLED led(numpixels, pinData, pinDebug);
 BLEUart bleuart;
@@ -175,7 +174,7 @@ void readUART(uint8_t* const p_ledMode)
     case MODE:
         // Serial.println("MODE");
         *p_ledMode = packetbuffer[2];
-        sendUART(MODE, String(*p_ledMode));
+        sendUART(MODE, String(char(*p_ledMode)));
         break;
     case COLOR:
         // Serial.println("COLOR");
@@ -183,7 +182,7 @@ void readUART(uint8_t* const p_ledMode)
         g = packetbuffer[3];
         b = packetbuffer[4];
         led.setRGB(r, g, b);
-        sendUART(COLOR, String(r) + String(g) + String(b));
+        sendUART(COLOR, String(r) + ',' + String(g) + ',' + String(b));
         break;
     case TEMPO:
         // Serial.println("TEMPO");
@@ -202,7 +201,18 @@ void readUART(uint8_t* const p_ledMode)
 // Send data from peripheral to master.
 void sendUART(Services service, String msg)
 {
-  // todo: to be implemented.
+  char uart_payload[PAYLOAD_LENGTH + 1];
+  String payload = String(char(CHAR_START)) + String(char(service)) + String(msg) + String(char(CHAR_END));
+
+  if ( payload.length() < PAYLOAD_LENGTH) {
+    payload.toCharArray(uart_payload, PAYLOAD_LENGTH);
+    // Serial.printf("Send payload: %s\n", uart_payload);
+    bleuart.write(uart_payload, strlen(uart_payload)*sizeof(char));
+  }
+  else
+  {
+    Serial.println("[ERROR] Payload too long");
+  }
 }
 
 void loop()
