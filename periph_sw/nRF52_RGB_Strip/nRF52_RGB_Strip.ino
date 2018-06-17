@@ -42,7 +42,7 @@ const int numpixels = 51;
 
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
-    
+
 CtrlLED led(numpixels, pinData, pinDebug);
 BLEUart bleuart;
 
@@ -69,19 +69,19 @@ void setup()
 
     // Set up and start advertising
     startAdv();
-    
+
     // Initialise the LED strip.
     led.configure();
 }
 
 void connect_callback(uint16_t conn_handle)
 {
-    char central_name[32] = { 0 };
+    char central_name[32] = {0};
     Bluefruit.Gap.getPeerName(conn_handle, central_name, sizeof(central_name));
     Serial.println("+++ Connected +++");
     Serial.println(central_name);
 }
- 
+
 void disconnect_callback(uint16_t conn_handle, uint8_t reason)
 {
     Serial.println("--- Disconnected ---");
@@ -118,16 +118,16 @@ void startAdv(void)
     @brief  Waits for incoming data and parses it
 */
 /**************************************************************************/
-uint16_t readPacket(BLEUart *ble_uart, uint8_t* p_packetbuffer, uint8_t packetbuffer_size)
+uint16_t readPacket(BLEUart *ble_uart, uint8_t *p_packetbuffer, uint8_t packetbuffer_size)
 {
     uint16_t packet_length = 0;
-    
+
     memset(p_packetbuffer, 0, packetbuffer_size);
 
     if (ble_uart->available())
     {
         packet_length = ble_uart->read(p_packetbuffer, packetbuffer_size);
-    
+
         // Verify starting and ending characters.
         if (!(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
         {
@@ -137,11 +137,11 @@ uint16_t readPacket(BLEUart *ble_uart, uint8_t* p_packetbuffer, uint8_t packetbu
 
         // todo: implement checksum verification.
     }
-    
+
     return packet_length;
 }
 
-void readUART(uint8_t* const p_ledMode)
+void readUART(uint8_t *const p_ledMode)
 {
     uint8_t r = 0;
     uint8_t g = 0;
@@ -167,8 +167,8 @@ void readUART(uint8_t* const p_ledMode)
         local_time_offset = server_clock_ms;
         led.setTimeOffset(local_time_offset);
         sendUART(TIME, String(led.getGlobalTimerModulusMs() % 10) +
-                       String((led.getGlobalTimerModulusMs() / 10) % 10) +
-                       String((led.getGlobalTimerModulusMs() / 100) % 10));
+                           String((led.getGlobalTimerModulusMs() / 10) % 10) +
+                           String((led.getGlobalTimerModulusMs() / 100) % 10));
         // Serial.println(local_time_offset);
         break;
     case MODE:
@@ -201,29 +201,30 @@ void readUART(uint8_t* const p_ledMode)
 // Send data from peripheral to master.
 void sendUART(Services service, String msg)
 {
-  char uart_payload[PAYLOAD_LENGTH + 1];
-  String payload = String(char(CHAR_START)) + String(char(service)) + String(msg) + String(char(CHAR_END));
+    char uart_payload[PAYLOAD_LENGTH + 1];
+    String payload = String(char(CHAR_START)) + String(char(service)) + String(msg) + String(char(CHAR_END));
 
-  if ( payload.length() < PAYLOAD_LENGTH) {
-    payload.toCharArray(uart_payload, PAYLOAD_LENGTH);
-    // Serial.printf("Send payload: %s\n", uart_payload);
-    bleuart.write(uart_payload, strlen(uart_payload)*sizeof(char));
-  }
-  else
-  {
-    Serial.println("[ERROR] Payload too long");
-  }
+    if (payload.length() < PAYLOAD_LENGTH)
+    {
+        payload.toCharArray(uart_payload, PAYLOAD_LENGTH);
+        // Serial.printf("Send payload: %s\n", uart_payload);
+        bleuart.write(uart_payload, strlen(uart_payload) * sizeof(char));
+    }
+    else
+    {
+        Serial.println("[ERROR] Payload too long");
+    }
 }
 
 void loop()
 {
     static uint8_t ledMode = FLASH_MODE;
-    
+
     if (Bluefruit.connected() && bleuart.notifyEnabled())
     {
-      readUART(&ledMode);
+        readUART(&ledMode);
     }
-    
+
     switch (ledMode)
     {
     case OFF_MODE:

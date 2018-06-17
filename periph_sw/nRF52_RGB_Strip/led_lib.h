@@ -35,15 +35,15 @@ class CtrlLED
 
         strip.begin(); // This initializes the NeoPixel library.
     }
-    
+
     void configure()
     {
-      setRGB(255, 255, 255);
-      neoPixelType pixelType = NEO_GRB + NEO_KHZ800;
-      
-      strip.updateLength(this->numpixels);
-      strip.updateType(pixelType);
-      strip.setPin(this->pinData);
+        setRGB(255, 255, 255);
+        neoPixelType pixelType = NEO_GRB + NEO_KHZ800;
+
+        strip.updateLength(this->numpixels);
+        strip.updateType(pixelType);
+        strip.setPin(this->pinData);
     }
 
     void randomColor()
@@ -134,41 +134,41 @@ class CtrlLED
     /* Dimmed multi chase. */
     void dimmedMultiChase(unsigned int nbChases = 2, unsigned int trainLength = 5)
     {
-      // Minimum parameter values.
-      nbChases = max(1, nbChases);
-      trainLength = max(1, trainLength);
-      
-      // Compute useful info.
-      int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
-      int gapBetweenChases = (this->numpixels / nbChases);
-      int intensityStep = 0xFF / trainLength;
-      
-      // Init: switch evertyhing off.
-      for(int i = 0; i < numpixels; i++)
-      {
-          strip.setPixelColor(i, strip.Color(0, 0, 0));
-      }
-      
-      for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
-      {
-        // Get first chase
-        int leaderIdx = (offset + (chaseIdx * gapBetweenChases)) % this->numpixels;
-        // Switch on the leds.
-        for (int followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
+        // Minimum parameter values.
+        nbChases = max(1, nbChases);
+        trainLength = max(1, trainLength);
+
+        // Compute useful info.
+        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
+        int gapBetweenChases = (this->numpixels / nbChases);
+        int intensityStep = 0xFF / trainLength;
+
+        // Init: switch evertyhing off.
+        for (int i = 0; i < numpixels; i++)
         {
-          int ledIdx = (leaderIdx + followerIdx) % this->numpixels;
-          int ledIntensity = intensityStep * followerIdx;
-          strip.setPixelColor(ledIdx, rgbiToColor(valRed, valGreen, valBlue, ledIntensity));
+            strip.setPixelColor(i, strip.Color(0, 0, 0));
         }
-      }
-      
-      strip.show();
+
+        for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
+        {
+            // Get first chase
+            int leaderIdx = (offset + (chaseIdx * gapBetweenChases)) % this->numpixels;
+            // Switch on the leds.
+            for (int followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
+            {
+                int ledIdx = (leaderIdx + followerIdx) % this->numpixels;
+                int ledIntensity = intensityStep * followerIdx;
+                strip.setPixelColor(ledIdx, rgbiToColor(valRed, valGreen, valBlue, ledIntensity));
+            }
+        }
+
+        strip.show();
     }
 
     void pileUp()
     {
         int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * (numpixels);
-        for(int i = 0; i < numpixels; i++)
+        for (int i = 0; i < numpixels; i++)
         {
             int intensity = 0;
             if (i <= offset)
@@ -182,14 +182,14 @@ class CtrlLED
 
     void setTimeOffset(int utc_millis)
     {
-        time_offset = utc_millis - millis() ;
+        time_offset = utc_millis - millis();
     }
 
     void setTempo(uint8_t tempo)
     {
         period_ms = 60000.0f / (float)tempo;
     }
-    
+
     int getGlobalTimerModulusMs()
     {
         return global_millis() % 1000;
@@ -201,9 +201,9 @@ class CtrlLED
         return millis() + time_offset;
     }
 
-    void writeEach(uint32_t color) 
+    void writeEach(uint32_t color)
     {
-        for(int i = 0; i < numpixels; i++)
+        for (int i = 0; i < numpixels; i++)
         {
             strip.setPixelColor(i, color);
         }

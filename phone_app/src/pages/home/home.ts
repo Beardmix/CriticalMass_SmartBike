@@ -6,15 +6,15 @@ import { BleServiceProvider } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
 
 var LEDMode =
-    {
-        OFF_MODE: '0',
-        ON_MODE: '1',
-        FLASH_MODE: '2',
-        PULSE_MODE: '3',
-        HUE_FLOW: '4',
-        THEATER_CHASE_MODE: '5',
-        PILE_UP_MODE: '6'
-    };
+{
+    OFF_MODE: '0',
+    ON_MODE: '1',
+    FLASH_MODE: '2',
+    PULSE_MODE: '3',
+    HUE_FLOW: '4',
+    THEATER_CHASE_MODE: '5',
+    PILE_UP_MODE: '6'
+};
 
 const SERVICE_COLOR = 'C';
 const SERVICE_MODE = 'M';
