@@ -5,6 +5,8 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
 import { BLE } from '@ionic-native/ble';
+import { DeviceMotion } from '@ionic-native/device-motion';
+import { BackgroundMode } from '@ionic-native/background-mode';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -28,6 +30,8 @@ import { BleServiceProvider } from '../providers/ble-service';
     StatusBar,
     SplashScreen,
     BLE,
+    DeviceMotion,
+    BackgroundMode,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     BleServiceProvider
   ]

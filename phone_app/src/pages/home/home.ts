@@ -1,9 +1,10 @@
 import { Component, NgZone } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
-import { BLE } from '@ionic-native/ble';
+import { DeviceMotion, DeviceMotionAccelerationData } from '@ionic-native/device-motion';
+import { BackgroundMode } from '@ionic-native/background-mode';
+
 import { BleServiceProvider } from '../../providers/ble-service';
-import { Periph } from '../../classes/periph';
 
 var LEDMode =
 {
@@ -36,10 +37,13 @@ export class HomePage {
     g = 255;
     b = 255;
     mode = LEDMode.PULSE_MODE;
+    acceler_subscription: any = null;
 
 
     constructor(public navCtrl: NavController,
         private bleService: BleServiceProvider,
+        private deviceMotion: DeviceMotion,
+        private backgroundMode: BackgroundMode,
         private zone: NgZone, // UI updated when wrapped up in this.zone.run().
     ) {
         this.bleService.newPeriphObs.subscribe(
@@ -64,6 +68,7 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
+
     }
 
     listConnectedPeriphs() {
@@ -84,11 +89,33 @@ export class HomePage {
     connectAll() {
         console.log("Connecting all new devices");
         this.bleService.connectAll();
+        this.subscribe_accelerometer();
+    }
+
+    private subscribe_accelerometer(){
+        // Watch device acceleration
+        this.backgroundMode.enable();
+        this.acceler_subscription = this.deviceMotion.watchAcceleration({ frequency: 100 }).subscribe((acceleration: DeviceMotionAccelerationData) => {
+            var acceleration_sum_abs = Math.abs(acceleration.x) + Math.abs(acceleration.y) + Math.abs(acceleration.z);
+            var acceleration_sum = acceleration.x + acceleration.y + acceleration.z;
+            if (acceleration_sum_abs > 25 && acceleration_sum < 0) {
+                console.log(acceleration);
+                this.acceler_subscription.unsubscribe();
+                this.switchOn();
+                setTimeout(() => {
+                    this.switchOff();
+                    this.subscribe_accelerometer();
+                }, 2000);
+            }
+        });
     }
 
     disconnectAll() {
         console.log("Disconnecting all devices");
         this.bleService.disconnectAll();
+        // Stop watch
+        this.acceler_subscription.unsubscribe();
+        this.backgroundMode.disable();
     }
 
     switchOff() {
