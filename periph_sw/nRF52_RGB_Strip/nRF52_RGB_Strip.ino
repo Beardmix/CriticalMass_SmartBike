@@ -2,6 +2,8 @@
 #include <bluefruit.h>
 #include "led_lib.h"
 #include "ble_handler.h"
+#include "eeprom_handler.h"
+
 /* Need to undefine min and max in order to compile <String>. */
 #undef max
 #undef min
@@ -32,12 +34,16 @@ unsigned long server_clock_ms = 0;
 
 CtrlLED led(numpixels, pinData, pinDebug);
 BLE_Handler ble;
+EEPROM_Handler eeprom;
 
 void setup()
 {
     Serial.begin(115200);
 
     Serial.println("--- Peripheral---\n");
+
+    eeprom.start();
+    // eeprom.load();
 
     ble.configure();
 
