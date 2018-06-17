@@ -1,27 +1,14 @@
 #include <Arduino.h>
 #include <bluefruit.h>
 #include "led_lib.h"
+#include "ble_handler.h"
 /* Need to undefine min and max in order to compile <String>. */
 #undef max
 #undef min
 #include <String>
 
 #define READ_BUFSIZE (20) /* Size of the read buffer for incoming packets */
-#define PAYLOAD_LENGTH 20
 
-enum SpecialChars
-{
-    CHAR_START = '#',
-    CHAR_END = '!'
-};
-
-enum Services
-{
-    COLOR = 'C',
-    MODE = 'M',
-    TIME = 'S',
-    TEMPO = 'T'
-};
 
 enum LEDMode
 {
@@ -44,7 +31,7 @@ long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 
 CtrlLED led(numpixels, pinData, pinDebug);
-BLEUart bleuart;
+BLE_Handler ble;
 
 void setup()
 {
@@ -52,111 +39,13 @@ void setup()
 
     Serial.println("--- Peripheral---\n");
 
-    // BSP configuration - bluefruit.h
-    // - https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/hathach-memory-map.
-    // Functions affecting SoftDevice SRAM usage
-    // Bluefruit.configUuid128Count(6); // Default is: 10.
-    // Bluefruit.configPrphBandwidth(BANDWIDTH_LOW); // default is: BANDWIDTH_NORMAL.
-    Bluefruit.begin(1, 0);
-    Bluefruit.printInfo();
-    Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
-    Bluefruit.setName("MyFahrrad2");
-    Bluefruit.setConnectCallback(connect_callback);
-    // Bluefruit.setDisconnectCallback(disconnect_callback);
-
-    // BLE UART.
-    bleuart.begin();
+    ble.configure();
 
     // Set up and start advertising
-    startAdv();
+    ble.startAdv();
 
     // Initialise the LED strip.
     led.configure();
-}
-
-void connect_callback(uint16_t conn_handle)
-{
-    char central_name[32] = {0};
-    Bluefruit.Gap.getPeerName(conn_handle, central_name, sizeof(central_name));
-    Serial.println("+++ Connected +++");
-    Serial.println(central_name);
-}
-
-void disconnect_callback(uint16_t conn_handle, uint8_t reason)
-{
-    Serial.println("--- Disconnected ---");
-    Serial.println(conn_handle);
-    Serial.println(reason);
-}
-
-// Advertising packet
-void startAdv(void)
-{
-    Serial.println("startAdv");
-    Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
-    Bluefruit.Advertising.addTxPower();
-    Bluefruit.Advertising.addService(bleuart);
-    Bluefruit.ScanResponse.addName();
-
-    /* Start Advertising
-   * - Enable auto advertising if disconnected
-   * - Interval:  fast mode = 20 ms, slow mode = 152.5 ms
-   * - Timeout for fast mode is 30 seconds
-   * - Start(timeout) with timeout = 0 will advertise forever (until connected)
-   * 
-   * For recommended advertising interval
-   * https://developer.apple.com/library/content/qa/qa1931/_index.html   
-   */
-    Bluefruit.Advertising.restartOnDisconnect(true);
-    Bluefruit.Advertising.setInterval(32, 244); // in unit of 0.625 ms
-    Bluefruit.Advertising.setFastTimeout(30);   // number of seconds in fast mode
-    Bluefruit.Advertising.start(0);             // 0 = Don't stop advertising after n seconds
-}
-
-/**************************************************************************/
-/*!
-    @brief  Waits for incoming data and parses it
-*/
-/**************************************************************************/
-uint16_t readPacket(BLEUart *ble_uart, uint8_t *p_packetbuffer, uint8_t packetbuffer_size)
-{
-    uint16_t packet_length = 0;
-
-    memset(p_packetbuffer, 0, packetbuffer_size);
-
-    if (ble_uart->available())
-    {
-        packet_length = ble_uart->read(p_packetbuffer, packetbuffer_size);
-
-        // Verify starting and ending characters.
-        if (!(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
-        {
-            Serial.println("Invalid packet");
-            packet_length = 0;
-        }
-
-        // todo: implement checksum verification.
-    }
-
-    return packet_length;
-}
-
-// Send data from peripheral to master.
-void sendPacket(Services service, String msg)
-{
-    char uart_payload[PAYLOAD_LENGTH + 1];
-    String payload = String(char(CHAR_START)) + String(char(service)) + String(msg) + String(char(CHAR_END));
-
-    if (payload.length() < PAYLOAD_LENGTH)
-    {
-        payload.toCharArray(uart_payload, PAYLOAD_LENGTH);
-        // Serial.printf("Send payload: %s\n", uart_payload);
-        bleuart.write(uart_payload, strlen(uart_payload) * sizeof(char));
-    }
-    else
-    {
-        Serial.println("[ERROR] Payload too long");
-    }
 }
 
 void readUART(uint8_t *const p_ledMode)
@@ -168,14 +57,14 @@ void readUART(uint8_t *const p_ledMode)
     /* Buffer to hold incoming characters */
     uint8_t packetbuffer[READ_BUFSIZE + 1];
     // Wait for new data to arrive
-    uint16_t len = readPacket(&bleuart, packetbuffer, READ_BUFSIZE);
+    uint16_t len = ble.readPacket(packetbuffer, READ_BUFSIZE);
     if (len == 0)
         return;
 
     // Switch to the correct service
     switch (packetbuffer[1])
     {
-    case TIME:
+    case ble.Services::TIME:
         // Serial.println("TIME");
         server_clock_ms = 0;
         for (uint16_t i = 0; i < 3; i++)
@@ -184,29 +73,29 @@ void readUART(uint8_t *const p_ledMode)
         }
         local_time_offset = server_clock_ms;
         led.setTimeOffset(local_time_offset);
-        sendPacket(TIME, String(led.getGlobalTimerModulusMs() % 10) +
+        ble.sendPacket(ble.Services::TIME, String(led.getGlobalTimerModulusMs() % 10) +
                            String((led.getGlobalTimerModulusMs() / 10) % 10) +
                            String((led.getGlobalTimerModulusMs() / 100) % 10));
         // Serial.println(local_time_offset);
         break;
-    case MODE:
+    case ble.Services::MODE:
         // Serial.println("MODE");
         *p_ledMode = packetbuffer[2];
-        sendPacket(MODE, String(char(*p_ledMode)));
+        ble.sendPacket(ble.Services::MODE, String(char(*p_ledMode)));
         break;
-    case COLOR:
+    case ble.Services::COLOR:
         // Serial.println("COLOR");
         r = packetbuffer[2];
         g = packetbuffer[3];
         b = packetbuffer[4];
         led.setRGB(r, g, b);
-        sendPacket(COLOR, String(r) + ',' + String(g) + ',' + String(b));
+        ble.sendPacket(ble.Services::COLOR, String(r) + ',' + String(g) + ',' + String(b));
         break;
-    case TEMPO:
+    case ble.Services::TEMPO:
         // Serial.println("TEMPO");
         tempo = packetbuffer[2];
         led.setTempo(tempo);
-        sendPacket(TEMPO, String(tempo));
+        ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
     default:
         Serial.println("[SERVICE] unknown");
@@ -220,7 +109,7 @@ void loop()
 {
     static uint8_t ledMode = FLASH_MODE;
 
-    if (Bluefruit.connected() && bleuart.notifyEnabled())
+    if (ble.is_connected())
     {
         readUART(&ledMode);
     }
