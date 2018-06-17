@@ -141,6 +141,24 @@ uint16_t readPacket(BLEUart *ble_uart, uint8_t *p_packetbuffer, uint8_t packetbu
     return packet_length;
 }
 
+// Send data from peripheral to master.
+void sendPacket(Services service, String msg)
+{
+    char uart_payload[PAYLOAD_LENGTH + 1];
+    String payload = String(char(CHAR_START)) + String(char(service)) + String(msg) + String(char(CHAR_END));
+
+    if (payload.length() < PAYLOAD_LENGTH)
+    {
+        payload.toCharArray(uart_payload, PAYLOAD_LENGTH);
+        // Serial.printf("Send payload: %s\n", uart_payload);
+        bleuart.write(uart_payload, strlen(uart_payload) * sizeof(char));
+    }
+    else
+    {
+        Serial.println("[ERROR] Payload too long");
+    }
+}
+
 void readUART(uint8_t *const p_ledMode)
 {
     uint8_t r = 0;
@@ -166,7 +184,7 @@ void readUART(uint8_t *const p_ledMode)
         }
         local_time_offset = server_clock_ms;
         led.setTimeOffset(local_time_offset);
-        sendUART(TIME, String(led.getGlobalTimerModulusMs() % 10) +
+        sendPacket(TIME, String(led.getGlobalTimerModulusMs() % 10) +
                            String((led.getGlobalTimerModulusMs() / 10) % 10) +
                            String((led.getGlobalTimerModulusMs() / 100) % 10));
         // Serial.println(local_time_offset);
@@ -174,7 +192,7 @@ void readUART(uint8_t *const p_ledMode)
     case MODE:
         // Serial.println("MODE");
         *p_ledMode = packetbuffer[2];
-        sendUART(MODE, String(char(*p_ledMode)));
+        sendPacket(MODE, String(char(*p_ledMode)));
         break;
     case COLOR:
         // Serial.println("COLOR");
@@ -182,37 +200,19 @@ void readUART(uint8_t *const p_ledMode)
         g = packetbuffer[3];
         b = packetbuffer[4];
         led.setRGB(r, g, b);
-        sendUART(COLOR, String(r) + ',' + String(g) + ',' + String(b));
+        sendPacket(COLOR, String(r) + ',' + String(g) + ',' + String(b));
         break;
     case TEMPO:
         // Serial.println("TEMPO");
         tempo = packetbuffer[2];
         led.setTempo(tempo);
-        sendUART(TEMPO, String(tempo));
+        sendPacket(TEMPO, String(tempo));
         break;
     default:
         Serial.println("[SERVICE] unknown");
         Serial.println(packetbuffer[2]);
         // delay(1000);
         break;
-    }
-}
-
-// Send data from peripheral to master.
-void sendUART(Services service, String msg)
-{
-    char uart_payload[PAYLOAD_LENGTH + 1];
-    String payload = String(char(CHAR_START)) + String(char(service)) + String(msg) + String(char(CHAR_END));
-
-    if (payload.length() < PAYLOAD_LENGTH)
-    {
-        payload.toCharArray(uart_payload, PAYLOAD_LENGTH);
-        // Serial.printf("Send payload: %s\n", uart_payload);
-        bleuart.write(uart_payload, strlen(uart_payload) * sizeof(char));
-    }
-    else
-    {
-        Serial.println("[ERROR] Payload too long");
     }
 }
 
