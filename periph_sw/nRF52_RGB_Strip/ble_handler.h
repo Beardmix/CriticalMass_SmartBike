@@ -17,7 +17,6 @@ class BLE_Handler
     };
 
   public:
-
     enum Services
     {
         COLOR = 'C',
@@ -25,7 +24,7 @@ class BLE_Handler
         TIME = 'S',
         TEMPO = 'T'
     };
-    
+
     BLE_Handler() {}
 
     void configure()
@@ -90,12 +89,11 @@ class BLE_Handler
         return Bluefruit.connected() && bleuart.notifyEnabled();
     }
 
-    /**************************************************************************/
-    /*!
-    @brief  Waits for incoming data and parses it
-    */
-    /**************************************************************************/
-    uint16_t readPacket(uint8_t *p_packetbuffer, uint8_t packetbuffer_size)
+    /**
+     * Reads incomming messages and parses them for correctness checks
+     * /return packet_length The length of the payload + 1 for the service
+     */
+    uint16_t readPacket(uint8_t *p_service, uint8_t *p_packetbuffer, uint8_t packetbuffer_size)
     {
         uint16_t packet_length = 0;
 
@@ -106,13 +104,29 @@ class BLE_Handler
             packet_length = bleuart.read(p_packetbuffer, packetbuffer_size);
 
             // Verify starting and ending characters.
-            if (!(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
+            if (packet_length >= 3 && !(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
             {
                 Serial.println("Invalid packet");
                 packet_length = 0;
             }
+            else
+            {
+                bool checksum_correct = true;
 
-            // todo: implement checksum verification.
+                // todo: implement checksum verification here
+
+                if (checksum_correct)
+                {
+                    (*p_service) = p_packetbuffer[1];
+
+                    // remove the special characters from the packet to keep only the payload
+                    for (int i = 0; i < packet_length - 3; ++i)
+                    {
+                        p_packetbuffer[i] = p_packetbuffer[i + 2];
+                    }
+                    packet_length = packet_length - 2;
+                }
+            }
         }
 
         return packet_length;

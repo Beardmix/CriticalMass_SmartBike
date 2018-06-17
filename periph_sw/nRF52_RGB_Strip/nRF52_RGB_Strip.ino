@@ -55,21 +55,22 @@ void readUART(uint8_t *const p_ledMode)
     uint8_t b = 0;
     uint8_t tempo = 0;
     /* Buffer to hold incoming characters */
-    uint8_t packetbuffer[READ_BUFSIZE + 1];
+    uint8_t packetService;
+    uint8_t packetPayload[READ_BUFSIZE + 1];
     // Wait for new data to arrive
-    uint16_t len = ble.readPacket(packetbuffer, READ_BUFSIZE);
+    uint16_t len = ble.readPacket(&packetService, packetPayload, READ_BUFSIZE);
     if (len == 0)
         return;
 
     // Switch to the correct service
-    switch (packetbuffer[1])
+    switch (packetService)
     {
     case ble.Services::TIME:
         // Serial.println("TIME");
         server_clock_ms = 0;
         for (uint16_t i = 0; i < 3; i++)
         {
-            server_clock_ms += (packetbuffer[2 + i]) * pow(10, 2 - i);
+            server_clock_ms += (packetPayload[i]) * pow(10, 2 - i);
         }
         local_time_offset = server_clock_ms;
         led.setTimeOffset(local_time_offset);
@@ -80,26 +81,26 @@ void readUART(uint8_t *const p_ledMode)
         break;
     case ble.Services::MODE:
         // Serial.println("MODE");
-        *p_ledMode = packetbuffer[2];
+        *p_ledMode = packetPayload[0];
         ble.sendPacket(ble.Services::MODE, String(char(*p_ledMode)));
         break;
     case ble.Services::COLOR:
         // Serial.println("COLOR");
-        r = packetbuffer[2];
-        g = packetbuffer[3];
-        b = packetbuffer[4];
+        r = packetPayload[0];
+        g = packetPayload[1];
+        b = packetPayload[2];
         led.setRGB(r, g, b);
         ble.sendPacket(ble.Services::COLOR, String(r) + ',' + String(g) + ',' + String(b));
         break;
     case ble.Services::TEMPO:
         // Serial.println("TEMPO");
-        tempo = packetbuffer[2];
+        tempo = packetPayload[0];
         led.setTempo(tempo);
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
     default:
         Serial.println("[SERVICE] unknown");
-        Serial.println(packetbuffer[2]);
+        Serial.println(packetPayload[0]);
         // delay(1000);
         break;
     }
