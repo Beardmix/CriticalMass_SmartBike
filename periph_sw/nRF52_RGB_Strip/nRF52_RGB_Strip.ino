@@ -42,10 +42,11 @@ void setup()
 
     Serial.println("--- Peripheral---\n");
 
-    eeprom.start();
-    // eeprom.load();
-
     ble.configure();
+
+    // Bluefruit module must be initialized for Nffs to work
+    // Since Bluefruit's SOC event handling task is required for flash operation
+    eeprom.load();
 
     // Set up and start advertising
     ble.startAdv();
