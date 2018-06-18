@@ -36,6 +36,8 @@ export class HomePage {
     g = 255;
     b = 255;
     mode = LEDMode.PULSE_MODE;
+    private intervalAutomode_ID = -1;
+    private intervalAutomode_ms = 20000;
 
 
     constructor(public navCtrl: NavController,
@@ -88,11 +90,18 @@ export class HomePage {
 
     disconnectAll() {
         console.log("Disconnecting all devices");
+        this.stopAutomode();
         this.bleService.disconnectAll();
+    }
+
+    private stopAutomode(){
+        clearTimeout(this.intervalAutomode_ID);
+        this.intervalAutomode_ID = -1;
     }
 
     switchOff() {
         console.log("switchOff");
+        this.stopAutomode();
         this.mode = LEDMode.OFF_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
@@ -100,6 +109,7 @@ export class HomePage {
     }
     switchOn() {
         console.log("switchOn");
+        this.stopAutomode();
         this.mode = LEDMode.ON_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
@@ -107,6 +117,7 @@ export class HomePage {
     }
     flash() {
         console.log("flash");
+        this.stopAutomode();
         this.mode = LEDMode.FLASH_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
@@ -114,6 +125,7 @@ export class HomePage {
     }
     pulse() {
         console.log("pulse");
+        this.stopAutomode();
         this.mode = LEDMode.PULSE_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
@@ -121,6 +133,7 @@ export class HomePage {
     }
     hueFlow() {
         console.log("hueFlow");
+        this.stopAutomode();
         this.mode = LEDMode.HUE_FLOW;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
@@ -128,6 +141,7 @@ export class HomePage {
     }
     theaterChase() {
         console.log("theaterChase");
+        this.stopAutomode();
         this.mode = LEDMode.THEATER_CHASE_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
@@ -135,10 +149,24 @@ export class HomePage {
     }
     pileUp() {
         console.log("pileUp");
+        this.stopAutomode();
         this.mode = LEDMode.PILE_UP_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
+    }
+    automatic() {
+        console.log("automatic");
+        if (this.intervalAutomode_ID == -1) {
+            this.intervalAutomode_ID = setInterval(() => {
+                var modes = Object.keys(LEDMode);
+                var idx = Math.floor(Math.random() * modes.length)
+                this.mode = LEDMode[modes[idx]];
+                this.bleService.listConnectedPeriphs.forEach(periph => {
+                    this.changeMode(periph);
+                });
+            }, this.intervalAutomode_ms);
+        }
     }
     setColor() {
         var rgb = this.hue2rgb(this.hue);
