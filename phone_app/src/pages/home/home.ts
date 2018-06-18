@@ -160,7 +160,7 @@ export class HomePage {
         if (this.intervalAutomode_ID == -1) {
             this.intervalAutomode_ID = setInterval(() => {
                 var modes = Object.keys(LEDMode);
-                var idx = Math.floor(Math.random() * modes.length)
+                var idx = 2 + Math.floor(Math.random() * (modes.length - 2));
                 this.mode = LEDMode[modes[idx]];
                 this.bleService.listConnectedPeriphs.forEach(periph => {
                     this.changeMode(periph);
