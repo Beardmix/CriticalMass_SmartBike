@@ -19,11 +19,11 @@ class CtrlLED
 
     Adafruit_NeoPixel strip;
 
-    CtrlLED(int numpixels, int pinData, int pinDebug)
+    CtrlLED(int pinData, int pinDebug)
     {
         this->pinDebug = pinDebug;
         this->pinData = pinData;
-        this->numpixels = numpixels;
+        this->numpixels = 1;
 
         // declare the ledPin as an OUTPUT:
         pinMode(pinData, OUTPUT);
@@ -36,12 +36,13 @@ class CtrlLED
         strip.begin(); // This initializes the NeoPixel library.
     }
 
-    void configure()
+    void configure(unsigned int numpixels)
     {
         setRGB(255, 255, 255);
         neoPixelType pixelType = NEO_GRB + NEO_KHZ800;
 
-        strip.updateLength(this->numpixels);
+        this->numpixels = numpixels;
+        strip.updateLength(numpixels);
         strip.updateType(pixelType);
         strip.setPin(this->pinData);
     }

@@ -27,12 +27,11 @@ bool debug = true;
 
 const int pinDebug = LED_BUILTIN;
 const int pinData = 2;
-const int numpixels = 51;
 
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 
-CtrlLED led(numpixels, pinData, pinDebug);
+CtrlLED led(pinData, pinDebug);
 BLE_Handler ble;
 EEPROM_Handler eeprom;
 
@@ -52,7 +51,7 @@ void setup()
     ble.startAdv();
 
     // Initialise the LED strip.
-    led.configure();
+    led.configure(eeprom.settings.num_pixels);
 }
 
 void readUART(uint8_t *const p_ledMode)
