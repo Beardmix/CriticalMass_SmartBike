@@ -9,6 +9,7 @@ export class Periph {
     color_r: Number = 0;
     color_g: Number = 0;
     color_b: Number = 0;
+    color_rgb: string = "";
     tempo: string = "";
 
     constructor(id, name) {

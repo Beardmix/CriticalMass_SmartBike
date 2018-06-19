@@ -30,13 +30,31 @@
         <ng-container *ngIf="listConnectedPeriphs()?.length > 0">
             <ion-list *ngFor="let periph of listConnectedPeriphs()">
                 <ion-item>
-                    <ion-icon name="bicycle" item-start></ion-icon>
-                    <h2>Name: {{ periph.name }}</h2>
-                    <h3>Id: {{ periph.id }}</h3>
-                    <h3>Ms: {{ periph.globalTimerModulusMs }}</h3>
-                    <h3>Mode: {{ periph.mode }}</h3>
-                    <h3>Color: rgb({{ periph.color_r }}, {{ periph.color_g }}, {{ periph.color_b }})</h3>
-                    <h3>Tempo: {{ periph.tempo }}</h3>
+                    <ion-grid>
+                        <ion-row>
+                            <h2>{{ periph.name }}</h2>
+                        </ion-row>
+                        <ion-row>
+                            <h3>Id: {{ periph.id }}</h3>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-icon name="bicycle" item-start></ion-icon>
+                            </ion-col>
+                            <ion-col>
+                                <ion-chip id="color-preview" [ngStyle]="{'background-color': periph.color_rgb}">
+                                </ion-chip>
+                            </ion-col>
+                            <ion-col>
+                                <h3>NumPix: {{ periph.num_pixels }}</h3>
+                                <h3>Ms: {{ periph.globalTimerModulusMs }}</h3>
+                            </ion-col>
+                            <ion-col>
+                                <h3>Mode: {{ periph.mode }}</h3>
+                                <h3>Tempo: {{ periph.tempo }}</h3>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
                 </ion-item>
             </ion-list>
         </ng-container>
