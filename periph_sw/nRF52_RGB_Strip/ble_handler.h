@@ -27,7 +27,7 @@ class BLE_Handler
 
     BLE_Handler() {}
 
-    void configure()
+    void begin_ble(const char* name)
     {
         // BSP configuration - bluefruit.h
         // - https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/hathach-memory-map.
@@ -37,7 +37,7 @@ class BLE_Handler
         Bluefruit.begin(1, 0);
         Bluefruit.printInfo();
         Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
-        Bluefruit.setName("MyFahrrad2");
+        Bluefruit.setName(name);
         Bluefruit.setConnectCallback(connect_callback);
         // Bluefruit.setDisconnectCallback(disconnect_callback);
 

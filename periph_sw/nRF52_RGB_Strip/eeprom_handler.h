@@ -14,7 +14,7 @@ class Settings
   public:
     unsigned int num_pixels;
     String device_name;
-    
+
     Settings() {
         set_defaults();
     }
@@ -39,7 +39,6 @@ class EEPROM_Handler
 
     void load()
     {
-        Serial.println("starting");
         // Initialize Nffs
         Nffs.begin();
         NffsFile file;
@@ -47,7 +46,7 @@ class EEPROM_Handler
 
         if (file.exists())
         {
-            Serial.println(FILENAME " file exists");
+            Serial.println(FILENAME " file exists. List of the settings:");
             String content = read_content(file);
             file.close();
             int start_idx = 0;
