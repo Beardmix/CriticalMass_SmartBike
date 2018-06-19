@@ -205,6 +205,24 @@ export class HomePage {
         });
     }
 
+    setSettings() {
+        console.log("changeSettings");
+        var num_pixels = 42;
+        var device_name = "MyFahrradHey";
+        // check again that only one device is connected
+        if (this.bleService.listConnectedPeriphs.length == 1) {
+            this.bleService.writeBLE(this.bleService.listConnectedPeriphs[0], BLE_SERVICES.DEV_SETTINGS,
+                String.fromCharCode(num_pixels) + ";" + device_name)
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+        }
+
+    }
+
     private changeTempo(periph) {
         this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(this.tempo))
             .then(data => {

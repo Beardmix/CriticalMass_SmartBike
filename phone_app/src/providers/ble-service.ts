@@ -15,7 +15,8 @@ export const BLE_SERVICES = {
     TIME_SERVER : 'S',
     MODE : 'M',
     COLOR : 'C',
-    TEMPO : 'T'
+    TEMPO : 'T',
+    DEV_SETTINGS: 'D'
 }
 
 var MODES =
@@ -184,6 +185,14 @@ export class BleServiceProvider {
                 }
                 else if (this.isService(string_received, BLE_SERVICES.TEMPO)) {
                     periph.tempo = payload;
+                }
+                else if (this.isService(string_received, BLE_SERVICES.DEV_SETTINGS)) {
+                    var settings = payload.split(";");
+                    periph.num_pixels = parseInt(settings[0]);
+                    periph.name = String(settings[1]);
+                }
+                else {
+                    console.log("unknown service", string_received);
                 }
             }
             else {
