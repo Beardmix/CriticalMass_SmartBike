@@ -22,19 +22,19 @@ class BLE_Handler
         COLOR = 'C',
         MODE = 'M',
         TIME = 'S',
-        TEMPO = 'T'
+        TEMPO = 'T',
+        DEV_SETTINGS = 'D'
     };
 
     BLE_Handler() {}
 
-    void begin_ble(const char* name)
+    void configure_ble(const char* name)
     {
         // BSP configuration - bluefruit.h
         // - https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide/hathach-memory-map.
         // Functions affecting SoftDevice SRAM usage
         // Bluefruit.configUuid128Count(6); // Default is: 10.
         // Bluefruit.configPrphBandwidth(BANDWIDTH_LOW); // default is: BANDWIDTH_NORMAL.
-        Bluefruit.begin(1, 0);
         Bluefruit.printInfo();
         Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
         Bluefruit.setName(name);
@@ -91,11 +91,11 @@ class BLE_Handler
 
     /**
      * Reads incomming messages and parses them for correctness checks
-     * /return packet_length The length of the payload + 1 for the service
+     * /return packet_length The length of the payload
      */
-    uint16_t readPacket(uint8_t *p_service, uint8_t *p_packetbuffer, uint8_t packetbuffer_size)
+    int16_t readPacket(uint8_t *p_service, uint8_t *p_packetbuffer, uint8_t packetbuffer_size)
     {
-        uint16_t packet_length = 0;
+        int16_t packet_length = -1;
 
         memset(p_packetbuffer, 0, packetbuffer_size);
 
@@ -104,10 +104,10 @@ class BLE_Handler
             packet_length = bleuart.read(p_packetbuffer, packetbuffer_size);
 
             // Verify starting and ending characters.
-            if (packet_length >= 3 && !(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
+            if (packet_length < 3 || !(('#' == char(p_packetbuffer[0])) && ('!' == char(p_packetbuffer[packet_length - 1]))))
             {
                 Serial.println("Invalid packet");
-                packet_length = 0;
+                packet_length = -1;
             }
             else
             {
@@ -124,7 +124,7 @@ class BLE_Handler
                     {
                         p_packetbuffer[i] = p_packetbuffer[i + 2];
                     }
-                    packet_length = packet_length - 2;
+                    packet_length = packet_length - 3;
                 }
             }
         }

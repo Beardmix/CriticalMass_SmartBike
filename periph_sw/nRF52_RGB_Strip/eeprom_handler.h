@@ -71,10 +71,11 @@ class EEPROM_Handler
     void save()
     {
         NffsFile file;
-        Serial.print("Open " FILENAME " file to write ... ");
+        Serial.println("Open " FILENAME " file to write ... ");
+
         if (file.open(FILENAME, FS_ACCESS_WRITE))
         {
-            Serial.println("Writting Settings");
+            file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));
             write_setting(file, "device_name", settings.device_name);
             file.close();
@@ -91,7 +92,12 @@ class EEPROM_Handler
     void write_setting(NffsFile &file, String name, String val)
     {
         String setting = name + "=" + val + ";";
-        file.write(setting.c_str(), setting.length());
+        Serial.println("Writting Setting: " + setting);
+        int len_written = file.write(setting.c_str(), setting.length());
+        if(len_written != setting.length())
+        {
+            Serial.println("Error - len_written: " + String(len_written) + " | file.errnum: " + String(file.errnum));
+        }
     }
 
     String read_content(NffsFile &file)

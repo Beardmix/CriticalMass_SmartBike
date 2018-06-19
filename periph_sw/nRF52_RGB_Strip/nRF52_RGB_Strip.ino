@@ -9,7 +9,7 @@
 #undef min
 #include <String>
 
-#define READ_BUFSIZE (20) /* Size of the read buffer for incoming packets */
+#define READ_BUFSIZE (40) /* Size of the read buffer for incoming packets */
 
 
 enum LEDMode
@@ -41,11 +41,12 @@ void setup()
 
     Serial.println("--- Peripheral---\n");
 
-    // Bluefruit module must be initialized for Nffs to work since Bluefruit's SOC event handling task is required for flash operation
-    // It still works though, so as we need it before we leave it here.
+    Bluefruit.begin(1, 0);
+    // Bluefruit module must be initialized for Nffs to work 
+    // since Bluefruit's SOC event handling task is required for flash operation (creating the FS the first time)
     eeprom.load();
-
-    ble.begin_ble(eeprom.settings.device_name.c_str());
+    
+    ble.configure_ble(eeprom.settings.device_name.c_str());
 
     // Set up and start advertising
     ble.startAdv();
@@ -64,8 +65,8 @@ void readUART(uint8_t *const p_ledMode)
     uint8_t packetService;
     uint8_t packetPayload[READ_BUFSIZE + 1];
     // Wait for new data to arrive
-    uint16_t len = ble.readPacket(&packetService, packetPayload, READ_BUFSIZE);
-    if (len == 0)
+    int16_t len_payload = ble.readPacket(&packetService, packetPayload, READ_BUFSIZE);
+    if (len_payload == -1)
         return;
 
     // Switch to the correct service
@@ -104,9 +105,25 @@ void readUART(uint8_t *const p_ledMode)
         led.setTempo(tempo);
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
+    case ble.Services::DEV_SETTINGS:
+        Serial.println("DEV_SETTINGS");
+        eeprom.settings.num_pixels = packetPayload[0];
+        eeprom.settings.device_name = "";
+        for (int i = 2; i < len_payload; i++)
+        {
+            eeprom.settings.device_name += char(packetPayload[i]);
+        }
+        Serial.println(eeprom.settings.device_name);
+        eeprom.save();
+        ble.sendPacket(ble.Services::DEV_SETTINGS, String(eeprom.settings.num_pixels) + ";" + eeprom.settings.device_name);
+        break;
     default:
         Serial.println("[SERVICE] unknown");
-        Serial.println(packetPayload[0]);
+        for (int i = 0; i < len_payload; i++)
+        {
+            Serial.print(packetPayload[i]);
+        }
+        Serial.println();
         // delay(1000);
         break;
     }
