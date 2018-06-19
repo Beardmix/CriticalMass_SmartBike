@@ -14,7 +14,16 @@ class Settings
   public:
     unsigned int num_pixels;
     String device_name;
-    Settings() {}
+    
+    Settings() {
+        set_defaults();
+    }
+
+    void set_defaults()
+    {
+        num_pixels = 50;
+        device_name = "MyFahrrad";
+    }
 };
 
 class EEPROM_Handler
@@ -23,12 +32,9 @@ class EEPROM_Handler
     Settings settings;
 
   private:
-    NffsFile file;
-
   public:
     EEPROM_Handler()
     {
-        default_settings();
     }
 
     void load()
@@ -36,12 +42,14 @@ class EEPROM_Handler
         Serial.println("starting");
         // Initialize Nffs
         Nffs.begin();
+        NffsFile file;
         file.open(FILENAME, FS_ACCESS_READ);
 
         if (file.exists())
         {
             Serial.println(FILENAME " file exists");
-            String content = read_content();
+            String content = read_content(file);
+            file.close();
             int start_idx = 0;
             int end_idx = 0;
             do
@@ -56,44 +64,38 @@ class EEPROM_Handler
         }
         else
         {
-            default_settings();
-            Serial.print("Open " FILENAME " file to write ... ");
-
-            if (file.open(FILENAME, FS_ACCESS_WRITE))
-            {
-                Serial.println("Settings file created");
-                save();
-                file.close();
-            }
-            else
-            {
-                Serial.println("Failed (hint: error 3 means not enough memory space left) ");
-                Serial.print("errnum = ");
-                Serial.println(file.errnum);
-            }
+            Serial.println("File " FILENAME " not found.");
+            settings.set_defaults();
         }
     }
 
     void save()
     {
-        write_setting("num_pixels", String(settings.num_pixels));
-        write_setting("device_name", settings.device_name);
+        NffsFile file;
+        Serial.print("Open " FILENAME " file to write ... ");
+        if (file.open(FILENAME, FS_ACCESS_WRITE))
+        {
+            Serial.println("Writting Settings");
+            write_setting(file, "num_pixels", String(settings.num_pixels));
+            write_setting(file, "device_name", settings.device_name);
+            file.close();
+        }
+        else
+        {
+            Serial.println("Failed (hint: error 3 means not enough memory space left) ");
+            Serial.print("errnum = ");
+            Serial.println(file.errnum);
+        }
     }
 
   private:
-    void write_setting(String name, String val)
+    void write_setting(NffsFile &file, String name, String val)
     {
         String setting = name + "=" + val + ";";
         file.write(setting.c_str(), setting.length());
     }
 
-    void default_settings()
-    {
-        settings.num_pixels = 50;
-        settings.device_name = "MyFahrrad2";
-    }
-
-    String read_content()
+    String read_content(NffsFile &file)
     {
         String content = "";
         uint32_t readlen;
