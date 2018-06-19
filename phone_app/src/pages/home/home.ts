@@ -1,9 +1,7 @@
 import { Component, NgZone } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
-import { BLE } from '@ionic-native/ble';
-import { BleServiceProvider } from '../../providers/ble-service';
-import { Periph } from '../../classes/periph';
+import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 
 var LEDMode =
 {
@@ -15,10 +13,6 @@ var LEDMode =
     THEATER_CHASE_MODE: '5',
     PILE_UP_MODE: '6'
 };
-
-const SERVICE_COLOR = 'C';
-const SERVICE_MODE = 'M';
-const SERVICE_TEMPO = 'T';
 
 @Component({
     selector: 'page-home',
@@ -212,7 +206,7 @@ export class HomePage {
     }
 
     private changeTempo(periph) {
-        this.bleService.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
+        this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(this.tempo))
             .then(data => {
                 console.log("success", data);
             })
@@ -222,7 +216,7 @@ export class HomePage {
     }
 
     private changeColor(periph) {
-        this.bleService.writeBLE(periph, SERVICE_COLOR, String.fromCharCode(this.r, this.g, this.b))
+        this.bleService.writeBLE(periph, BLE_SERVICES.COLOR, String.fromCharCode(this.r, this.g, this.b))
             .then(data => {
                 console.log("success", data);
             })
@@ -232,7 +226,7 @@ export class HomePage {
     }
 
     private changeMode(periph) {
-        this.bleService.writeBLE(periph, SERVICE_MODE, this.mode)
+        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, this.mode)
             .then(data => {
                 console.log("success", data);
             })
