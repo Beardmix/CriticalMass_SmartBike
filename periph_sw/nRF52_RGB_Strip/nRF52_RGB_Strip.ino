@@ -34,6 +34,7 @@ unsigned long server_clock_ms = 0;
 CtrlLED led(pinData, pinDebug);
 BLE_Handler ble;
 EEPROM_Handler eeprom;
+Settings settings;
 
 void setup()
 {
@@ -44,15 +45,15 @@ void setup()
     Bluefruit.begin(1, 0);
     // Bluefruit module must be initialized for Nffs to work 
     // since Bluefruit's SOC event handling task is required for flash operation (creating the FS the first time)
-    eeprom.load();
+    eeprom.load(settings);
     
-    ble.configure_ble(eeprom.settings.device_name.c_str());
+    ble.configure_ble(&settings);
 
     // Set up and start advertising
     ble.startAdv();
 
     // Initialise the LED strip.
-    led.configure(eeprom.settings.num_pixels);
+    led.configure(settings.num_pixels);
 }
 
 void readUART(uint8_t *const p_ledMode)
@@ -107,15 +108,15 @@ void readUART(uint8_t *const p_ledMode)
         break;
     case ble.Services::DEV_SETTINGS:
         Serial.println("DEV_SETTINGS");
-        eeprom.settings.num_pixels = packetPayload[0];
-        eeprom.settings.device_name = "";
+        settings.num_pixels = packetPayload[0];
+        settings.device_name = "";
         for (int i = 2; i < len_payload; i++)
         {
-            eeprom.settings.device_name += char(packetPayload[i]);
+            settings.device_name += char(packetPayload[i]);
         }
-        Serial.println(eeprom.settings.device_name);
-        eeprom.save();
-        ble.sendPacket(ble.Services::DEV_SETTINGS, String(eeprom.settings.num_pixels) + ";" + eeprom.settings.device_name);
+        Serial.println(settings.device_name);
+        eeprom.save(settings);
+        ble.sendPacket(ble.Services::DEV_SETTINGS, String(settings.num_pixels) + ";" + settings.device_name);
         break;
     default:
         Serial.println("[SERVICE] unknown");

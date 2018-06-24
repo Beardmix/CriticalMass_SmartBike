@@ -30,15 +30,11 @@ class Settings
 class EEPROM_Handler
 {
   public:
-    Settings settings;
-
-  private:
-  public:
     EEPROM_Handler()
     {
     }
 
-    void load()
+    void static load(Settings &settings)
     {
         // Initialize Nffs
         Nffs.begin();
@@ -57,7 +53,7 @@ class EEPROM_Handler
                 end_idx = content.indexOf(";", start_idx);
                 if (end_idx != -1)
                 {
-                    extract_setting(content.substring(start_idx, end_idx));
+                    extract_setting(settings, content.substring(start_idx, end_idx));
                 }
                 start_idx = end_idx + 1;
             } while (end_idx > 0);
@@ -69,7 +65,7 @@ class EEPROM_Handler
         }
     }
 
-    void save()
+    void static save(Settings &settings)
     {
         Nffs.begin();
         NffsFile file;
@@ -92,7 +88,7 @@ class EEPROM_Handler
     }
 
   private:
-    void write_setting(NffsFile &file, String name, String val)
+    void static write_setting(NffsFile &file, String name, String val)
     {
         String setting = name + "=" + val + ";";
         Serial.println("Writting Setting: " + setting);
@@ -103,7 +99,7 @@ class EEPROM_Handler
         }
     }
 
-    String read_content(NffsFile &file)
+    String static read_content(NffsFile &file)
     {
         String content = "";
         uint32_t readlen;
@@ -118,7 +114,7 @@ class EEPROM_Handler
         return content;
     }
 
-    void extract_setting(String setting)
+    void static extract_setting(Settings &settings, String setting)
     {
         Serial.println(setting);
         int equ_idx = setting.indexOf("=");
