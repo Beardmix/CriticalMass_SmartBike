@@ -107,15 +107,20 @@ void readUART(uint8_t *const p_ledMode)
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
     case ble.Services::DEV_SETTINGS:
-        Serial.println("DEV_SETTINGS");
-        settings.num_pixels = packetPayload[0];
-        settings.device_name = "";
-        for (int i = 2; i < len_payload; i++)
+        // Serial.println("DEV_SETTINGS");
+        // If the central just sends the Service without payload, it means that it requests for an update.
+        // Else, read the new values for the settings.
+        if(len_payload > 0)
         {
-            settings.device_name += char(packetPayload[i]);
+            settings.num_pixels = packetPayload[0];
+            settings.device_name = "";
+            for (int i = 2; i < len_payload; i++)
+            {
+                settings.device_name += char(packetPayload[i]);
+            }
+            Serial.println(settings.device_name);
+            eeprom.save(settings);
         }
-        Serial.println(settings.device_name);
-        eeprom.save(settings);
         ble.sendPacket(ble.Services::DEV_SETTINGS, String(settings.num_pixels) + ";" + settings.device_name);
         break;
     default:
