@@ -29,7 +29,7 @@
     <ion-card *ngIf="true == displayConnectedPeriphs">
         <ng-container *ngIf="listConnectedPeriphs()?.length > 0">
             <ion-list *ngFor="let periph of listConnectedPeriphs()">
-                <ion-item>
+                <ion-item (click)="openPopoverSettings($event, periph)">
                     <ion-grid>
                         <ion-row>
                             <h2>{{ periph.name }}</h2>

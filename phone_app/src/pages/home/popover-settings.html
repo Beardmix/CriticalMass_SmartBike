@@ -1,0 +1,22 @@
+<ion-list>
+    <ion-list-header color="primary">Device Settings</ion-list-header>
+
+    <ion-item>
+        <ion-label stacked>Device Name</ion-label>
+        <ion-input type="text" [(ngModel)]="periph.name"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label stacked>Number of Pixels</ion-label>
+        <ion-input type="number" [(ngModel)]="periph.num_pixels"></ion-input>
+    </ion-item>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <button ion-button (click)="save()" color="secondary">Save</button>
+            </ion-col>
+            <ion-col>
+                <button ion-button (click)="close()" color="danger">Cancel</button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-list>

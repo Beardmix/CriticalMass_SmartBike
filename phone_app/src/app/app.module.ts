@@ -8,12 +8,14 @@ import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { PopoverSettings } from '../pages/home/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    PopoverSettings
   ],
   imports: [
     BrowserModule,
@@ -22,7 +24,8 @@ import { BleServiceProvider } from '../providers/ble-service';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    PopoverSettings
   ],
   providers: [
     StatusBar,
