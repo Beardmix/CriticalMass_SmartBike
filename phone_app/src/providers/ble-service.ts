@@ -70,8 +70,9 @@ export class BleServiceProvider {
         this.scanObs.next(true);
         this.ble.startScan([]).subscribe(
             periph => {
-                if (periph.name) {
-                    if (periph.name.indexOf("MyFahrrad") >= 0) // searches for MyFahrrad in the name of the device
+                if (periph.advertising) {
+                    var adv = this.bytesToString(periph.advertising);
+                    if (adv.indexOf("MF@CM") >= 0) // searches for MF@CM in the advertising of the device
                     {
                         console.log("scan", periph);
                         this.connect(new Periph(periph.id, periph.name));
