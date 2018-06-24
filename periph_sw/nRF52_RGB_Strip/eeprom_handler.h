@@ -15,7 +15,8 @@ class Settings
     unsigned int num_pixels;
     String device_name;
 
-    Settings() {
+    Settings()
+    {
         set_defaults();
     }
 
@@ -70,7 +71,9 @@ class EEPROM_Handler
 
     void save()
     {
+        Nffs.begin();
         NffsFile file;
+        
         Serial.println("Open " FILENAME " file to write ... ");
 
         if (file.open(FILENAME, FS_ACCESS_WRITE))
@@ -94,7 +97,7 @@ class EEPROM_Handler
         String setting = name + "=" + val + ";";
         Serial.println("Writting Setting: " + setting);
         int len_written = file.write(setting.c_str(), setting.length());
-        if(len_written != setting.length())
+        if (len_written != setting.length())
         {
             Serial.println("Error - len_written: " + String(len_written) + " | file.errnum: " + String(file.errnum));
         }
