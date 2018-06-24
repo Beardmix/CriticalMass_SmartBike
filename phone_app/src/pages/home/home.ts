@@ -72,6 +72,7 @@ export class HomePage {
         this.changeTempo(periph);
         this.changeColor(periph);
         this.changeMode(periph);
+        this.requestSettings(periph);
 
         // To refresh the UI
         this.zone.run(() => {
@@ -207,6 +208,18 @@ export class HomePage {
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeTempo(periph);
         });
+    }
+
+    requestSettings(periph: Periph) {
+        console.log("requestSettings");
+        // check again that only one device is connected
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "")
+            .then(data => {
+                console.log("success", data);
+            })
+            .catch(err => {
+                console.log("error", err);
+            })
     }
 
     setSettings(periph: Periph) {
