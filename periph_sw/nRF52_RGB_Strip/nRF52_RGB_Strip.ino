@@ -2,12 +2,14 @@
 #include <bluefruit.h>
 #include "led_lib.h"
 #include "ble_handler.h"
+#include "eeprom_handler.h"
+
 /* Need to undefine min and max in order to compile <String>. */
 #undef max
 #undef min
 #include <String>
 
-#define READ_BUFSIZE (20) /* Size of the read buffer for incoming packets */
+#define READ_BUFSIZE (40) /* Size of the read buffer for incoming packets */
 
 
 enum LEDMode
@@ -25,13 +27,14 @@ bool debug = true;
 
 const int pinDebug = LED_BUILTIN;
 const int pinData = 2;
-const int numpixels = 51;
 
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 
-CtrlLED led(numpixels, pinData, pinDebug);
+CtrlLED led(pinData, pinDebug);
 BLE_Handler ble;
+EEPROM_Handler eeprom;
+Settings settings;
 
 void setup()
 {
@@ -39,13 +42,18 @@ void setup()
 
     Serial.println("--- Peripheral---\n");
 
-    ble.configure();
+    Bluefruit.begin(1, 0);
+    // Bluefruit module must be initialized for Nffs to work 
+    // since Bluefruit's SOC event handling task is required for flash operation (creating the FS the first time)
+    eeprom.load(settings);
+    
+    ble.configure_ble(&settings);
 
     // Set up and start advertising
     ble.startAdv();
 
     // Initialise the LED strip.
-    led.configure();
+    led.configure(settings.num_pixels);
 }
 
 void readUART(uint8_t *const p_ledMode)
@@ -58,8 +66,8 @@ void readUART(uint8_t *const p_ledMode)
     uint8_t packetService;
     uint8_t packetPayload[READ_BUFSIZE + 1];
     // Wait for new data to arrive
-    uint16_t len = ble.readPacket(&packetService, packetPayload, READ_BUFSIZE);
-    if (len == 0)
+    int16_t len_payload = ble.readPacket(&packetService, packetPayload, READ_BUFSIZE);
+    if (len_payload == -1)
         return;
 
     // Switch to the correct service
@@ -98,9 +106,30 @@ void readUART(uint8_t *const p_ledMode)
         led.setTempo(tempo);
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
+    case ble.Services::DEV_SETTINGS:
+        // Serial.println("DEV_SETTINGS");
+        // If the central just sends the Service without payload, it means that it requests for an update.
+        // Else, read the new values for the settings.
+        if(len_payload > 0)
+        {
+            settings.num_pixels = packetPayload[0];
+            settings.device_name = "";
+            for (int i = 2; i < len_payload; i++)
+            {
+                settings.device_name += char(packetPayload[i]);
+            }
+            Serial.println(settings.device_name);
+            eeprom.save(settings);
+        }
+        ble.sendPacket(ble.Services::DEV_SETTINGS, String(settings.num_pixels) + ";" + settings.device_name);
+        break;
     default:
         Serial.println("[SERVICE] unknown");
-        Serial.println(packetPayload[0]);
+        for (int i = 0; i < len_payload; i++)
+        {
+            Serial.print(packetPayload[i]);
+        }
+        Serial.println();
         // delay(1000);
         break;
     }

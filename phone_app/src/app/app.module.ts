@@ -4,18 +4,18 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
-import { LocationAccuracy } from '@ionic-native/location-accuracy';
-
 import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { PopoverSettings } from '../pages/home/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    PopoverSettings
   ],
   imports: [
     BrowserModule,
@@ -24,15 +24,15 @@ import { BleServiceProvider } from '../providers/ble-service';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
-    HomePage
+    HomePage,
+    PopoverSettings
   ],
   providers: [
     StatusBar,
     SplashScreen,
     BLE,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    BleServiceProvider,
-    LocationAccuracy
+    BleServiceProvider
   ]
 })
 export class AppModule {}

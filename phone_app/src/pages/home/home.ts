@@ -1,8 +1,9 @@
 import { Component, NgZone } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { PopoverController } from 'ionic-angular';
+import { PopoverSettings } from './popover-settings';
 
-import { BLE } from '@ionic-native/ble';
-import { BleServiceProvider } from '../../providers/ble-service';
+import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
 
 var LEDMode =
@@ -15,10 +16,6 @@ var LEDMode =
     THEATER_CHASE_MODE: '5',
     PILE_UP_MODE: '6'
 };
-
-const SERVICE_COLOR = 'C';
-const SERVICE_MODE = 'M';
-const SERVICE_TEMPO = 'T';
 
 @Component({
     selector: 'page-home',
@@ -39,6 +36,7 @@ export class HomePage {
 
 
     constructor(public navCtrl: NavController,
+        private popoverCtrl: PopoverController,
         private bleService: BleServiceProvider,
         private zone: NgZone, // UI updated when wrapped up in this.zone.run().
     ) {
@@ -74,6 +72,7 @@ export class HomePage {
         this.changeTempo(periph);
         this.changeColor(periph);
         this.changeMode(periph);
+        this.requestSettings(periph);
 
         // To refresh the UI
         this.zone.run(() => {
@@ -211,8 +210,46 @@ export class HomePage {
         });
     }
 
+    requestSettings(periph: Periph) {
+        console.log("requestSettings");
+        // check again that only one device is connected
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "")
+            .then(data => {
+                console.log("success", data);
+            })
+            .catch(err => {
+                console.log("error", err);
+            })
+    }
+
+    setSettings(periph: Periph) {
+        console.log("changeSettings");
+        // check again that only one device is connected
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
+            String.fromCharCode(periph.num_pixels) + ";" + periph.name)
+            .then(data => {
+                console.log("success", data);
+            })
+            .catch(err => {
+                console.log("error", err);
+            })
+    }
+
+
+    openPopoverSettings(clickEvent, periph: Periph) {
+        let popover = this.popoverCtrl.create(PopoverSettings, { "periph": periph });
+        popover.present({
+            ev: clickEvent
+        });
+        popover.onDidDismiss((periph: Periph) => {
+            if (periph != null) {
+                this.setSettings(periph);
+            }
+        });
+    }
+
     private changeTempo(periph) {
-        this.bleService.writeBLE(periph, SERVICE_TEMPO, String.fromCharCode(this.tempo))
+        this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(this.tempo))
             .then(data => {
                 console.log("success", data);
             })
@@ -222,7 +259,7 @@ export class HomePage {
     }
 
     private changeColor(periph) {
-        this.bleService.writeBLE(periph, SERVICE_COLOR, String.fromCharCode(this.r, this.g, this.b))
+        this.bleService.writeBLE(periph, BLE_SERVICES.COLOR, String.fromCharCode(this.r, this.g, this.b))
             .then(data => {
                 console.log("success", data);
             })
@@ -232,7 +269,7 @@ export class HomePage {
     }
 
     private changeMode(periph) {
-        this.bleService.writeBLE(periph, SERVICE_MODE, this.mode)
+        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, this.mode)
             .then(data => {
                 console.log("success", data);
             })
