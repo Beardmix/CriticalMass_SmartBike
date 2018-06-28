@@ -1,6 +1,12 @@
 # CriticalMass_SmartBike
 RGB Lights controled via Bluetooth.
 
+# Android App
+https://play.google.com/store/apps/details?id=de.schnitzellab.criticalmass_sb
+
+# Beta testers
+https://play.google.com/apps/internaltest/4700354087248222113
+
 # Install on MAC
 ## BSP Installation
 
