@@ -7,14 +7,18 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
+import { TabsPage } from '../pages/tabs/tabs';
 import { HomePage } from '../pages/home/home';
+import { PeripheralsPage } from '../pages/peripherals/peripherals';
 import { PopoverSettings } from '../pages/home/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
 
 @NgModule({
   declarations: [
     MyApp,
+    TabsPage,
     HomePage,
+    PeripheralsPage,
     PopoverSettings
   ],
   imports: [
@@ -24,7 +28,9 @@ import { BleServiceProvider } from '../providers/ble-service';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
+    TabsPage,
     HomePage,
+    PeripheralsPage,
     PopoverSettings
   ],
   providers: [
