@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BLE } from '@ionic-native/ble';
 import { Subject } from 'rxjs/Subject';
+import { Platform } from 'ionic-angular';
+
+import { LocationAccuracy } from '@ionic-native/location-accuracy';
 
 import { Periph } from '../classes/periph';
 
@@ -12,10 +15,10 @@ const CHAR_START = '#'
 const CHAR_END = '!'
 
 export const BLE_SERVICES = {
-    TIME_SERVER : 'S',
-    MODE : 'M',
-    COLOR : 'C',
-    TEMPO : 'T',
+    TIME_SERVER: 'S',
+    MODE: 'M',
+    COLOR: 'C',
+    TEMPO: 'T',
     DEV_SETTINGS: 'D'
 }
 
@@ -32,8 +35,6 @@ var MODES =
 
 @Injectable()
 export class BleServiceProvider {
-
-
     public listConnectedPeriphs: Periph[] = [];
 
     private intervalScanNewDevices_ID = -1;
@@ -44,8 +45,39 @@ export class BleServiceProvider {
     public newPeriphObs = new Subject();
     public scanObs = new Subject();
 
-    constructor(private ble: BLE) {
+    constructor(private ble: BLE,
+        public platform: Platform,
+        private locationAccuracy: LocationAccuracy) {
         console.log('Hello BleServiceProvider Provider');
+
+        // Bluetooth activation.
+        this.ble.isEnabled().then(() => {
+            console.log('Bluetooth already enabled.');
+        },
+            (err) => { // Bluetooth disabled, try to enable it.
+                // Android only.
+                if (this.platform.is('android')) {
+                    this.ble.enable().then(() => {
+                        console.log('Bluetooth now enabled.');
+                    },
+                        (err) => {
+                            console.log('Cannot enable Bluetooth: ' + err);
+                        });
+                }
+            });
+
+        // Localization activation.
+        // https://ionicframework.com/docs/native/location-accuracy/
+        this.locationAccuracy.canRequest().then((canRequest: boolean) => {
+            if (canRequest) {
+                // the accuracy option will be ignored by iOS
+                this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
+                    () => console.log('Request successful'),
+                    error => console.log('Error requesting location permissions', error)
+                );
+            }
+
+        });
     }
 
     private connect(periph: Periph) {

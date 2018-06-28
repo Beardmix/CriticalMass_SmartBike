@@ -4,6 +4,8 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
+import { LocationAccuracy } from '@ionic-native/location-accuracy';
+
 import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
@@ -32,7 +34,8 @@ import { BleServiceProvider } from '../providers/ble-service';
     SplashScreen,
     BLE,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    BleServiceProvider
+    BleServiceProvider,
+    LocationAccuracy
   ]
 })
 export class AppModule {}
