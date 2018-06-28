@@ -3,11 +3,6 @@
         <ion-grid>
             <ion-row>
                 <ion-col>
-                    <ion-icon name="bicycle" style="zoom:2.0;" icon-right (click)="displayConnectedPeriphsClick()">
-                        <ion-badge>{{ listConnectedPeriphs().length }}</ion-badge>
-                    </ion-icon>
-                </ion-col>
-                <ion-col>
                     <ion-spinner name="dots" *ngIf="isScanning"></ion-spinner>
                 </ion-col>
                 <ion-col>
