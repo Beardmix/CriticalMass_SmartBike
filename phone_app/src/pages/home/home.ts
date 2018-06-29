@@ -15,6 +15,56 @@ var LEDMode =
     PILE_UP_MODE: '6'
 };
 
+class Color
+{
+    r = 0;
+    g = 0;
+    b = 0;
+    brightness = 100;
+    saturation = 100;
+    r_final = 0;
+    g_final = 0;
+    b_final = 0;
+    
+    constructor(r, g, b) {
+        this.setRGB(r, g, b);
+    }
+
+    setRGB(r, g, b) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.computeFinalRGB();
+    }
+
+    setBrightness(brightness) {
+        this.brightness = brightness;
+        this.computeFinalRGB();
+    }
+    
+    computeFinalRGB()
+    {
+        var r = this.r;
+        var g = this.g;
+        var b = this.b;
+        var max_val = Math.max(r, g, b);
+        r = r + (max_val - r) * (100 - this.saturation) / 100.0;
+        g = g + (max_val - g) * (100 - this.saturation) / 100.0;
+        b = b + (max_val - b) * (100 - this.saturation) / 100.0;
+        r = r * this.brightness / 100.0;
+        g = g * this.brightness / 100.0;
+        b = b * this.brightness / 100.0;
+        this.r_final = Math.round(r);
+        this.g_final = Math.round(g);
+        this.b_final = Math.round(b);
+        console.log("changeColor", this.r_final, this.g_final, this.b_final);
+    }
+
+    getRGBstring() {
+        return "rgb(" + String(this.r_final) + "," + String(this.g_final) + "," + String(this.b_final) + ")";
+    }
+}
+
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html'
@@ -24,14 +74,20 @@ export class HomePage {
     isScanning: any = false;
     tempo: number = 60;
     hue = 0;
-    brightness = 100;
-    saturation = 0;
-    hexcolor = "rgb(255,255,255)";
-    r = 255;
-    g = 255;
-    b = 255;
+    rgb = new Color(255, 255, 255);
     mode = LEDMode.PULSE_MODE;
 
+    public colorsPresetsList: Color[] = [
+      new Color(255, 0, 0), // red
+      new Color(0, 255, 0), // green
+      new Color(0, 0, 255), // blue
+      new Color(255, 255, 255), // white
+      new Color(255, 128, 0), // orange
+      new Color(255, 255, 0), // yellow
+      new Color(51, 153, 255), // lightblue
+      new Color(255, 0, 255), // fuschia
+      new Color(0, 255, 255) // aqua
+    ];
 
     constructor(public navCtrl: NavController,
         private bleService: BleServiceProvider,
@@ -136,28 +192,23 @@ export class HomePage {
             this.changeMode(periph);
         });
     }
-    setColor() {
-        var rgb = this.hue2rgb(this.hue);
-        var r = rgb[0];
-        var g = rgb[1];
-        var b = rgb[2];
-        var max_val = Math.max(r, g, b);
-        r = r + (max_val - r) * (100 - this.saturation) / 100.0;
-        g = g + (max_val - g) * (100 - this.saturation) / 100.0;
-        b = b + (max_val - b) * (100 - this.saturation) / 100.0;
-        r = r * this.brightness / 100.0;
-        g = g * this.brightness / 100.0;
-        b = b * this.brightness / 100.0;
-        this.r = Math.round(r * 255);
-        this.g = Math.round(g * 255);
-        this.b = Math.round(b * 255);
-        console.log("changeColor", this.r, this.g, this.b);
+
+    setRGB(r, g, b) {
+        this.rgb.setRGB(r, g, b);
 
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeColor(periph);
         });
-        this.hexcolor = "rgb(" + this.r + "," + this.g + "," + this.b + ")";
     }
+
+    setBrightness(brightness) {
+        this.rgb.setBrightness(brightness);
+
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.changeColor(periph);
+        });
+    }
+
     private hue2rgb(h) {
         var r, g, b;
         h = h / 60.0;
@@ -230,7 +281,9 @@ export class HomePage {
     }
 
     private changeColor(periph) {
-        this.bleService.writeBLE(periph, BLE_SERVICES.COLOR, String.fromCharCode(this.r, this.g, this.b))
+        this.bleService.writeBLE(periph,
+                                 BLE_SERVICES.COLOR,
+                                 String.fromCharCode(this.rgb.r_final, this.rgb.g_final, this.rgb.b_final))
             .then(data => {
                 console.log("success", data);
             })
