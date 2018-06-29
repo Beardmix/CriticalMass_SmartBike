@@ -10,7 +10,7 @@ import { MyApp } from './app.component';
 import { TabsPage } from '../pages/tabs/tabs';
 import { HomePage } from '../pages/home/home';
 import { PeripheralsPage } from '../pages/peripherals/peripherals';
-import { PopoverSettings } from '../pages/home/popover-settings';
+import { PopoverSettings } from '../pages/peripherals/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
 
 @NgModule({
