@@ -117,21 +117,21 @@
                     <ion-grid>
                         <ion-row>
                             <ion-col>
-                                <button ion-button icon-start item-right (click)="setBrightness(100)">100%&nbsp;
+                                <button ion-button icon-start item-right color="light" (click)="setBrightness(100)" [ngStyle]="{'border': isBrightnessSelected(100)}">
                                     <ion-icon name="md-sunny"></ion-icon>
                                 </button>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <button ion-button icon-start item-right (click)="setBrightness(75)">75%&nbsp;&nbsp;
+                                <button ion-button icon-start item-right color="grey" (click)="setBrightness(75)" [ngStyle]="{'border': isBrightnessSelected(75)}">
                                     <ion-icon name="md-sunny"></ion-icon>
                                 </button>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <button ion-button icon-start item-right (click)="setBrightness(25)">25%&nbsp;&nbsp;
+                                <button ion-button icon-start item-right color="dark" (click)="setBrightness(25)" [ngStyle]="{'border': isBrightnessSelected(25)}">
                                     <ion-icon name="md-sunny"></ion-icon>
                                 </button>
                             </ion-col>

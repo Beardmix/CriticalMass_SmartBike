@@ -176,11 +176,23 @@ export class HomePage {
 
     isColorSelected(color: Color) 
     {
-        var style = "0px";
+        var style = "4px solid white";
 
-        if(color.getRGBstring() == this.rgb.getRGBstring())
+        if((color.r == this.rgb.r) && (color.g == this.rgb.g) && (color.b == this.rgb.b))
         {
             style = "4px solid grey";
+        }
+
+        return style;
+    }
+
+    isBrightnessSelected(brightness: number) 
+    {
+        var style = "4px solid white";
+
+        if(brightness == this.rgb.brightness)
+        {
+            style = "4px solid #0096ff";
         }
 
         return style;
@@ -192,7 +204,7 @@ export class HomePage {
 
         if(mode == this.mode)
         {
-            style = "4px solid grey";
+            style = "4px solid #0096ff";
         }
 
         return style;
