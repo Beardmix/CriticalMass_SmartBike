@@ -22,47 +22,30 @@
 
 <ion-content>
     <ion-card>
-        <ion-grid>
-            <ion-row>
-                <ion-col>
-                    <button ion-button block icon-left color="dark" (click)="switchOff()">
-                        <ion-icon name="md-power"></ion-icon>Off
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="light" (click)="switchOn()">
-                        <ion-icon name="md-bulb"></ion-icon>On
-                    </button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col>
-                    <button ion-button block icon-left color="danger" (click)="flash()">
-                        <ion-icon name="md-sunny"></ion-icon>Flash
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="secondary" (click)="pulse()">
-                        <ion-icon name="md-infinite"></ion-icon>Pulse
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left (click)="hueFlow()">
-                        <ion-icon name="md-refresh"></ion-icon>Hue Flow
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="sunny" (click)="theaterChase()">
-                        <ion-icon name="ios-analytics"></ion-icon>Theater
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="pink" (click)="pileUp()">
-                        <ion-icon name="md-barcode"></ion-icon>Pile Up
-                    </button>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+        <ion-title>{{mode.replace("_", " ")}}</ion-title>
+        <ion-segment [(ngModel)]="mode" color="dark" (ionChange)="modeChanged($event)">
+            <ion-segment-button value="OFF">
+                <ion-icon color="dark" name="md-power"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="ON">
+                <ion-icon color="dark" name="md-bulb"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="FLASH">
+                <ion-icon color="danger" name="md-sunny"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="PULSE">
+                <ion-icon color="secondary" name="md-infinite"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="HUE_FLOW">
+                <ion-icon color="primary" name="md-refresh"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="THEATER_CHASE">
+                <ion-icon color="sunny" name="ios-analytics"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button value="PILE_UP">
+                <ion-icon color="pink" name="md-barcode"></ion-icon>
+            </ion-segment-button>
+        </ion-segment>
     </ion-card>
     <!-- First version of the RGB selection. -->
     <!--<ion-card>
@@ -102,7 +85,7 @@
     </ion-card>
     -->
     <!-- Second version of the RGB selection. -->
-    <ion-card>
+    <ion-card *ngIf="showColorPicker()">
         <ion-grid>
             <ion-row>
                 <ion-col>
@@ -122,15 +105,33 @@
                 </ion-col>
                 <ion-col col-3>
                     <ion-grid>
-                        <ion-row><ion-col><button ion-button icon-start item-right (click)="setBrightness(100)">100%&nbsp;<ion-icon name="md-sunny"></ion-icon></button></ion-col></ion-row>
-                        <ion-row><ion-col><button ion-button icon-start item-right (click)="setBrightness(75)">75%&nbsp;&nbsp;<ion-icon name="md-sunny"></ion-icon></button></ion-col></ion-row>
-                        <ion-row><ion-col><button ion-button icon-start item-right (click)="setBrightness(25)">25%&nbsp;&nbsp;<ion-icon name="md-sunny"></ion-icon></button></ion-col></ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <button ion-button icon-start item-right (click)="setBrightness(100)">100%&nbsp;
+                                    <ion-icon name="md-sunny"></ion-icon>
+                                </button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <button ion-button icon-start item-right (click)="setBrightness(75)">75%&nbsp;&nbsp;
+                                    <ion-icon name="md-sunny"></ion-icon>
+                                </button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <button ion-button icon-start item-right (click)="setBrightness(25)">25%&nbsp;&nbsp;
+                                    <ion-icon name="md-sunny"></ion-icon>
+                                </button>
+                            </ion-col>
+                        </ion-row>
                     </ion-grid>
                 </ion-col>
             </ion-row>
         </ion-grid>
     </ion-card>
-    <ion-card>
+    <ion-card *ngIf="showTempo()">
         <ion-card-header>
             Tempo
             <ion-badge item-end>{{ tempo }}</ion-badge>

@@ -4,19 +4,19 @@ import { NavController } from 'ionic-angular';
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
 
-var LEDMode =
+var LED_MODE =
 {
-    OFF_MODE: '0',
-    ON_MODE: '1',
-    FLASH_MODE: '2',
-    PULSE_MODE: '3',
-    HUE_FLOW: '4',
-    THEATER_CHASE_MODE: '5',
-    PILE_UP_MODE: '6'
+    "OFF": { val: '0', color_picker: false, tempo_picker: false },
+    "ON": { val: '1', color_picker: true, tempo_picker: false },
+    "FLASH": { val: '2', color_picker: true, tempo_picker: true },
+    "PULSE": { val: '3', color_picker: true, tempo_picker: true },
+    "HUE_FLOW": { val: '4', color_picker: false, tempo_picker: true },
+    "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
+    "PILE_UP": { val: '6', color_picker: true, tempo_picker: true }
 };
 
-class Color
-{
+
+class Color {
     r = 0;
     g = 0;
     b = 0;
@@ -25,7 +25,7 @@ class Color
     r_final = 0;
     g_final = 0;
     b_final = 0;
-    
+
     constructor(r, g, b) {
         this.setRGB(r, g, b);
     }
@@ -41,9 +41,8 @@ class Color
         this.brightness = brightness;
         this.computeFinalRGB();
     }
-    
-    computeFinalRGB()
-    {
+
+    computeFinalRGB() {
         var r = this.r;
         var g = this.g;
         var b = this.b;
@@ -75,18 +74,18 @@ export class HomePage {
     tempo: number = 60;
     hue = 0;
     rgb = new Color(255, 255, 255);
-    mode = LEDMode.PULSE_MODE;
+    mode = "PULSE";
 
     public colorsPresetsList: Color[] = [
-      new Color(255, 0, 0), // red
-      new Color(0, 255, 0), // green
-      new Color(0, 0, 255), // blue
-      new Color(255, 255, 255), // white
-      new Color(255, 128, 0), // orange
-      new Color(255, 255, 0), // yellow
-      new Color(51, 153, 255), // lightblue
-      new Color(255, 0, 255), // fuschia
-      new Color(0, 255, 255) // aqua
+        new Color(255, 0, 0), // red
+        new Color(0, 255, 0), // green
+        new Color(0, 0, 255), // blue
+        new Color(255, 255, 255), // white
+        new Color(255, 128, 0), // orange
+        new Color(255, 255, 0), // yellow
+        new Color(51, 153, 255), // lightblue
+        new Color(255, 0, 255), // fuschia
+        new Color(0, 255, 255) // aqua
     ];
 
     constructor(public navCtrl: NavController,
@@ -131,6 +130,14 @@ export class HomePage {
         this.zone.run(() => {
             this.displayConnectedPeriphs = this.displayConnectedPeriphs;
         });
+    } 
+
+    showColorPicker() {
+        return LED_MODE[this.mode].color_picker;
+    }
+
+    showTempo() {
+        return LED_MODE[this.mode].tempo_picker;
     }
 
     connectAll() {
@@ -143,51 +150,9 @@ export class HomePage {
         this.bleService.disconnectAll();
     }
 
-    switchOff() {
-        console.log("switchOff");
-        this.mode = LEDMode.OFF_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    switchOn() {
-        console.log("switchOn");
-        this.mode = LEDMode.ON_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    flash() {
-        console.log("flash");
-        this.mode = LEDMode.FLASH_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    pulse() {
-        console.log("pulse");
-        this.mode = LEDMode.PULSE_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    hueFlow() {
-        console.log("hueFlow");
-        this.mode = LEDMode.HUE_FLOW;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    theaterChase() {
-        console.log("theaterChase");
-        this.mode = LEDMode.THEATER_CHASE_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    pileUp() {
-        console.log("pileUp");
-        this.mode = LEDMode.PILE_UP_MODE;
+    modeChanged(event)
+    {
+        console.log("Mode changed to " + this.mode);
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
@@ -282,8 +247,8 @@ export class HomePage {
 
     private changeColor(periph) {
         this.bleService.writeBLE(periph,
-                                 BLE_SERVICES.COLOR,
-                                 String.fromCharCode(this.rgb.r_final, this.rgb.g_final, this.rgb.b_final))
+            BLE_SERVICES.COLOR,
+            String.fromCharCode(this.rgb.r_final, this.rgb.g_final, this.rgb.b_final))
             .then(data => {
                 console.log("success", data);
             })
@@ -293,7 +258,7 @@ export class HomePage {
     }
 
     private changeMode(periph) {
-        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, this.mode)
+        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, LED_MODE[this.mode].val)
             .then(data => {
                 console.log("success", data);
             })
