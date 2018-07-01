@@ -89,15 +89,10 @@
         <ion-grid>
             <ion-row>
                 <ion-col>
-                    <ion-chip id="color-preview" [ngStyle]="{'background-color': rgb.getRGBstring()}"></ion-chip>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col>
                     <ion-grid>
                         <ion-row>
                             <ion-col col-4 *ngFor="let color of colorsPresetsList">
-                                <button ion-button round (click)="setRGB(color.r, color.g, color.b)" [ngStyle]="{'background-color': color.getRGBstring()}">
+                                <button ion-button round (click)="setRGB(color.r, color.g, color.b)" [ngStyle]="{'background-color': color.getRGBstring(), 'border': isColorSelected(color)}">
                                 </button>
                             </ion-col>
                         </ion-row>

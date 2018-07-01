@@ -174,6 +174,18 @@ export class HomePage {
         });
     }
 
+    isColorSelected(color: Color) 
+    {
+        var style = "0px";
+
+        if(color.getRGBstring() == this.rgb.getRGBstring())
+        {
+            style = "4px solid grey";
+        }
+
+        return style;
+    }
+
     private hue2rgb(h) {
         var r, g, b;
         h = h / 60.0;
