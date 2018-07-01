@@ -130,7 +130,7 @@ export class HomePage {
         this.zone.run(() => {
             this.displayConnectedPeriphs = this.displayConnectedPeriphs;
         });
-    } 
+    }
 
     showColorPicker() {
         return LED_MODE[this.mode].color_picker;
@@ -150,9 +150,9 @@ export class HomePage {
         this.bleService.disconnectAll();
     }
 
-    modeChanged(event)
-    {
-        console.log("Mode changed to " + this.mode);
+    modeChanged(mode) {
+        console.log("Mode changed to " + mode);
+        this.mode = mode;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
@@ -174,36 +174,30 @@ export class HomePage {
         });
     }
 
-    isColorSelected(color: Color) 
-    {
+    isColorSelected(color: Color) {
         var style = "4px solid white";
 
-        if((color.r == this.rgb.r) && (color.g == this.rgb.g) && (color.b == this.rgb.b))
-        {
+        if ((color.r == this.rgb.r) && (color.g == this.rgb.g) && (color.b == this.rgb.b)) {
             style = "4px solid grey";
         }
 
         return style;
     }
 
-    isBrightnessSelected(brightness: number) 
-    {
+    isBrightnessSelected(brightness: number) {
         var style = "4px solid white";
 
-        if(brightness == this.rgb.brightness)
-        {
+        if (brightness == this.rgb.brightness) {
             style = "4px solid #0096ff";
         }
 
         return style;
     }
 
-    isModeSelected(mode: string) 
-    {
+    isModeSelected(mode: string) {
         var style = "4px solid white";
 
-        if(mode == this.mode)
-        {
+        if (mode == this.mode) {
             style = "4px solid #0096ff";
         }
 
