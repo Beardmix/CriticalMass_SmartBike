@@ -122,14 +122,18 @@ export class HomePage {
         return LED_MODE[this.mode].tempo_picker;
     }
 
-    connectAll() {
-        console.log("Connecting all new devices");
-        this.bleService.connectAll();
-    }
-
-    disconnectAll() {
-        console.log("Disconnecting all devices");
-        this.bleService.disconnectAll();
+    scanToggle(item)
+    {
+        if(this.bleService.isScanningNewPeriphs())
+        {
+            console.log("Disconnecting all devices");
+            this.bleService.disconnectAll();
+        }
+        else
+        {
+            console.log("Connecting all new devices");
+            this.bleService.connectAll();
+        }
     }
 
     modeChanged(mode) {

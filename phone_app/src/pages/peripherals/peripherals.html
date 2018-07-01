@@ -10,41 +10,41 @@
 
     <ion-refresher (ionRefresh)="doRefresh($event)">
         <ion-refresher-content>
-            <ng-container *ngIf="listConnectedPeriphs()?.length > 0">
-                <ion-list *ngFor="let periph of listConnectedPeriphs()">
-                    <ion-card>
-                        <ion-item (click)="openPopoverSettings($event, periph)">
-                            <ion-grid>
-                                <ion-row>
-                                    <h2>{{ periph.name }}</h2>
-                                </ion-row>
-                                <ion-row>
-                                    <h3>Id: {{ periph.id }}</h3>
-                                </ion-row>
-                                <ion-row>
-                                    <ion-col>
-                                        <ion-icon name="bicycle" item-start></ion-icon>
-                                    </ion-col>
-                                    <ion-col>
-                                        <ion-chip id="color-preview" [ngStyle]="{'background-color': periph.color_rgb}">
-                                        </ion-chip>
-                                    </ion-col>
-                                    <ion-col>
-                                        <h3>NumPix: {{ periph.num_pixels }}</h3>
-                                        <h3>Ms: {{ periph.globalTimerModulusMs }}</h3>
-                                    </ion-col>
-                                    <ion-col>
-                                        <h3>Mode: {{ periph.mode }}</h3>
-                                        <h3>Tempo: {{ periph.tempo }}</h3>
-                                    </ion-col>
-                                </ion-row>
-                            </ion-grid>
-                        </ion-item>
-                    </ion-card>
-                </ion-list>
-            </ng-container>
         </ion-refresher-content>
     </ion-refresher>
+    <ng-container *ngIf="listConnectedPeriphs()?.length > 0">
+        <ion-list *ngFor="let periph of listConnectedPeriphs()">
+            <ion-card>
+                <ion-item (click)="openPopoverSettings($event, periph)">
+                    <ion-grid>
+                        <ion-row>
+                            <h2>{{ periph.name }}</h2>
+                        </ion-row>
+                        <ion-row>
+                            <h3>Id: {{ periph.id }}</h3>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-icon name="bicycle" item-start></ion-icon>
+                            </ion-col>
+                            <ion-col>
+                                <ion-chip id="color-preview" [ngStyle]="{'background-color': periph.color_rgb}">
+                                </ion-chip>
+                            </ion-col>
+                            <ion-col>
+                                <h3>NumPix: {{ periph.num_pixels }}</h3>
+                                <h3>Ms: {{ periph.globalTimerModulusMs }}</h3>
+                            </ion-col>
+                            <ion-col>
+                                <h3>Mode: {{ periph.mode }}</h3>
+                                <h3>Tempo: {{ periph.tempo }}</h3>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-item>
+            </ion-card>
+        </ion-list>
+    </ng-container>
     <h2 *ngIf="listConnectedPeriphs()?.length == 0">No connected devices</h2>
     <ion-spinner name="dots" *ngIf="isScanning"></ion-spinner>
 </ion-content>
