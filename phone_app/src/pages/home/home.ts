@@ -69,8 +69,6 @@ class Color {
     templateUrl: 'home.html'
 })
 export class HomePage {
-    displayConnectedPeriphs: boolean = false; // Display the list of connected devices with their properties.
-    isScanning: any = false;
     tempo: number = 60;
     hue = 0;
     rgb = new Color(255, 255, 255);
@@ -103,17 +101,6 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
-        this.bleService.scanObs.subscribe(
-            value => {
-                this.isScanning = value;
-            },
-            error => {
-                console.log('Observer: onError: ', error)
-            },
-            () => {
-                console.log('Observer: onCompleted');
-            }
-        );
     }
 
     listConnectedPeriphs() {
@@ -125,11 +112,6 @@ export class HomePage {
         this.changeColor(periph);
         this.changeMode(periph);
         this.requestSettings(periph);
-
-        // To refresh the UI
-        this.zone.run(() => {
-            this.displayConnectedPeriphs = this.displayConnectedPeriphs;
-        });
     }
 
     showColorPicker() {
@@ -295,12 +277,5 @@ export class HomePage {
             .catch(err => {
                 console.log("error", err);
             })
-    }
-
-    /*
-    *   Buttons actions.
-    */
-    public displayConnectedPeriphsClick() {
-        this.displayConnectedPeriphs = !this.displayConnectedPeriphs;
     }
 }
