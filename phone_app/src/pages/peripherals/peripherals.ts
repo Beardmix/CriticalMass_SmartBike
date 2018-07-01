@@ -17,24 +17,33 @@ export class PeripheralsPage {
     constructor(public navCtrl: NavController,
         private popoverCtrl: PopoverController,
         private bleService: BleServiceProvider) {
-            this.bleService.scanObs.subscribe(
-                value => {
-                    this.isScanning = value;
-                },
-                error => {
-                    console.log('Observer: onError: ', error)
-                },
-                () => {
-                    console.log('Observer: onCompleted');
-                }
-            );
+        this.bleService.scanObs.subscribe(
+            value => {
+                this.isScanning = value;
+            },
+            error => {
+                console.log('Observer: onError: ', error)
+            },
+            () => {
+                console.log('Observer: onCompleted');
+            }
+        );
 
     }
 
     ionViewDidEnter() {
+        this.doRefresh(null)
+    }
+
+    doRefresh(refresher) {
         if (this.bleService.isScanningNewPeriphs()) {
             console.log("Rescanning all new devices");
             this.bleService.connectAll();
+        }
+        if (refresher) {
+            setTimeout(() => {
+                refresher.complete();
+            }, 500);
         }
     }
 
