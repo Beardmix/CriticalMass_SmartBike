@@ -1,12 +1,11 @@
-# CriticalMass_SmartBike
-Hardware Guide
+# Hardware Guide
 
-# Electronic sketch
+## Electronic sketch
 There is an available sketch "sketch.fzz"
 It can be viewed with <a href="http://fritzing.org/home/">Fritzing</a>:
 
 
-# Pre-requisites
+## Pre-requisites
 Here is the list of all the items you will need to aquire in order to have the project up and running:
 ![](resources/pictures/step1_prerequisites.jpg?raw=true "Summary of items")
 
@@ -18,19 +17,28 @@ Here is the list of all the items you will need to aquire in order to have the p
 5. <a href="https://www.amazon.de/OneCreation-m%C3%A4nnlicher-weiblicher-LED-Verbindungsst%C3%BCck-Kabel-LED-Streifen-Lampe/dp/B01DA5QB04/ref=sr_1_2?s=diy&ie=UTF8&qid=1530472467&sr=8-2&keywords=jst-sm-anschl%C3%BCssen+3+stift">JST-SM cable connectors</a>
 6. <a href="https://www.conrad.de/de/strapubox-mg-2-a-modul-gehaeuse-55-x-36-x-30-abs-grau-1-st-522341.html">Wrapping box</a>
 
-# Step by Step assembling
-## 1. Soldering the pin headers on the boards
-![](resources/pictures/step2_soldering_front.jpg?raw=true "Soldering, front-side view")
-![](resources/pictures/step2_soldering_back.jpg?raw=true "Soldering, back-side view")
-## 2. Soldering the logic shifter on the soldering board
-![](resources/pictures/step3_soldering_logic_shifter_front.jpg?raw=true "Soldering the logic shifter, front-side view")
-![](resources/pictures/step3_soldering_logic_shifter_back.jpg?raw=true "Soldering the logic shifter, back-side view")
-## 3. Soldering GND and VCC between nRF52 and logic shifter
+## Step by Step assembling
+### 1. Soldering the pin headers on the boards
+| Front | Back |
+| --- | --- |
+| ![](resources/pictures/step2_soldering_back.jpg?raw=true "Soldering, back-side view") | ![](resources/pictures/step2_soldering_front.jpg?raw=true "Soldering, front-side view") |
+
+### 2. Soldering the logic shifter on the soldering board
+| Front | Back |
+| --- | --- |
+| ![](resources/pictures/step3_soldering_logic_shifter_front.jpg?raw=true "Soldering the logic shifter, front-side view") | ![](resources/pictures/step3_soldering_logic_shifter_back.jpg?raw=true "Soldering the logic shifter, back-side view") |
+
+### 3. Soldering GND and VCC between nRF52 and logic shifter
 ![](resources/pictures/step4_soldering_gnd_and_vcc.jpg?raw=true "GND and VCC connections")
-## 4. Connecting the LED cable, to test the connections
-![](resources/pictures/step5_led_connect_off.jpg?raw=true "LED Cable connection, offline")
-![](resources/pictures/step5_led_connect_on.jpg?raw=true "LED Cable connection, online")
-## 5. Installing the device in the box
-![](resources/pictures/step6_wrapping_connections.jpg?raw=true "LED cable connections")
-![](resources/pictures/step6_wrapping_box_off.jpg?raw=true "Box wrap-up, offline")
-![](resources/pictures/step6_wrapping_box_on.jpg?raw=true "Box wrap-up, online")
+### 4. Connecting the LED cable, to test the connections
+| Off | On |
+| --- | --- |
+| ![](resources/pictures/step5_led_connect_off.jpg?raw=true "LED Cable connection, offline") | ![](resources/pictures/step5_led_connect_on.jpg?raw=true "LED Cable connection, online") |
+
+### 5. Installing the device in the box
+| Cable connecions | Off | On |
+| --- | --- | --- |
+| ![](resources/pictures/step6_wrapping_connections.jpg?raw=true "LED cable connections") | ![](resources/pictures/step6_wrapping_box_off.jpg?raw=true "Box wrap-up, offline") | ![](resources/pictures/step6_wrapping_box_on.jpg?raw=true "Box wrap-up, online") |
+
+
+
