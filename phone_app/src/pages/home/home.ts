@@ -186,6 +186,18 @@ export class HomePage {
         return style;
     }
 
+    isModeSelected(mode: string) 
+    {
+        var style = "4px solid white";
+
+        if(mode == this.mode)
+        {
+            style = "4px solid grey";
+        }
+
+        return style;
+    }
+
     private hue2rgb(h) {
         var r, g, b;
         h = h / 60.0;

@@ -21,32 +21,47 @@
 </ion-header>
 
 <ion-content>
-    <ion-card>
-        <ion-title>{{mode.replace("_", " ")}}</ion-title>
-        <ion-segment [(ngModel)]="mode" color="dark" (ionChange)="modeChanged($event)">
-            <ion-segment-button value="OFF">
-                <ion-icon color="dark" name="md-power"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="ON">
-                <ion-icon color="dark" name="md-bulb"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="FLASH">
-                <ion-icon color="danger" name="md-sunny"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="PULSE">
-                <ion-icon color="secondary" name="md-infinite"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="HUE_FLOW">
-                <ion-icon color="primary" name="md-refresh"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="THEATER_CHASE">
-                <ion-icon color="sunny" name="ios-analytics"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="PILE_UP">
-                <ion-icon color="pink" name="md-barcode"></ion-icon>
-            </ion-segment-button>
-        </ion-segment>
-    </ion-card>
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'OFF'" [ngStyle]="{'border': isModeSelected('OFF')}">
+                        <ion-icon color="dark" name="md-power"></ion-icon>Off
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'ON'" [ngStyle]="{'border': isModeSelected('ON')}">
+                        <ion-icon color="dark" name="md-bulb"></ion-icon>On
+                    </button>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'FLASH'" [ngStyle]="{'border': isModeSelected('FLASH')}">
+                        <ion-icon color="danger" name="md-sunny"></ion-icon>Flash
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'PULSE'" [ngStyle]="{'border': isModeSelected('PULSE')}">
+                        <ion-icon color="secondary" name="md-infinite"></ion-icon>Pulse
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'HUE_FLOW'" [ngStyle]="{'border': isModeSelected('HUE_FLOW')}">
+                        <ion-icon color="primary" name="md-refresh"></ion-icon>Hue Flow
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'THEATER_CHASE'" [ngStyle]="{'border': isModeSelected('THEATER_CHASE')}">
+                        <ion-icon color="sunny" name="ios-analytics"></ion-icon>Theater
+                    </button>
+                </ion-col>
+                <ion-col>
+                    <button ion-button block icon-left color="light" (click)="mode = 'PILE_UP'" [ngStyle]="{'border': isModeSelected('PILE_UP')}">
+                        <ion-icon color="pink" name="md-barcode"></ion-icon>Pile Up
+                    </button>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     <!-- First version of the RGB selection. -->
     <!--<ion-card>
         <ion-grid>
