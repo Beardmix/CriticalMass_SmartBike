@@ -11,11 +11,11 @@ https://play.google.com/apps/internaltest/4700354087248222113
 Link to the [Hardware Guide](periph_hw/README.md)
 
 # Videos
-[Demo Pile-Up 1](periph_hw\resources\videos\demo_pile_up.mp4)
+[Demo Pile-Up 1](periph_hw/resources/videos/demo_pile_up.mp4?raw=true "Demo Pile-Up 1")
 
-[Demo Pile-Up 2](periph_hw\resources\videos\demo_pile_up_2.mp4)
+[Demo Pile-Up 2](periph_hw/resources/videos/demo_pile_up_2.mp4?raw=true "Demo Pile-Up 2")
 
-[Demo Theater](periph_hw\resources\videos\demo_theater.mp4)
+[Demo Theater](periph_hw/resources/videos/demo_theater.mp4?raw=true "Demo Theater")
 
 # Install on MAC
 ## BSP Installation
