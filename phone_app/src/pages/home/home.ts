@@ -154,6 +154,13 @@ export class HomePage {
             this.changeColor(periph);
         });
     }
+    setColor(in_color:Color) {
+        this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
+
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.changeColor(periph);
+        });
+    }
 
     setBrightness(brightness) {
         this.rgb.setBrightness(brightness);
@@ -189,6 +196,8 @@ export class HomePage {
             if (this.intervalAutomode_ID == -1) {
                 this.intervalAutomode_ID = setInterval(() => {
                     var modes = Object.keys(LED_MODE);
+                    var idx_color = Math.floor(Math.random() * this.colorsPresetsList.length);
+                    this.setColor(this.colorsPresetsList[idx_color]);
                     var idx = 2 + Math.floor(Math.random() * (modes.length - 2));
                     this.modeChanged(modes[idx]);
                 }, this.intervalAutomode_ms);
