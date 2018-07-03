@@ -73,6 +73,9 @@ export class HomePage {
     hue = 0;
     rgb = new Color(255, 255, 255);
     mode = "PULSE";
+    isAuto:boolean = false;
+    private intervalAutomode_ID = -1;
+    private intervalAutomode_ms = 20000;
 
     public colorsPresetsList: Color[] = [
         new Color(255, 0, 0), // red
@@ -178,6 +181,25 @@ export class HomePage {
         }
 
         return style;
+    }
+    automatic() {
+        if (this.isAuto)
+        {
+            console.log("automatic");
+            if (this.intervalAutomode_ID == -1) {
+                this.intervalAutomode_ID = setInterval(() => {
+                    var modes = Object.keys(LED_MODE);
+                    var idx = 2 + Math.floor(Math.random() * (modes.length - 2));
+                    this.modeChanged(modes[idx]);
+                }, this.intervalAutomode_ms);
+            }
+        }
+        else
+        {
+            clearTimeout(this.intervalAutomode_ID);
+            this.intervalAutomode_ID = -1;
+        }
+
     }
 
     isModeSelected(mode: string) {
