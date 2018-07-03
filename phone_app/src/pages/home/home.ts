@@ -73,9 +73,9 @@ export class HomePage {
     hue = 0;
     rgb = new Color(255, 255, 255);
     mode = "PULSE";
-    isAuto:boolean = false;
+    isAuto: boolean = false;
     private intervalAutomode_ID = -1;
-    private intervalAutomode_ms = 20000;
+    private intervalAutomode_s = 2;
 
     public colorsPresetsList: Color[] = [
         new Color(255, 0, 0), // red
@@ -125,15 +125,12 @@ export class HomePage {
         return LED_MODE[this.mode].tempo_picker;
     }
 
-    scanToggle(item)
-    {
-        if(this.bleService.isScanningNewPeriphs())
-        {
+    scanToggle(item) {
+        if (this.bleService.isScanningNewPeriphs()) {
             console.log("Disconnecting all devices");
             this.bleService.disconnectAll();
         }
-        else
-        {
+        else {
             console.log("Connecting all new devices");
             this.bleService.connectAll();
         }
@@ -147,14 +144,7 @@ export class HomePage {
         });
     }
 
-    setRGB(r, g, b) {
-        this.rgb.setRGB(r, g, b);
-
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeColor(periph);
-        });
-    }
-    setColor(in_color:Color) {
+    setColor(in_color: Color) {
         this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
 
         this.bleService.listConnectedPeriphs.forEach(periph => {
@@ -189,26 +179,19 @@ export class HomePage {
 
         return style;
     }
-    automatic() {
-        if (this.isAuto)
-        {
-            console.log("automatic");
-            if (this.intervalAutomode_ID == -1) {
-                this.intervalAutomode_ID = setInterval(() => {
-                    var modes = Object.keys(LED_MODE);
-                    var idx_color = Math.floor(Math.random() * this.colorsPresetsList.length);
-                    this.setColor(this.colorsPresetsList[idx_color]);
-                    var idx = 2 + Math.floor(Math.random() * (modes.length - 2));
-                    this.modeChanged(modes[idx]);
-                }, this.intervalAutomode_ms);
-            }
-        }
-        else
-        {
-            clearTimeout(this.intervalAutomode_ID);
-            this.intervalAutomode_ID = -1;
-        }
 
+    automatic() {
+        clearTimeout(this.intervalAutomode_ID);
+        if (this.isAuto) {
+            this.intervalAutomode_ID = setTimeout(() => {
+                var modes = Object.keys(LED_MODE);
+                var idx_color = Math.floor(Math.random() * this.colorsPresetsList.length);
+                this.setColor(this.colorsPresetsList[idx_color]);
+                var idx = 2 + Math.floor(Math.random() * (modes.length - 2));
+                this.modeChanged(modes[idx]);
+                this.automatic();
+            }, this.intervalAutomode_s * 1000);
+        }
     }
 
     isModeSelected(mode: string) {
