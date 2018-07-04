@@ -262,32 +262,23 @@ export class HomePage {
         var bpms = [];
         for (var i = 1; i < this.NB_TAPS; i++) {
             var delta = this.taps[i] - this.taps[i-1];
-            if(delta > 0 && delta < 5000)
+            if(delta > 0 && (new Date().getTime() - this.taps[i]) < 5000)
             {
                 var bpm = (60 * 1000) / delta;
-    
-                while (bpm < 60)
-                {
-                    bpm * 2;
-                }
-                while (bpm > 180)
-                {
-                    bpm / 2;
-                }
                 bpms.push(bpm);
             }
         }
-        if(bpms.length > 0)
+        if(bpms.length > 2)
         {
             var average = 0;
             bpms.forEach((bpm) => {
                 average += bpm;
             })
             average = average / bpms.length;
+            average = Math.round(average * 100) / 100.0;
             this.tempo = average;
             console.log(average);
         }
-        
     }
 
     requestSettings(periph: Periph) {

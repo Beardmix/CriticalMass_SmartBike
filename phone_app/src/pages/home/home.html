@@ -98,19 +98,26 @@
     </ion-grid>
     <ion-card *ngIf="showTempo()">
         <ion-card-header>
-            Tempo
-            <ion-badge item-end>{{ tempo }}</ion-badge>
+            <ion-grid>
+                <ion-row>
+                    <ion-col col-3>
+                        Tempo
+                    </ion-col>
+                    <ion-col col-3>
+                        <button ion-button block icon-left small color="light" (click)="tapTempo()">
+                            <ion-icon name="md-sunny"></ion-icon>Tap
+                        </button>
+                    </ion-col>
+                    <ion-col col-5>
+                        <ion-badge item-end>{{ tempo }}</ion-badge>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
         </ion-card-header>
-        <ion-grid>
-            <ion-row>
-                <ion-col>
-                    <ion-range min="30" max="180" debounce="500" (ionChange)="setTempo()" [(ngModel)]="tempo">
-                        <ion-icon range-left small name="md-pulse"></ion-icon>
-                        <ion-icon range-right name="md-pulse"></ion-icon>
-                    </ion-range>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+        <ion-range id="range-tempo" min="30" max="180" debounce="500" (ionChange)="setTempo()" [(ngModel)]="tempo">
+            <ion-icon range-left small name="md-pulse"></ion-icon>
+            <ion-icon range-right name="md-pulse"></ion-icon>
+        </ion-range>
     </ion-card>
     <!-- First version of the RGB selection. -->
     <!--<ion-card>
@@ -187,13 +194,6 @@
                             </ion-col>
                         </ion-row>
                     </ion-grid>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col>
-                    <button ion-button block icon-left color="danger" (click)="tapTempo()">
-                        <ion-icon name="md-sunny"></ion-icon>Tap
-                    </button>
                 </ion-col>
             </ion-row>
         </ion-grid>
