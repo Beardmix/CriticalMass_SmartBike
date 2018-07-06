@@ -5,15 +5,15 @@ import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
 
 var LED_MODE =
-{
-    "OFF": { val: '0', color_picker: false, tempo_picker: false },
-    "ON": { val: '1', color_picker: true, tempo_picker: false },
-    "FLASH": { val: '2', color_picker: true, tempo_picker: true },
-    "PULSE": { val: '3', color_picker: true, tempo_picker: true },
-    "HUE_FLOW": { val: '4', color_picker: false, tempo_picker: true },
-    "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
-    "PILE_UP": { val: '6', color_picker: true, tempo_picker: true }
-};
+    {
+        "OFF": { val: '0', color_picker: false, tempo_picker: false },
+        "ON": { val: '1', color_picker: true, tempo_picker: false },
+        "HUE_FLOW": { val: '4', color_picker: false, tempo_picker: true },
+        "FLASH": { val: '2', color_picker: true, tempo_picker: true },
+        "PULSE": { val: '3', color_picker: true, tempo_picker: true },
+        "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
+        "PILE_UP": { val: '6', color_picker: true, tempo_picker: true }
+    };
 
 
 class Color {
@@ -188,9 +188,9 @@ export class HomePage {
         if (this.isAuto) {
             this.intervalAutomode_ID = setTimeout(() => {
                 var modes = Object.keys(LED_MODE);
-                var idx_color = Math.floor(Math.random() * this.colorsPresetsList.length);
+                var idx_color = Math.floor(Math.random() * this.colorsPresetsList.length-1);
                 this.setColor(this.colorsPresetsList[idx_color]);
-                var idx = 2 + Math.floor(Math.random() * (modes.length - 2));
+                var idx = 3 + Math.floor(Math.random() * (modes.length -1 -3));
                 this.modeChanged(modes[idx]);
                 this.automatic();
             }, this.intervalAutomode_s * 1000);
