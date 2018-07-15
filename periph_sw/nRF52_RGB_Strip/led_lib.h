@@ -144,12 +144,8 @@ class CtrlLED
         int gapBetweenChases = (this->numpixels / nbChases);
         int intensityStep = 0xFF / trainLength;
 
-        // Init: switch evertyhing off.
-        for (int i = 0; i < numpixels; i++)
-        {
-            strip.setPixelColor(i, strip.Color(0, 0, 0));
-        }
-
+        this->setPixelsOff(); // Init: switch evertyhing off.
+        
         for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
             // Get first chase
@@ -217,6 +213,15 @@ class CtrlLED
         g = map(g, 0, 255, 0, intensity);
         b = map(b, 0, 255, 0, intensity);
         return strip.Color(r, g, b);
+    }
+    
+    // Set all pixels off. Not calling show.
+    void setPixelsOff(void)
+    {
+        for (unsigned int i = 0; i < numpixels; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(0, 0, 0));
+        }
     }
 };
 
