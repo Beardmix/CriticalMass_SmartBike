@@ -14,7 +14,8 @@ var LEDMode =
     PULSE_MODE: '3',
     HUE_FLOW: '4',
     THEATER_CHASE_MODE: '5',
-    PILE_UP_MODE: '6'
+    PILE_UP_MODE: '6',
+    RAINBOW_MODE: '7'
 };
 
 @Component({
@@ -135,6 +136,13 @@ export class HomePage {
     pileUp() {
         console.log("pileUp");
         this.mode = LEDMode.PILE_UP_MODE;
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.changeMode(periph);
+        });
+    }
+    rainbowMode() {
+        console.log("rainbowMode");
+        this.mode = LEDMode.RAINBOW_MODE;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
