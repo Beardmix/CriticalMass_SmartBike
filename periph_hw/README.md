@@ -8,7 +8,7 @@ It can be viewed with <a href="http://fritzing.org/home/">Fritzing</a>:
 ## Pre-requisites
 Here is the list of all the items you will need to aquire in order to have the project up and running:
 ![](resources/pictures/step1_prerequisites.jpg?raw=true "Summary of items")
-
+1. <a href="https://www.amazon.de/gp/product/B01LXHUG4G/ref=oh_aui_search_detailpage?ie=UTF8&psc=1">WS2812B LED Strip</a>
 1. <a href="https://www.amazon.de/Adafruit-Feather-nRF52-Bluefruit-LE/dp/B071ZSQDSJ/ref=sr_1_1?s=ce-de&ie=UTF8&qid=1530471071&sr=1-1&keywords=bluefruit+nrf52">Adafruit Feather nRF52 Bluefruit LE</a>
 2. 3.3V to 5V logic shifter like the
 <a href="https://www.amazon.de/XCSOURCE%C2%AE-Logisches-Konverter-Bi-Direktional-TE291/dp/B0148BLZGE/ref=sr_1_1?ie=UTF8&qid=1530466361&sr=8-1&keywords=level+shifter">XCSOURCE Bi-directional logic shifter</a>
