@@ -54,6 +54,12 @@
                     <ion-icon color="pink" name="md-barcode"></ion-icon>Pile Up
                 </button>
             </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('RAINBOW_MODE')" [ngStyle]="{'border': isModeSelected('RAINBOW_MODE')}"
+                    [disabled]="isAuto">
+                    <ion-icon name="md-color-palette"></ion-icon>Rainbow
+                </button>
+            </ion-col>
             <!-- <ion-grid>
                 <ion-row>
                     <ion-col col-6>
@@ -110,11 +116,6 @@
                     </ion-col>
                     <ion-col col-5>
                         <ion-badge item-end>{{ tempo }}</ion-badge>
-                    </ion-col>
-                    <ion-col>
-                        <button ion-button block icon-left (click)="rainbowMode()">
-                            <ion-icon name="md-color-palette"></ion-icon>Rainbow
-                        </button>
                     </ion-col>
                 </ion-row>
             </ion-grid>

@@ -197,31 +197,6 @@ export class HomePage {
             }, this.intervalAutomode_s * 1000);
         }
     }
-  
-    rainbowMode() {
-        console.log("rainbowMode");
-        this.mode = LEDMode.RAINBOW_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    setColor() {
-        var rgb = this.hue2rgb(this.hue);
-        var r = rgb[0];
-        var g = rgb[1];
-        var b = rgb[2];
-        var max_val = Math.max(r, g, b);
-        r = r + (max_val - r) * (100 - this.saturation) / 100.0;
-        g = g + (max_val - g) * (100 - this.saturation) / 100.0;
-        b = b + (max_val - b) * (100 - this.saturation) / 100.0;
-        r = r * this.brightness / 100.0;
-        g = g * this.brightness / 100.0;
-        b = b * this.brightness / 100.0;
-        this.r = Math.round(r * 255);
-        this.g = Math.round(g * 255);
-        this.b = Math.round(b * 255);
-        console.log("changeColor", this.r, this.g, this.b);
-    }
 
     isModeSelected(mode: string) {
         var style = "4px solid white";
