@@ -20,7 +20,8 @@ enum LEDMode
     PULSE_MODE = '3',
     HUE_FLOW = '4',
     THEATER_CHASE_MODE = '5',
-    PILE_UP_MODE = '6'
+    PILE_UP_MODE = '6',
+    RAINBOW_MODE = '7'
 };
 
 bool debug = true;
@@ -166,6 +167,9 @@ void loop()
         break;
     case PILE_UP_MODE:
         led.pileUp();
+        break;
+    case RAINBOW_MODE:
+        led.modeRainbow();
         break;
     default:
         Serial.println("[MODE] unknown");

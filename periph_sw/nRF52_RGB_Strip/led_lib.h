@@ -144,12 +144,8 @@ class CtrlLED
         int gapBetweenChases = (this->numpixels / nbChases);
         int intensityStep = 0xFF / trainLength;
 
-        // Init: switch evertyhing off.
-        for (int i = 0; i < numpixels; i++)
-        {
-            strip.setPixelColor(i, strip.Color(0, 0, 0));
-        }
-
+        this->setPixelsOff(); // Init: switch evertyhing off.
+        
         for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
             // Get first chase
@@ -181,6 +177,41 @@ class CtrlLED
         strip.show(); // This sends the updated pixel color to the hardware.
     }
 
+    // Rainbox mode: chases of the preset colors.
+    void modeRainbow(void)
+    {
+        // Determine parameters according to the number of configured leds and colors.
+        unsigned int nbChases = max(1, this->NB_PRESET_COLORS);
+        unsigned int trainLength = max(1, this->numpixels / nbChases);
+        unsigned int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
+
+        /* Two partitions have to be distinguished.
+        * Chases might have different trainLength due to a non-null rest of the divison numpixels/nbChases.
+        * The left-hand-side of the partition will have a (trainLength + 1) length to use the pixels left. */
+        unsigned int partitionIdx = floor(this->numpixels / nbChases);
+
+        this->setPixelsOff(); // Init: switch evertyhing off.
+
+        for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
+        {
+            Color rgb = this->presetColors[chaseIdx];
+            int leaderIdx = (offset + (chaseIdx * trainLength)) % this->numpixels; // Chase start.
+            unsigned int lastIdx = leaderIdx + trainLength;
+            if (chaseIdx < partitionIdx) {
+                lastIdx += 1;
+            }
+
+            // Switch on the leds.
+            for (int i = leaderIdx; i < lastIdx; ++i)
+            {
+                int ledIdx = i % this->numpixels;
+                strip.setPixelColor(ledIdx, rgbiToColor(rgb.r, rgb.g, rgb.b, 0xFF));
+            }
+        }
+
+        strip.show();
+    }
+
     void setTimeOffset(int utc_millis)
     {
         time_offset = utc_millis - millis();
@@ -197,6 +228,25 @@ class CtrlLED
     }
 
   private:
+
+    class Color
+    {
+        public:
+            unsigned int r;
+            unsigned int g;
+            unsigned int b;
+
+            Color(unsigned int r, unsigned int g, unsigned int b)
+            {
+                this->r = r;
+                this->g = g;
+                this->b = b;
+            }
+    };
+
+    static const unsigned int NB_PRESET_COLORS = 9;
+    static const Color presetColors[NB_PRESET_COLORS];
+
     unsigned long global_millis()
     {
         return millis() + time_offset;
@@ -218,6 +268,27 @@ class CtrlLED
         b = map(b, 0, 255, 0, intensity);
         return strip.Color(r, g, b);
     }
+    
+    // Set all pixels off. Not calling show.
+    void setPixelsOff(void)
+    {
+        for (unsigned int i = 0; i < numpixels; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(0, 0, 0));
+        }
+    }
+};
+
+const CtrlLED::Color CtrlLED::presetColors[CtrlLED::NB_PRESET_COLORS] = {
+    CtrlLED::Color(255, 0, 0), // red
+    CtrlLED::Color(0, 255, 0), // green
+    CtrlLED::Color(0, 0, 255), // blue
+    CtrlLED::Color(255, 255, 255), // white
+    CtrlLED::Color(255, 128, 0), // orange
+    CtrlLED::Color(255, 255, 0), // yellow
+    CtrlLED::Color(51, 153, 255), // lightblue
+    CtrlLED::Color(255, 0, 255), // fuschia
+    CtrlLED::Color(0, 255, 255) // aqua
 };
 
 #endif

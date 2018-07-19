@@ -111,6 +111,11 @@
                     <ion-col col-5>
                         <ion-badge item-end>{{ tempo }}</ion-badge>
                     </ion-col>
+                    <ion-col>
+                        <button ion-button block icon-left (click)="rainbowMode()">
+                            <ion-icon name="md-color-palette"></ion-icon>Rainbow
+                        </button>
+                    </ion-col>
                 </ion-row>
             </ion-grid>
         </ion-card-header>
