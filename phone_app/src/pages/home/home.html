@@ -1,114 +1,131 @@
 <ion-header>
     <ion-navbar>
-        <ion-grid>
-            <ion-row>
-                <ion-col>
-                    <ion-icon name="bicycle" style="zoom:2.0;" icon-right (click)="displayConnectedPeriphsClick()">
-                        <ion-badge>{{ listConnectedPeriphs().length }}</ion-badge>
-                    </ion-icon>
-                </ion-col>
-                <ion-col>
-                    <ion-spinner name="dots" *ngIf="isScanning"></ion-spinner>
-                </ion-col>
-                <ion-col>
-                    <button ion-button icon-left color="light" (click)="connectAll()">
-                        <ion-icon name="md-lock"></ion-icon>
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button icon-left color="light" (click)="disconnectAll()">
-                        <ion-icon name="md-unlock"></ion-icon>
-                    </button>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
+        <ion-item>
+            <ion-label>Scan Devices</ion-label>
+            <ion-toggle (ionChange)="scanToggle(item)"></ion-toggle>
+        </ion-item>
     </ion-navbar>
 </ion-header>
 
 <ion-content>
-    <ion-card *ngIf="true == displayConnectedPeriphs">
-        <ng-container *ngIf="listConnectedPeriphs()?.length > 0">
-            <ion-list *ngFor="let periph of listConnectedPeriphs()">
-                <ion-item (click)="openPopoverSettings($event, periph)">
-                    <ion-grid>
-                        <ion-row>
-                            <h2>{{ periph.name }}</h2>
-                        </ion-row>
-                        <ion-row>
-                            <h3>Id: {{ periph.id }}</h3>
-                        </ion-row>
-                        <ion-row>
-                            <ion-col>
-                                <ion-icon name="bicycle" item-start></ion-icon>
-                            </ion-col>
-                            <ion-col>
-                                <ion-chip id="color-preview" [ngStyle]="{'background-color': periph.color_rgb}">
-                                </ion-chip>
-                            </ion-col>
-                            <ion-col>
-                                <h3>NumPix: {{ periph.num_pixels }}</h3>
-                                <h3>Ms: {{ periph.globalTimerModulusMs }}</h3>
-                            </ion-col>
-                            <ion-col>
-                                <h3>Mode: {{ periph.mode }}</h3>
-                                <h3>Tempo: {{ periph.tempo }}</h3>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
-                </ion-item>
-            </ion-list>
-        </ng-container>
-        <h2 *ngIf="listConnectedPeriphs()?.length == 0">No connected devices.</h2>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('OFF')" [ngStyle]="{'border': isModeSelected('OFF')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="dark" name="md-power"></ion-icon>Off
+                </button>
+            </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('ON')" [ngStyle]="{'border': isModeSelected('ON')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="dark" name="md-bulb"></ion-icon>On
+                </button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('FLASH')" [ngStyle]="{'border': isModeSelected('FLASH')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="danger" name="md-sunny"></ion-icon>Flash
+                </button>
+            </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('PULSE')" [ngStyle]="{'border': isModeSelected('PULSE')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="secondary" name="md-infinite"></ion-icon>Pulse
+                </button>
+            </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('HUE_FLOW')" [ngStyle]="{'border': isModeSelected('HUE_FLOW')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="primary" name="md-refresh"></ion-icon>Hue Flow
+                </button>
+            </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('THEATER_CHASE')" [ngStyle]="{'border': isModeSelected('THEATER_CHASE')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="sunny" name="ios-analytics"></ion-icon>Theater
+                </button>
+            </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('PILE_UP')" [ngStyle]="{'border': isModeSelected('PILE_UP')}"
+                    [disabled]="isAuto">
+                    <ion-icon color="pink" name="md-barcode"></ion-icon>Pile Up
+                </button>
+            </ion-col>
+            <!-- <ion-grid>
+                <ion-row>
+                    <ion-col col-6>
+                        <ion-item>
+                            <ion-label>Auto<ion-icon color="sunny" name="md-beer"></ion-icon></ion-label>
+                            <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
+                        </ion-item>
+                    </ion-col>
+                    <ion-col col-6>
+                            <ion-badge item-end>{{ intervalAutomode_s }}</ion-badge>
+                        <ion-range min="1" max="180" debounce="500" [(ngModel)]="intervalAutomode_s">
+                            <ion-icon range-left small name="md-timer"></ion-icon>
+                            <ion-icon range-right name="md-timer"></ion-icon>
+                        </ion-range>
+                    </ion-col>
+                </ion-row>
+            </ion-grid> -->
+        </ion-row>
+    </ion-grid>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                    <ion-item>
+                        <ion-label>Auto
+                            <ion-icon color="sunny" name="md-beer"></ion-icon>
+                        </ion-label>
+                        <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
+                    </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="isAuto">
+            <ion-col col-3>
+                <ion-badge item-end>{{ intervalAutomode_s }}</ion-badge>
+            </ion-col>
+            <ion-col col-9>
+                <ion-range min="1" max="60" debounce="500" [(ngModel)]="intervalAutomode_s"> 
+                    <ion-icon range-left small name="md-timer"></ion-icon>
+                    <ion-icon range-right name="md-timer"></ion-icon>
+                </ion-range>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <ion-card *ngIf="showTempo()">
+        <ion-card-header>
+            <ion-grid>
+                <ion-row>
+                    <ion-col col-3>
+                        Tempo
+                    </ion-col>
+                    <ion-col col-3>
+                        <button ion-button block icon-left small color="light" (click)="tapTempo()">
+                            <ion-icon name="md-sunny"></ion-icon>Tap
+                        </button>
+                    </ion-col>
+                    <ion-col col-5>
+                        <ion-badge item-end>{{ tempo }}</ion-badge>
+                    </ion-col>
+                    <ion-col>
+                        <button ion-button block icon-left (click)="rainbowMode()">
+                            <ion-icon name="md-color-palette"></ion-icon>Rainbow
+                        </button>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-card-header>
+        <ion-range id="range-tempo" min="30" max="180" debounce="500" (ionChange)="setTempo()" [(ngModel)]="tempo">
+            <ion-icon range-left small name="md-pulse"></ion-icon>
+            <ion-icon range-right name="md-pulse"></ion-icon>
+        </ion-range>
     </ion-card>
-    <ion-card>
-        <ion-grid>
-            <ion-row>
-                <ion-col>
-                    <button ion-button block icon-left color="dark" (click)="switchOff()">
-                        <ion-icon name="md-power"></ion-icon>Off
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="light" (click)="switchOn()">
-                        <ion-icon name="md-bulb"></ion-icon>On
-                    </button>
-                </ion-col>
-            </ion-row>
-            <ion-row>
-                <ion-col>
-                    <button ion-button block icon-left color="danger" (click)="flash()">
-                        <ion-icon name="md-sunny"></ion-icon>Flash
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="secondary" (click)="pulse()">
-                        <ion-icon name="md-infinite"></ion-icon>Pulse
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left (click)="hueFlow()">
-                        <ion-icon name="md-refresh"></ion-icon>Hue Flow
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="sunny" (click)="theaterChase()">
-                        <ion-icon name="ios-analytics"></ion-icon>Theater
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="pink" (click)="pileUp()">
-                        <ion-icon name="md-barcode"></ion-icon>Pile Up
-                    </button>
-                </ion-col>
-                <ion-col>
-                    <button ion-button block icon-left color="lila" (click)="rainbowMode()">
-                        <ion-icon name="md-color-palette"></ion-icon>Rainbow
-                    </button>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-    </ion-card>
-    <ion-card>
+    <!-- First version of the RGB selection. -->
+    <!--<ion-card>
         <ion-grid>
             <ion-row>
                 <ion-chip id="color-preview" [ngStyle]="{'background-color': hexcolor}">
@@ -143,18 +160,45 @@
             </ion-row>
         </ion-grid>
     </ion-card>
-    <ion-card>
-        <ion-card-header>
-            Tempo
-            <ion-badge item-end>{{ tempo }}</ion-badge>
-        </ion-card-header>
+    -->
+    <!-- Second version of the RGB selection. -->
+    <ion-card *ngIf="showColorPicker()">
         <ion-grid>
             <ion-row>
                 <ion-col>
-                    <ion-range min="30" max="180" debounce="500" (ionChange)="setTempo()" [(ngModel)]="tempo">
-                        <ion-icon range-left small name="md-pulse"></ion-icon>
-                        <ion-icon range-right name="md-pulse"></ion-icon>
-                    </ion-range>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col col-4 *ngFor="let color of colorsPresetsList">
+                                <button ion-button round (click)="setColor(color)" [ngStyle]="{'background-color': color.getRGBstring(), 'border': isColorSelected(color)}">
+                                </button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+                <ion-col col-3>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col>
+                                <button ion-button item-right color="light" (click)="setBrightness(100)" [ngStyle]="{'border': isBrightnessSelected(100)}">
+                                    <img src="assets/icon/baseline_brightness_high_white_18dp.png" style="background: transparent !important;">
+                                </button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <button ion-button item-right color="light" (click)="setBrightness(75)" [ngStyle]="{'border': isBrightnessSelected(75)}">
+                                    <img src="assets/icon/baseline_brightness_medium_white_18dp.png" style="background: transparent !important;">
+                                </button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <button ion-button item-right color="light" (click)="setBrightness(25)" [ngStyle]="{'border': isBrightnessSelected(25)}">
+                                    <img src="assets/icon/baseline_brightness_low_white_18dp.png" style="background: transparent !important;">
+                                </button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
                 </ion-col>
             </ion-row>
         </ion-grid>

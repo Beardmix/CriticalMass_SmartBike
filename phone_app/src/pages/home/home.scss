@@ -1,8 +1,18 @@
 page-home {
+    .button {
+        margin: 0 auto;
+    }
     #color-preview {
         width: 100%;
+        border: 1px solid grey;
     }
     .col{
         text-align: center;
+    }
+    .card-header-md{
+        padding: 0;
+    }
+    #range-tempo{
+        padding-top: 0;
     }
 }

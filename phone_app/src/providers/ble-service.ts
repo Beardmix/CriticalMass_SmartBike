@@ -177,6 +177,10 @@ export class BleServiceProvider {
         });
     }
 
+    public isScanningNewPeriphs(){
+        return this.intervalScanNewDevices_ID != -1;
+    }
+
     public writeBLE(periph: Periph, service: string, message: string) {
         var uart_message = CHAR_START + service + message + CHAR_END;
 
