@@ -189,9 +189,9 @@ export class HomePage {
         if (this.isAuto) {
             this.intervalAutomode_ID = setTimeout(() => {
                 var modes = Object.keys(LED_MODE);
-                var idx_color = Math.floor(Math.random() * this.colorsPresetsList.length-1);
+                var idx_color = Math.round(Math.random() * (this.colorsPresetsList.length - 1));
                 this.setColor(this.colorsPresetsList[idx_color]);
-                var idx = 2 + Math.floor(Math.random() * (modes.length -1 -2));
+                var idx = 2 + Math.round(Math.random() * (modes.length - 1 - 2));
                 this.modeChanged(modes[idx]);
                 this.automatic();
             }, this.intervalAutomode_s * 1000);
