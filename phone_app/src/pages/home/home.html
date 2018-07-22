@@ -89,16 +89,11 @@
         <ion-card-header>
             <ion-grid>
                 <ion-row>
-                    <ion-col col-3>
+                    <ion-col>
                         Tempo
                     </ion-col>
-                    <ion-col col-3>
-                        <button ion-button block icon-left small color="light" (click)="tapTempo()">
-                            <ion-icon name="md-sunny"></ion-icon>Tap
-                        </button>
-                    </ion-col>
-                    <ion-col col-5>
-                        <ion-badge item-end>{{ tempo }}</ion-badge>
+                    <ion-col>
+                        <ion-badge item-end>{{ tempo }}bpm</ion-badge>
                     </ion-col>
                 </ion-row>
             </ion-grid>
