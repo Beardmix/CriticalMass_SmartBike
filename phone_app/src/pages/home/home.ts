@@ -75,6 +75,7 @@ export class HomePage {
     rgb = new Color(255, 255, 255);
     mode = "PULSE";
     isAuto: boolean = false;
+    isControlling: boolean = false;
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
@@ -129,7 +130,7 @@ export class HomePage {
         return LED_MODE[this.mode].tempo_picker;
     }
 
-    scanToggle(item) {
+    scanToggle() {
         if (this.bleService.isScanningNewPeriphs()) {
             console.log("Disconnecting all devices");
             this.bleService.disconnectAll();
