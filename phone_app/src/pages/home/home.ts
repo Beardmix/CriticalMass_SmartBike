@@ -134,10 +134,12 @@ export class HomePage {
         if (this.bleService.isScanningNewPeriphs()) {
             console.log("Disconnecting all devices");
             this.bleService.disconnectAll();
+            this.isControlling = false;
         }
         else {
             console.log("Connecting all new devices");
             this.bleService.connectAll();
+            this.isControlling = true;
         }
     }
 
