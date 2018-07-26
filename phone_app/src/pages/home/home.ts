@@ -4,18 +4,7 @@ import { NavController } from 'ionic-angular';
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
 import { Color } from '../../classes/color';
-
-var LED_MODE =
-    {
-        "OFF": { val: '0', color_picker: false, tempo_picker: false },
-        "ON": { val: '1', color_picker: true, tempo_picker: false },
-        "FLASH": { val: '2', color_picker: true, tempo_picker: true },
-        "PULSE": { val: '3', color_picker: true, tempo_picker: true },
-        "HUE_FLOW": { val: '4', color_picker: false, tempo_picker: true },
-        "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
-        "PILE_UP": { val: '6', color_picker: true, tempo_picker: true },
-        "RAINBOW_MODE": { val: '7', color_picker: false, tempo_picker: true }
-    };
+import { Mode } from '../../classes/mode';
 
 @Component({
     selector: 'page-home',
@@ -75,11 +64,11 @@ export class HomePage {
     }
 
     showColorPicker() {
-        return LED_MODE[this.mode].color_picker;
+        return Mode.list[this.mode].color_picker;
     }
 
     showTempo() {
-        return LED_MODE[this.mode].tempo_picker;
+        return Mode.list[this.mode].tempo_picker;
     }
 
     scanToggle() {
@@ -143,7 +132,7 @@ export class HomePage {
         clearTimeout(this.intervalAutomode_ID);
         if (this.isAuto) {
             this.intervalAutomode_ID = setTimeout(() => {
-                var modes = Object.keys(LED_MODE);
+                var modes = Object.keys(Mode.list);
                 var idx_color = Math.round(Math.random() * (this.colorsPresetsList.length - 1));
                 this.setColor(this.colorsPresetsList[idx_color]);
                 var idx = 2 + Math.round(Math.random() * (modes.length - 1 - 2));
@@ -272,7 +261,7 @@ export class HomePage {
     }
 
     private changeMode(periph) {
-        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, LED_MODE[this.mode].val)
+        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[this.mode].val)
             .then(data => {
                 console.log("success", data);
             })
