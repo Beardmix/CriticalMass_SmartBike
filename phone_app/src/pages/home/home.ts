@@ -75,6 +75,7 @@ export class HomePage {
     rgb = new Color(255, 255, 255);
     mode = "PULSE";
     isAuto: boolean = false;
+    isControlling: boolean = false;
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
@@ -129,14 +130,16 @@ export class HomePage {
         return LED_MODE[this.mode].tempo_picker;
     }
 
-    scanToggle(item) {
+    scanToggle() {
         if (this.bleService.isScanningNewPeriphs()) {
             console.log("Disconnecting all devices");
             this.bleService.disconnectAll();
+            this.isControlling = false;
         }
         else {
             console.log("Connecting all new devices");
             this.bleService.connectAll();
+            this.isControlling = true;
         }
     }
 
@@ -165,7 +168,7 @@ export class HomePage {
     }
 
     isColorSelected(color: Color) {
-        var style = "4px solid white";
+        var style = "4px solid #f4f4f4";
 
         if ((color.r == this.rgb.r) && (color.g == this.rgb.g) && (color.b == this.rgb.b)) {
             style = "4px solid grey";
@@ -175,7 +178,7 @@ export class HomePage {
     }
 
     isBrightnessSelected(brightness: number) {
-        var style = "4px solid white";
+        var style = "4px solid #f4f4f4";
 
         if (brightness == this.rgb.brightness) {
             style = "4px solid #0096ff";
@@ -199,7 +202,7 @@ export class HomePage {
     }
 
     isModeSelected(mode: string) {
-        var style = "4px solid white";
+        var style = "4px solid #f4f4f4";
 
         if (mode == this.mode) {
             style = "4px solid #0096ff";

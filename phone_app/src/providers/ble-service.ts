@@ -49,35 +49,38 @@ export class BleServiceProvider {
         public platform: Platform,
         private locationAccuracy: LocationAccuracy) {
         console.log('Hello BleServiceProvider Provider');
+        
+        // If the device is not a computer
+        if (!this.platform.is('core')) {
+            // Bluetooth activation.
+            this.ble.isEnabled().then(() => {
+                console.log('Bluetooth already enabled.');
+            },
+                (err) => { // Bluetooth disabled, try to enable it.
+                    // Android only.
+                    if (this.platform.is('android')) {
+                        this.ble.enable().then(() => {
+                            console.log('Bluetooth now enabled.');
+                        },
+                            (err) => {
+                                console.log('Cannot enable Bluetooth: ' + err);
+                            });
+                    }
+                });
 
-        // Bluetooth activation.
-        this.ble.isEnabled().then(() => {
-            console.log('Bluetooth already enabled.');
-        },
-            (err) => { // Bluetooth disabled, try to enable it.
-                // Android only.
-                if (this.platform.is('android')) {
-                    this.ble.enable().then(() => {
-                        console.log('Bluetooth now enabled.');
-                    },
-                        (err) => {
-                            console.log('Cannot enable Bluetooth: ' + err);
-                        });
+            // Localization activation.
+            // https://ionicframework.com/docs/native/location-accuracy/
+            this.locationAccuracy.canRequest().then((canRequest: boolean) => {
+                if (canRequest) {
+                    // the accuracy option will be ignored by iOS
+                    this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
+                        () => console.log('Request successful'),
+                        error => console.log('Error requesting location permissions', error)
+                    );
                 }
+
             });
-
-        // Localization activation.
-        // https://ionicframework.com/docs/native/location-accuracy/
-        this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-            if (canRequest) {
-                // the accuracy option will be ignored by iOS
-                this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
-                    () => console.log('Request successful'),
-                    error => console.log('Error requesting location permissions', error)
-                );
-            }
-
-        });
+        }
     }
 
     private connect(periph: Periph) {

@@ -1,9 +1,9 @@
 <ion-header>
     <ion-navbar>
-        <ion-item>
-            <ion-label>Controlling Devices</ion-label>
-            <ion-toggle (ionChange)="scanToggle(item)"></ion-toggle>
-        </ion-item>
+        <ion-label (click)="scanToggle()">Control Devices</ion-label>
+        <ion-buttons end>
+            <ion-toggle [(ngModel)]="isControlling" (click)="scanToggle()"></ion-toggle>
+        </ion-buttons>
     </ion-navbar>
 </ion-header>
 
@@ -60,44 +60,27 @@
                     <ion-icon name="md-color-palette"></ion-icon>Rainbow
                 </button>
             </ion-col>
-            <!-- <ion-grid>
-                <ion-row>
-                    <ion-col col-6>
-                        <ion-item>
-                            <ion-label>Auto<ion-icon color="sunny" name="md-beer"></ion-icon></ion-label>
-                            <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
-                        </ion-item>
-                    </ion-col>
-                    <ion-col col-6>
-                            <ion-badge item-end>{{ intervalAutomode_s }}</ion-badge>
-                        <ion-range min="1" max="180" debounce="500" [(ngModel)]="intervalAutomode_s">
-                            <ion-icon range-left small name="md-timer"></ion-icon>
-                            <ion-icon range-right name="md-timer"></ion-icon>
-                        </ion-range>
-                    </ion-col>
-                </ion-row>
-            </ion-grid> -->
         </ion-row>
     </ion-grid>
     <ion-grid>
         <ion-row>
-            <ion-col>
-                    <ion-item>
-                        <ion-label>Auto
-                            <ion-icon color="sunny" name="md-beer"></ion-icon>
-                        </ion-label>
-                        <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
-                    </ion-item>
+            <ion-col col-6>
+                <ion-item>
+                    <ion-label (click)="isAuto=!isAuto;automatic()">Automatic
+                        <ion-icon color="sunny" name="md-beer"></ion-icon>
+                    </ion-label>
+                    <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
+                </ion-item>
             </ion-col>
         </ion-row>
         <ion-row *ngIf="isAuto">
             <ion-col col-3>
-                <ion-badge item-end>{{ intervalAutomode_s }}</ion-badge>
+                <ion-badge item-end>change mode every {{ intervalAutomode_s }}s</ion-badge>
             </ion-col>
             <ion-col col-9>
-                <ion-range min="1" max="60" debounce="500" [(ngModel)]="intervalAutomode_s"> 
-                    <ion-icon range-left small name="md-timer"></ion-icon>
-                    <ion-icon range-right name="md-timer"></ion-icon>
+                <ion-range min="1" max="60" debounce="500" [(ngModel)]="intervalAutomode_s">
+                    <ion-icon range-left small name="md-time"></ion-icon>
+                    <ion-icon range-right name="md-time"></ion-icon>
                 </ion-range>
             </ion-col>
         </ion-row>
@@ -106,16 +89,11 @@
         <ion-card-header>
             <ion-grid>
                 <ion-row>
-                    <ion-col col-3>
+                    <ion-col>
                         Tempo
                     </ion-col>
-                    <ion-col col-3>
-                        <button ion-button block icon-left small color="light" (click)="tapTempo()">
-                            <ion-icon name="md-sunny"></ion-icon>Tap
-                        </button>
-                    </ion-col>
-                    <ion-col col-5>
-                        <ion-badge item-end>{{ tempo }}</ion-badge>
+                    <ion-col>
+                        <ion-badge item-end>{{ tempo }}bpm</ion-badge>
                     </ion-col>
                 </ion-row>
             </ion-grid>
@@ -163,7 +141,11 @@
     </ion-card>
     -->
     <!-- Second version of the RGB selection. -->
-    <ion-card *ngIf="showColorPicker()">
+    <ion-card *ngIf="isAuto && showColorPicker()">
+        <ion-item [ngStyle]="{'background-color': rgb.getRGBstring()}">
+        </ion-item>
+    </ion-card>
+    <ion-card *ngIf="!isAuto && showColorPicker()">
         <ion-grid>
             <ion-row>
                 <ion-col>
