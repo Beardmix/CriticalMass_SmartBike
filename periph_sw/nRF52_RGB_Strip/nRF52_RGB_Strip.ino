@@ -114,15 +114,25 @@ void readUART(uint8_t *const p_ledMode)
         if(len_payload > 0)
         {
             settings.num_pixels = packetPayload[0];
+            settings.sig_front_lower = packetPayload[2];
+            settings.sig_front_upper = packetPayload[4];
+            settings.sig_rear_lower = packetPayload[6];
+            settings.sig_rear_upper = packetPayload[8];
             settings.device_name = "";
-            for (int i = 2; i < len_payload; i++)
+            for (int i = 10; i < len_payload; i++)
             {
                 settings.device_name += char(packetPayload[i]);
             }
             Serial.println(settings.device_name);
             eeprom.save(settings);
         }
-        ble.sendPacket(ble.Services::DEV_SETTINGS, String(settings.num_pixels) + ";" + settings.device_name);
+        ble.sendPacket(ble.Services::DEV_SETTINGS,
+                       String(settings.num_pixels) + ";"
+                       + settings.sig_front_lower + ";"
+                       + settings.sig_front_upper + ";"
+                       + settings.sig_rear_lower + ";"
+                       + settings.sig_rear_upper + ";"
+                       + settings.device_name);
         break;
     default:
         Serial.println("[SERVICE] unknown");

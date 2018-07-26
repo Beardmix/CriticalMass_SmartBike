@@ -14,6 +14,10 @@ class Settings
   public:
     unsigned int num_pixels;
     String device_name;
+    unsigned int sig_front_lower;
+    unsigned int sig_front_upper;
+    unsigned int sig_rear_lower;
+    unsigned int sig_rear_upper;
 
     Settings()
     {
@@ -24,6 +28,10 @@ class Settings
     {
         num_pixels = 50;
         device_name = "MyFahrrad";
+        sig_front_lower = 1;
+        sig_rear_upper = num_pixels;
+        sig_front_upper = int(num_pixels/4) - sig_front_lower;
+        sig_rear_lower = sig_rear_upper - int(num_pixels/4);
     }
 };
 
@@ -77,6 +85,10 @@ class EEPROM_Handler
             file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));
             write_setting(file, "device_name", settings.device_name);
+            write_setting(file, "sig_front_lower", String(settings.sig_front_lower));
+            write_setting(file, "sig_front_upper", String(settings.sig_front_upper));
+            write_setting(file, "sig_rear_lower", String(settings.sig_rear_lower));
+            write_setting(file, "sig_rear_upper", String(settings.sig_rear_upper));
             file.close();
         }
         else
@@ -130,6 +142,22 @@ class EEPROM_Handler
             else if (setting_name == "device_name")
             {
                 settings.device_name = setting_val;
+            }
+            else if (setting_name == "sig_front_lower")
+            {
+                settings.sig_front_lower = setting_val.toInt();
+            }
+            else if (setting_name == "sig_front_upper")
+            {
+                settings.sig_front_upper = setting_val.toInt();
+            }
+            else if (setting_name == "sig_rear_lower")
+            {
+                settings.sig_rear_lower = setting_val.toInt();
+            }
+            else if (setting_name == "sig_rear_upper")
+            {
+                settings.sig_rear_upper = setting_val.toInt();
             }
             else
             {
