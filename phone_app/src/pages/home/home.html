@@ -2,7 +2,7 @@
     <ion-navbar>
         <ion-label (click)="scanToggle()">Control Devices</ion-label>
         <ion-buttons end>
-            <ion-toggle [(ngModel)]="isControlling" (click)="scanToggle()"></ion-toggle>
+            <ion-toggle [(ngModel)]="isControlling" (ionChange)="scanToggle()"></ion-toggle>
         </ion-buttons>
     </ion-navbar>
 </ion-header>
