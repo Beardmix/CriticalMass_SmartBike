@@ -6,6 +6,7 @@ import { Platform } from 'ionic-angular';
 import { LocationAccuracy } from '@ionic-native/location-accuracy';
 
 import { Periph } from '../classes/periph';
+import { Mode } from '../classes/mode';
 
 const SERVICE_UUID_UART = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const CHARAC_UUID_UART_RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
@@ -21,17 +22,6 @@ export const BLE_SERVICES = {
     TEMPO: 'T',
     DEV_SETTINGS: 'D'
 }
-
-var MODES =
-    [
-        "OFF",
-        "ON",
-        "FLASH",
-        "PULSE",
-        "HUE_FLOW",
-        "THEATER",
-        "PILE_UP"
-    ];
 
 @Injectable()
 export class BleServiceProvider {
@@ -215,7 +205,7 @@ export class BleServiceProvider {
                     periph.globalTimerModulusMs = payload;
                 }
                 else if (this.isService(string_received, BLE_SERVICES.MODE)) {
-                    periph.mode = MODES[Number(payload)];
+                    periph.mode = Mode.list[Number(payload)];
                 }
                 else if (this.isService(string_received, BLE_SERVICES.COLOR)) {
                     var colors = payload.split(",");
