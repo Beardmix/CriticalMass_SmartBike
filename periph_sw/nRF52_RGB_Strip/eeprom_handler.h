@@ -28,8 +28,8 @@ class Settings
     {
         num_pixels = 50;
         device_name = "MyFahrrad";
-        sig_front_lower = 1;
-        sig_rear_upper = num_pixels;
+        sig_front_lower = 0;
+        sig_rear_upper = num_pixels - 1;
         sig_front_upper = int(num_pixels/4) - sig_front_lower;
         sig_rear_lower = sig_rear_upper - int(num_pixels/4);
     }

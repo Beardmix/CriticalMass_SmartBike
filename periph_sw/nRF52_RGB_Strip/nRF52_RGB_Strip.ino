@@ -4,13 +4,9 @@
 #include "ble_handler.h"
 #include "eeprom_handler.h"
 
-/* Need to undefine min and max in order to compile <String>. */
-#undef max
-#undef min
 #include <String>
 
 #define READ_BUFSIZE (40) /* Size of the read buffer for incoming packets */
-
 
 enum LEDMode
 {
@@ -32,10 +28,10 @@ const int pinData = 2;
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 
-CtrlLED led(pinData, pinDebug);
 BLE_Handler ble;
 EEPROM_Handler eeprom;
 Settings settings;
+CtrlLED led(pinData, pinDebug, &settings);
 
 void setup()
 {
@@ -54,7 +50,7 @@ void setup()
     ble.startAdv();
 
     // Initialise the LED strip.
-    led.configure(settings.num_pixels);
+    led.configure();
 }
 
 void readUART(uint8_t *const p_ledMode)
