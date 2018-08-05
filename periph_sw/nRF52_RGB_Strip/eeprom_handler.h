@@ -42,10 +42,14 @@ class EEPROM_Handler
     {
     }
 
-    void static load(Settings &settings)
+    void configure(void)
     {
         // Initialize Nffs
         Nffs.begin();
+    }
+
+    void static load(Settings &settings)
+    {
         NffsFile file;
         file.open(FILENAME, FS_ACCESS_READ);
 
@@ -75,7 +79,6 @@ class EEPROM_Handler
 
     void static save(Settings &settings)
     {
-        Nffs.begin();
         NffsFile file;
         
         Serial.println("Open " FILENAME " file to write ... ");
@@ -84,11 +87,11 @@ class EEPROM_Handler
         {
             file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));
-            write_setting(file, "device_name", settings.device_name);
-            write_setting(file, "sig_front_lower", String(settings.sig_front_lower));
-            write_setting(file, "sig_front_upper", String(settings.sig_front_upper));
-            write_setting(file, "sig_rear_lower", String(settings.sig_rear_lower));
-            write_setting(file, "sig_rear_upper", String(settings.sig_rear_upper));
+            write_setting(file, "d_name", settings.device_name);
+            write_setting(file, "sig_fl", String(settings.sig_front_lower));
+            write_setting(file, "sig_fu", String(settings.sig_front_upper));
+            write_setting(file, "sig_rl", String(settings.sig_rear_lower));
+            write_setting(file, "sig_ru", String(settings.sig_rear_upper));
             file.close();
         }
         else
@@ -139,23 +142,23 @@ class EEPROM_Handler
             {
                 settings.num_pixels = setting_val.toInt();
             }
-            else if (setting_name == "device_name")
+            else if (setting_name == "d_name")
             {
                 settings.device_name = setting_val;
             }
-            else if (setting_name == "sig_front_lower")
+            else if (setting_name == "sig_fl")
             {
                 settings.sig_front_lower = setting_val.toInt();
             }
-            else if (setting_name == "sig_front_upper")
+            else if (setting_name == "sig_fu")
             {
                 settings.sig_front_upper = setting_val.toInt();
             }
-            else if (setting_name == "sig_rear_lower")
+            else if (setting_name == "sig_rl")
             {
                 settings.sig_rear_lower = setting_val.toInt();
             }
-            else if (setting_name == "sig_rear_upper")
+            else if (setting_name == "sig_ru")
             {
                 settings.sig_rear_upper = setting_val.toInt();
             }

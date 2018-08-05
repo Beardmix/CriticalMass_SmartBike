@@ -219,15 +219,78 @@ export class BleServiceProvider {
                 }
                 else if (this.isService(string_received, BLE_SERVICES.DEV_SETTINGS)) {
                     var settings = payload.split(";");
-                    periph.num_pixels = parseInt(settings[0]);
-                    periph.name = String(settings[1]);
+                    switch (settings[0])
+                    {
+                        case "1":
+                            periph.num_pixels = parseInt(settings[1]);
+                            periph.name = String(settings[2]);
+                            console.log("[DEV_SETTINGS] Received param. "
+                                        + "num_pixel (" + String(periph.num_pixels) +  "), "
+                                        + "name (" + periph.name + ").");
+                            this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, settings[0])
+                                .then(data => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                })
+                                .catch(err => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                })
+                            break;
+                        case "2":
+                            periph.sig_front_lower = parseInt(settings[1]);
+                            periph.sig_front_upper = parseInt(settings[2]);
+                            periph.sig_rear_lower = parseInt(settings[3]);
+                            periph.sig_rear_upper = parseInt(settings[4]);
+                            console.log("[DEV_SETTINGS] Received param: traffic param."
+                                        + "sig_front_lower (" + String(periph.sig_front_lower) + "), "
+                                        + "sig_front_upper (" + String(periph.sig_front_upper) + "), "
+                                        + "sig_rear_lower (" + String(periph.sig_rear_lower) + "), "
+                                        + "sig_rear_upper (" + String(periph.sig_rear_upper) + ").");
+                            this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, settings[0])
+                                .then(data => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                })
+                                .catch(err => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                })
+                            break;
+                            case "A":
+                                console.log("[DEV_SETTINGS] Sending param: num_pixel, name.");
+                                this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
+                                            settings[0] + String.fromCharCode(periph.num_pixels) + ";"
+                                            + periph.name)
+                                    .then(data => {
+                                        console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                    })
+                                    .catch(err => {
+                                        console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                    })
+                                    break;
+                        case "B":
+                            console.log("[DEV_SETTINGS] Sending param: traffic indices.");
+                            this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
+                                        settings[0]
+                                        + String.fromCharCode(periph.sig_front_lower) + ";"
+                                        + String.fromCharCode(periph.sig_front_upper) + ";"
+                                        + String.fromCharCode(periph.sig_rear_lower) + ";"
+                                        + String.fromCharCode(periph.sig_rear_upper))
+                                .then(data => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                })
+                                .catch(err => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                })
+                                break;
+                        default:
+                            console.log("[DEV_SETTINGS] Received " + settings[0] + ", do nothing.");
+                            break;
+                    }
                 }
                 else {
                     console.log("unknown service", string_received);
                 }
             }
             else {
-                console.log("non supported message", string_received);
+                console.log("non supported message (note: only 20 Bytes can be sent over BLE.)", string_received);
             }
 
         });

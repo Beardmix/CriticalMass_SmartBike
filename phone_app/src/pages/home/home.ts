@@ -229,7 +229,7 @@ export class HomePage {
     requestSettings(periph: Periph) {
         console.log("requestSettings");
         // check again that only one device is connected
-        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "")
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "?")
             .then(data => {
                 console.log("success", data);
             })

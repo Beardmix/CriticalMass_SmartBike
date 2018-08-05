@@ -43,6 +43,7 @@ void setup()
     Bluefruit.begin(1, 0);
     // Bluefruit module must be initialized for Nffs to work 
     // since Bluefruit's SOC event handling task is required for flash operation (creating the FS the first time)
+    eeprom.configure();
     eeprom.load(settings);
     
     ble.configure_ble(&settings);
@@ -105,31 +106,59 @@ void readUART(uint8_t *const p_ledMode)
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
     case ble.Services::DEV_SETTINGS:
-        // Serial.println("DEV_SETTINGS");
-        // If the central just sends the Service without payload, it means that it requests for an update.
-        // Else, read the new values for the settings.
-        if(len_payload > 0)
+        // As BLE allows us to only transfer 20 Bytes, we split the config in chunks.
+        switch (packetPayload[0])
         {
-            settings.num_pixels = packetPayload[0];
-            settings.sig_front_lower = packetPayload[2];
-            settings.sig_front_upper = packetPayload[4];
-            settings.sig_rear_lower = packetPayload[6];
-            settings.sig_rear_upper = packetPayload[8];
-            settings.device_name = "";
-            for (int i = 10; i < len_payload; i++)
-            {
-                settings.device_name += char(packetPayload[i]);
-            }
-            Serial.println(settings.device_name);
-            eeprom.save(settings);
+            case '?': // The Central asks for values.
+                Serial.println("[SETTINGS] request cfg, will send chunk#1");
+                ble.sendPacket(ble.Services::DEV_SETTINGS,
+                               String("1;")
+                               + String(settings.num_pixels) + ";" + settings.device_name);
+                break;
+            case '1':
+                Serial.println("[SETTINGS] request cfg, will send chunk#2");
+                ble.sendPacket(ble.Services::DEV_SETTINGS,
+                               String("2;")
+                               + settings.sig_front_lower + ";"
+                               + settings.sig_front_upper + ";"
+                               + settings.sig_rear_lower + ";"
+                               + settings.sig_rear_upper);
+                break;
+            case '2':
+                Serial.println("[SETTINGS] request cfg done.");
+            case '=': // The Central tells us values.
+                Serial.println("[SETTINGS] ready to get cfg chunk#1");
+                ble.sendPacket(ble.Services::DEV_SETTINGS, "A");
+                break;
+            case 'A':
+                Serial.println("[SETTINGS] getting cfg chunk#1 ask for chunk#2");
+                settings.num_pixels = packetPayload[1];
+                Serial.println(String(settings.num_pixels));
+                settings.device_name = "";
+                for (int i = 3; i < len_payload; i++)
+                {
+                    settings.device_name += char(packetPayload[i]);
+                }
+                Serial.println(settings.device_name);
+                ble.sendPacket(ble.Services::DEV_SETTINGS, "B");
+                break;
+            case 'B':
+                Serial.println("[SETTINGS] getting chunk#2");
+                settings.sig_front_lower = packetPayload[1];
+                Serial.println(String(settings.sig_front_lower));
+                settings.sig_front_upper = packetPayload[3];
+                Serial.println(String(settings.sig_front_upper));
+                settings.sig_rear_lower = packetPayload[5];
+                Serial.println(String(settings.sig_rear_lower));
+                settings.sig_rear_upper = packetPayload[7];
+                Serial.println(String(settings.sig_rear_upper));
+                // Save all settings once done.
+                eeprom.save(settings);
+                break;
+            default:
+                Serial.println("[SETTINGS] unknown");
+                break;
         }
-        ble.sendPacket(ble.Services::DEV_SETTINGS,
-                       String(settings.num_pixels) + ";"
-                       + settings.sig_front_lower + ";"
-                       + settings.sig_front_upper + ";"
-                       + settings.sig_rear_lower + ";"
-                       + settings.sig_rear_upper + ";"
-                       + settings.device_name);
         break;
     default:
         Serial.println("[SERVICE] unknown");
