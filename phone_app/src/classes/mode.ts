@@ -9,7 +9,7 @@ export class Mode {
         "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
         "PILE_UP": { val: '6', color_picker: true, tempo_picker: true },
         "RAINBOW_MODE": { val: '7', color_picker: false, tempo_picker: true },
-        "SIGNALISATION_MODE": { val: '8', color_picker: false, tempo_picker: false }
+        "TRAFFIC_MODE": { val: '8', color_picker: false, tempo_picker: false }
     };
 
     constructor() {}

@@ -218,6 +218,26 @@ class CtrlLED
         strip.show();
     }
 
+    void modeTraffic(void)
+    {
+        this->setPixelsOff(); // Init: switch evertyhing off.
+
+        // Front.
+        for (int i = this->p_settings->sig_front_lower; i < this->p_settings->sig_front_upper; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(255, 255, 255));
+            Serial.println(i);
+        }
+        // Rear.
+        for (int i = this->p_settings->sig_rear_lower; i < this->p_settings->sig_rear_upper; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(255, 0, 0));
+            Serial.println(i);
+        }
+        
+        strip.show();
+    }
+
     void setTimeOffset(int utc_millis)
     {
         time_offset = utc_millis - millis();
