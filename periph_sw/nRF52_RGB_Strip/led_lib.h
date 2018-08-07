@@ -223,16 +223,14 @@ class CtrlLED
         this->setPixelsOff(); // Init: switch evertyhing off.
 
         // Front.
-        for (int i = this->p_settings->sig_front_lower; i < this->p_settings->sig_front_upper; ++i)
+        for (int i = std::max(this->p_settings->traffic_front_lower - 1, 0U); i < this->p_settings->traffic_front_upper; ++i)
         {
             strip.setPixelColor(i, strip.Color(255, 255, 255));
-            Serial.println(i);
         }
         // Rear.
-        for (int i = this->p_settings->sig_rear_lower; i < this->p_settings->sig_rear_upper; ++i)
+        for (int i = std::max(this->p_settings->traffic_rear_lower - 1, 0U); i < this->p_settings->traffic_rear_upper; ++i)
         {
             strip.setPixelColor(i, strip.Color(255, 0, 0));
-            Serial.println(i);
         }
         
         strip.show();

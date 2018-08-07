@@ -11,22 +11,22 @@ import { Periph } from '../../classes/periph';
 export class PopoverSettings {
     periph: Periph;
     
-    signalisationBoundaries = { min: 0, max: 1 };
+    signalisationBoundaries = { min: 1, max: 1 };
     signalisationValues = {
-        front: { lower: 0, upper: 0 },
-        rear: { lower: 0, upper: 0}
+        front: { lower: this.signalisationBoundaries.min, upper: this.signalisationBoundaries.min },
+        rear: { lower: this.signalisationBoundaries.min, upper: this.signalisationBoundaries.min}
     };
 
     constructor(public viewCtrl: ViewController, public params: NavParams) { 
         this.periph = this.params.get('periph');
         this.signalisationValues = {
             front: {
-                lower: this.periph.sig_front_lower,
-                upper: this.periph.sig_front_upper
+                lower: this.periph.traffic_front_lower,
+                upper: this.periph.traffic_front_upper
             },
             rear: {
-                lower: this.periph.sig_rear_lower,
-                upper: this.periph.sig_rear_upper
+                lower: this.periph.traffic_rear_lower,
+                upper: this.periph.traffic_rear_upper
             }
         };
 
@@ -38,10 +38,10 @@ export class PopoverSettings {
     }
 
     save() {
-        this.periph.sig_front_lower = this.signalisationValues.front.lower;
-        this.periph.sig_front_upper = this.signalisationValues.front.upper;
-        this.periph.sig_rear_lower = this.signalisationValues.rear.lower;
-        this.periph.sig_rear_upper = this.signalisationValues.rear.upper;
+        this.periph.traffic_front_lower = this.signalisationValues.front.lower;
+        this.periph.traffic_front_upper = this.signalisationValues.front.upper;
+        this.periph.traffic_rear_lower = this.signalisationValues.rear.lower;
+        this.periph.traffic_rear_upper = this.signalisationValues.rear.upper;
         this.viewCtrl.dismiss(this.periph);
     }
 }

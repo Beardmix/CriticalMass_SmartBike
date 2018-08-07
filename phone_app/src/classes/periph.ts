@@ -11,10 +11,10 @@ export class Periph {
     color_b: number = 0;
     color_rgb: string = "";
     tempo: string = "";
-    sig_front_lower: number = 0;
-    sig_front_upper: number = 0;
-    sig_rear_lower: number = 0;
-    sig_rear_upper: number = 0;
+    traffic_front_lower: number = 0;
+    traffic_front_upper: number = 0;
+    traffic_rear_lower: number = 0;
+    traffic_rear_upper: number = 0;
 
     constructor(id, name) {
         this.id = id;

@@ -10,18 +10,15 @@
         <ion-input type="number" [(ngModel)]="periph.num_pixels"></ion-input>
     </ion-item>
     <ion-card>
-        <ion-card-header>
-            Traffic
-        </ion-card-header>
-        Front
+        TrafficMode: Front
         <ion-range id="range-sig-front" dualKnobs="true" min="{{ signalisationBoundaries.min }}" max="{{ signalisationBoundaries.max }}" step="1" pin="true" debounce="500" [(ngModel)]="signalisationValues.front" >
-            <ion-icon range-left name="md-arrow-dropright"></ion-icon>
-            <ion-icon range-right name="md-arrow-dropleft"></ion-icon>
+            <ion-label range-left>{{ signalisationBoundaries.min }}</ion-label>
+            <ion-label range-right>{{ signalisationBoundaries.max }}</ion-label>
         </ion-range>
-        Rear
+        TrafficMode: Rear
         <ion-range id="range-sig-rear" dualKnobs="true" min="{{ signalisationBoundaries.min }}" max="{{ signalisationBoundaries.max }}" step="1" pin="true" debounce="500" [(ngModel)]="signalisationValues.rear">
-            <ion-icon range-left name="md-arrow-dropright"></ion-icon>
-            <ion-icon range-right name="md-arrow-dropleft"></ion-icon>
+            <ion-label range-left>{{ signalisationBoundaries.min }}</ion-label>
+            <ion-label range-right>{{ signalisationBoundaries.max }}</ion-label>
         </ion-range>
     </ion-card>
     <ion-grid>

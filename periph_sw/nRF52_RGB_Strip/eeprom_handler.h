@@ -14,10 +14,11 @@ class Settings
   public:
     unsigned int num_pixels;
     String device_name;
-    unsigned int sig_front_lower;
-    unsigned int sig_front_upper;
-    unsigned int sig_rear_lower;
-    unsigned int sig_rear_upper;
+    // TrafficMode indices, [1; num_pixels].
+    unsigned int traffic_front_lower;
+    unsigned int traffic_front_upper;
+    unsigned int traffic_rear_lower;
+    unsigned int traffic_rear_upper;
 
     Settings()
     {
@@ -28,10 +29,10 @@ class Settings
     {
         num_pixels = 50;
         device_name = "MyFahrrad";
-        sig_front_lower = 0;
-        sig_rear_upper = num_pixels - 1;
-        sig_front_upper = int(num_pixels/4) - sig_front_lower;
-        sig_rear_lower = sig_rear_upper - int(num_pixels/4);
+        traffic_front_lower = 1;
+        traffic_rear_upper = num_pixels;
+        traffic_front_upper = int(num_pixels/4) - traffic_front_lower;
+        traffic_rear_lower = traffic_rear_upper - int(num_pixels/4);
     }
 };
 
@@ -88,10 +89,10 @@ class EEPROM_Handler
             file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));
             write_setting(file, "d_name", settings.device_name);
-            write_setting(file, "sig_fl", String(settings.sig_front_lower));
-            write_setting(file, "sig_fu", String(settings.sig_front_upper));
-            write_setting(file, "sig_rl", String(settings.sig_rear_lower));
-            write_setting(file, "sig_ru", String(settings.sig_rear_upper));
+            write_setting(file, "traffic_fl", String(settings.traffic_front_lower));
+            write_setting(file, "traffic_fu", String(settings.traffic_front_upper));
+            write_setting(file, "traffic_rl", String(settings.traffic_rear_lower));
+            write_setting(file, "traffic_ru", String(settings.traffic_rear_upper));
             file.close();
         }
         else
@@ -146,21 +147,21 @@ class EEPROM_Handler
             {
                 settings.device_name = setting_val;
             }
-            else if (setting_name == "sig_fl")
+            else if (setting_name == "traffic_fl")
             {
-                settings.sig_front_lower = setting_val.toInt();
+                settings.traffic_front_lower = setting_val.toInt();
             }
-            else if (setting_name == "sig_fu")
+            else if (setting_name == "traffic_fu")
             {
-                settings.sig_front_upper = setting_val.toInt();
+                settings.traffic_front_upper = setting_val.toInt();
             }
-            else if (setting_name == "sig_rl")
+            else if (setting_name == "traffic_rl")
             {
-                settings.sig_rear_lower = setting_val.toInt();
+                settings.traffic_rear_lower = setting_val.toInt();
             }
-            else if (setting_name == "sig_ru")
+            else if (setting_name == "traffic_ru")
             {
-                settings.sig_rear_upper = setting_val.toInt();
+                settings.traffic_rear_upper = setting_val.toInt();
             }
             else
             {

@@ -236,15 +236,15 @@ export class BleServiceProvider {
                                 })
                             break;
                         case "2":
-                            periph.sig_front_lower = parseInt(settings[1]);
-                            periph.sig_front_upper = parseInt(settings[2]);
-                            periph.sig_rear_lower = parseInt(settings[3]);
-                            periph.sig_rear_upper = parseInt(settings[4]);
+                            periph.traffic_front_lower = parseInt(settings[1]);
+                            periph.traffic_front_upper = parseInt(settings[2]);
+                            periph.traffic_rear_lower = parseInt(settings[3]);
+                            periph.traffic_rear_upper = parseInt(settings[4]);
                             console.log("[DEV_SETTINGS] Received param: traffic param."
-                                        + "sig_front_lower (" + String(periph.sig_front_lower) + "), "
-                                        + "sig_front_upper (" + String(periph.sig_front_upper) + "), "
-                                        + "sig_rear_lower (" + String(periph.sig_rear_lower) + "), "
-                                        + "sig_rear_upper (" + String(periph.sig_rear_upper) + ").");
+                                        + "traffic_front_lower (" + String(periph.traffic_front_lower) + "), "
+                                        + "traffic_front_upper (" + String(periph.traffic_front_upper) + "), "
+                                        + "traffic_rear_lower (" + String(periph.traffic_rear_lower) + "), "
+                                        + "traffic_rear_upper (" + String(periph.traffic_rear_upper) + ").");
                             this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, settings[0])
                                 .then(data => {
                                     console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
@@ -269,10 +269,10 @@ export class BleServiceProvider {
                             console.log("[DEV_SETTINGS] Sending param: traffic indices.");
                             this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
                                         settings[0]
-                                        + String.fromCharCode(periph.sig_front_lower) + ";"
-                                        + String.fromCharCode(periph.sig_front_upper) + ";"
-                                        + String.fromCharCode(periph.sig_rear_lower) + ";"
-                                        + String.fromCharCode(periph.sig_rear_upper))
+                                        + String.fromCharCode(periph.traffic_front_lower) + ";"
+                                        + String.fromCharCode(periph.traffic_front_upper) + ";"
+                                        + String.fromCharCode(periph.traffic_rear_lower) + ";"
+                                        + String.fromCharCode(periph.traffic_rear_upper))
                                 .then(data => {
                                     console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
                                 })

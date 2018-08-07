@@ -119,10 +119,10 @@ void readUART(uint8_t *const p_ledMode)
                 Serial.println("[SETTINGS] request cfg, will send chunk#2");
                 ble.sendPacket(ble.Services::DEV_SETTINGS,
                                String("2;")
-                               + settings.sig_front_lower + ";"
-                               + settings.sig_front_upper + ";"
-                               + settings.sig_rear_lower + ";"
-                               + settings.sig_rear_upper);
+                               + settings.traffic_front_lower + ";"
+                               + settings.traffic_front_upper + ";"
+                               + settings.traffic_rear_lower + ";"
+                               + settings.traffic_rear_upper);
                 break;
             case '2':
                 Serial.println("[SETTINGS] request cfg done.");
@@ -133,25 +133,25 @@ void readUART(uint8_t *const p_ledMode)
             case 'A':
                 Serial.println("[SETTINGS] getting cfg chunk#1 ask for chunk#2");
                 settings.num_pixels = packetPayload[1];
-                Serial.println(String(settings.num_pixels));
+                //Serial.println(String(settings.num_pixels));
                 settings.device_name = "";
                 for (int i = 3; i < len_payload; i++)
                 {
                     settings.device_name += char(packetPayload[i]);
                 }
-                Serial.println(settings.device_name);
+                //Serial.println(settings.device_name);
                 ble.sendPacket(ble.Services::DEV_SETTINGS, "B");
                 break;
             case 'B':
                 Serial.println("[SETTINGS] getting chunk#2");
-                settings.sig_front_lower = packetPayload[1];
-                Serial.println(String(settings.sig_front_lower));
-                settings.sig_front_upper = packetPayload[3];
-                Serial.println(String(settings.sig_front_upper));
-                settings.sig_rear_lower = packetPayload[5];
-                Serial.println(String(settings.sig_rear_lower));
-                settings.sig_rear_upper = packetPayload[7];
-                Serial.println(String(settings.sig_rear_upper));
+                settings.traffic_front_lower = packetPayload[1];
+                //Serial.println(String(settings.traffic_front_lower));
+                settings.traffic_front_upper = packetPayload[3];
+                //Serial.println(String(settings.traffic_front_upper));
+                settings.traffic_rear_lower = packetPayload[5];
+                //Serial.println(String(settings.traffic_rear_lower));
+                settings.traffic_rear_upper = packetPayload[7];
+                //Serial.println(String(settings.traffic_rear_upper));
                 // Save all settings once done.
                 eeprom.save(settings);
                 break;
