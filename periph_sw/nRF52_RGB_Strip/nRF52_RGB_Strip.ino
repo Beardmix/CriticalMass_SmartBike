@@ -132,6 +132,7 @@ void readUART(uint8_t *const p_ledMode)
                 break;
             case 'A':
                 Serial.println("[SETTINGS] getting cfg chunk#1 ask for chunk#2");
+                led.setPixelsOff(); // First switch pixels off to avoid reminiscence.
                 settings.num_pixels = packetPayload[1];
                 //Serial.println(String(settings.num_pixels));
                 settings.device_name = "";

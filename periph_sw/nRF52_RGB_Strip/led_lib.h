@@ -116,6 +116,15 @@ class CtrlLED
         writeEach(strip.Color(255, 255, 255));
     }
 
+    // Set all pixels off. Not calling show.
+    void setPixelsOff(void)
+    {
+        for (unsigned int i = 0; i < this->p_settings->num_pixels; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(0, 0, 0));
+        }
+    }
+    
     void switchOff()
     {
         analogWrite(pinDebug, 0);
@@ -291,15 +300,6 @@ class CtrlLED
         g = map(g, 0, 255, 0, intensity);
         b = map(b, 0, 255, 0, intensity);
         return strip.Color(r, g, b);
-    }
-    
-    // Set all pixels off. Not calling show.
-    void setPixelsOff(void)
-    {
-        for (unsigned int i = 0; i < this->p_settings->num_pixels; ++i)
-        {
-            strip.setPixelColor(i, strip.Color(0, 0, 0));
-        }
     }
 };
 
