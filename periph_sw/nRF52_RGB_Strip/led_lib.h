@@ -231,10 +231,9 @@ class CtrlLED
     void modeMusicDrum(void)
     {
         int intensity_hihat = 20;
-        int intensity_snare = 60;
+        int intensity_snare = 100;
         int pattern_duration = (int)(period_ms * 2);
         int cell_duration = pattern_duration / 8;
-        float max_duration_ms = cell_duration * 0.5;
         int max_intensity = 0;
 
         int grid [8];
@@ -252,6 +251,7 @@ class CtrlLED
         int cell_idx = (time_cursor * 8) / pattern_duration;
         max_intensity = grid[cell_idx];
 
+        float max_duration_ms = cell_duration * max_intensity / 255.0;
         int time_cursor_cell = time_cursor % (int)(pattern_duration / 8);
         if (time_cursor_cell < max_duration_ms)
         {
