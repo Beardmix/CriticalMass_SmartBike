@@ -66,6 +66,12 @@
                     <ion-icon name="md-car"></ion-icon>Traffic
                 </button>
             </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="attributeRdmColors()"
+                    [disabled]="isAuto">
+                    <ion-icon name="md-color-wand"></ion-icon>Magic wand
+                </button>
+            </ion-col>
         </ion-row>
     </ion-grid>
     <ion-grid>

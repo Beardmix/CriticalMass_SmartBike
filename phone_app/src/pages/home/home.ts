@@ -226,6 +226,39 @@ export class HomePage {
         }
     }
 
+    // Attribute a different color from colorsPresetsList[] to each Peripheral.
+    // If there are Peripherals than preset colors, attributed colors are not unique.
+    attributeRdmColors() {
+        // Fisher-Yates Shuffle over [0..presets]
+        let shuffled = Array.from(Array(this.colorsPresetsList.length - 1).keys());
+        let cnt = shuffled.length;
+        while (cnt > 0) {
+            let index = Math.floor(Math.random() * cnt);
+            cnt--;
+            let temp = shuffled[cnt];
+            shuffled[cnt] = shuffled[index];
+            shuffled[index] = temp;
+        }
+        // Send each Peripheral a different color, starting from 0 and looping over.
+        let colorIdx = 0;
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.bleService.writeBLE(periph,
+                BLE_SERVICES.COLOR,
+                String.fromCharCode(this.colorsPresetsList[colorIdx].r_final,
+                                    this.colorsPresetsList[colorIdx].g_final,
+                                    this.colorsPresetsList[colorIdx].b_final))
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+                colorIdx++;
+                colorIdx %= shuffled.length;
+            }
+        );
+    }
+
     requestSettings(periph: Periph) {
         console.log("requestSettings");
         // check again that only one device is connected
