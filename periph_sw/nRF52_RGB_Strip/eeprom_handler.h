@@ -43,7 +43,7 @@ class EEPROM_Handler
     {
     }
 
-    void configure(void)
+    void static configure(void)
     {
         // Initialize Nffs
         Nffs.begin();
