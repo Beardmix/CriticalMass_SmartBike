@@ -230,37 +230,47 @@ class CtrlLED
     // Mode Music Drum: imitates a regular electronic drum pattern
     void modeMusicDrum(void)
     {
-        float max_duration_ms = period_ms / 10;
+        int intensity_hihat = 20;
+        int intensity_snare = 60;
+        int pattern_duration = (int)(period_ms * 2);
+        int cell_duration = pattern_duration / 8;
+        float max_duration_ms = cell_duration * 0.5;
         int max_intensity = 0;
 
-        int time_pattern = global_millis() % (int)(period_ms * 2);
-        if (time_pattern < (int)(period_ms/2))
+        int grid [8];
+
+        grid[0] = 255;
+        grid[1] = 0;
+        grid[2] = intensity_hihat;
+        grid[3] = 0;
+        grid[4] = intensity_snare;
+        grid[5] = 0;
+        grid[6] = intensity_hihat;
+        grid[7] = 0;
+
+        int time_cursor = global_millis() % pattern_duration;
+        int cell_idx = (time_cursor * 8) / pattern_duration;
+        max_intensity = grid[cell_idx];
+
+        int time_cursor_cell = time_cursor % (int)(pattern_duration / 8);
+        if (time_cursor_cell < max_duration_ms)
         {
-            max_intensity = 255;
-        }
-        else if (time_pattern < (int)(period_ms * 2/2))
-        {
-            max_intensity = 10;
-        }
-        else if (time_pattern < (int)(3 * period_ms/2))
-        {
-            max_intensity = 30;
-        }
-        else
-        {
-            max_intensity = 10;
-        }
-        if (global_millis() % (int)(period_ms/2) < max_duration_ms)
-        {
-            int valR = 0;
-            int valG = 0;
-            int valB = 0;
+            int valR = this->valRed;
+            int valG = this->valGreen;
+            int valB = this->valBlue;
             int intensity = 0;
 
-            intensity = (sin(3.1415f * (float)(global_millis()) / max_duration_ms)) * max_intensity;
-            valR = map(intensity, 0, 255, 0, this->valRed);
-            valG = map(intensity, 0, 255, 0, this->valGreen);
-            valB = map(intensity, 0, 255, 0, this->valBlue);
+            if (grid[cell_idx] == intensity_hihat)
+            {
+                valR = valR > valG ? ((valR > valB) ? valR : valB) : valG;
+                valG = valR;
+                valB = valR;
+            }
+
+            intensity = (sin(3.1415f * (float)(time_cursor_cell) / (float)cell_duration)) * max_intensity;
+            valR = map(intensity, 0, 255, 0, valR);
+            valG = map(intensity, 0, 255, 0, valG);
+            valB = map(intensity, 0, 255, 0, valB);
 
             analogWrite(pinDebug, valR);
             writeEach(strip.Color(valR, valG, valB));
