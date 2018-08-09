@@ -1,14 +1,19 @@
 #ifndef LED_H
 #define LED_H
 
+#define __ASSERT_USE_STDERR
+
+#include <assert.h>
 #include <Adafruit_NeoPixel.h>
+
+#include "eeprom_handler.h"
 
 class CtrlLED
 {
   public:
     int pinDebug;
     int pinData;
-    int numpixels;
+    const Settings * p_settings;
 
     int valRed;
     int valGreen;
@@ -19,11 +24,13 @@ class CtrlLED
 
     Adafruit_NeoPixel strip;
 
-    CtrlLED(int pinData, int pinDebug)
+    CtrlLED(int pinData, int pinDebug, Settings const * const p_settings)
     {
+        assert(NULL != p_settings);
+
         this->pinDebug = pinDebug;
         this->pinData = pinData;
-        this->numpixels = 1;
+        this->p_settings = p_settings;
 
         // declare the ledPin as an OUTPUT:
         pinMode(pinData, OUTPUT);
@@ -36,13 +43,12 @@ class CtrlLED
         strip.begin(); // This initializes the NeoPixel library.
     }
 
-    void configure(unsigned int numpixels)
+    void configure(void)
     {
         setRGB(255, 255, 255);
         neoPixelType pixelType = NEO_GRB + NEO_KHZ800;
 
-        this->numpixels = numpixels;
-        strip.updateLength(numpixels);
+        strip.updateLength(this->p_settings->num_pixels);
         strip.updateType(pixelType);
         strip.setPin(this->pinData);
     }
@@ -110,6 +116,15 @@ class CtrlLED
         writeEach(strip.Color(255, 255, 255));
     }
 
+    // Set all pixels off. Not calling show.
+    void setPixelsOff(void)
+    {
+        for (unsigned int i = 0; i < this->p_settings->num_pixels; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(0, 0, 0));
+        }
+    }
+    
     void switchOff()
     {
         analogWrite(pinDebug, 0);
@@ -135,13 +150,13 @@ class CtrlLED
     /* Dimmed multi chase. */
     void dimmedMultiChase(unsigned int nbChases = 2, unsigned int trainLength = 5)
     {
-        // Minimum parameter values.
-        nbChases = max(1, nbChases);
-        trainLength = max(1, trainLength);
+        // Constraint parameters.
+        nbChases = constrain(nbChases, 1, this->p_settings->num_pixels);
+        trainLength = constrain(trainLength, 1, this->p_settings->num_pixels);
 
         // Compute useful info.
-        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
-        int gapBetweenChases = (this->numpixels / nbChases);
+        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * this->p_settings->num_pixels;
+        int gapBetweenChases = (this->p_settings->num_pixels / nbChases);
         int intensityStep = 0xFF / trainLength;
 
         this->setPixelsOff(); // Init: switch evertyhing off.
@@ -149,11 +164,11 @@ class CtrlLED
         for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
             // Get first chase
-            int leaderIdx = (offset + (chaseIdx * gapBetweenChases)) % this->numpixels;
+            int leaderIdx = (offset + (chaseIdx * gapBetweenChases)) % this->p_settings->num_pixels;
             // Switch on the leds.
             for (int followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
             {
-                int ledIdx = (leaderIdx + followerIdx) % this->numpixels;
+                int ledIdx = (leaderIdx + followerIdx) % this->p_settings->num_pixels;
                 int ledIntensity = intensityStep * followerIdx;
                 strip.setPixelColor(ledIdx, rgbiToColor(valRed, valGreen, valBlue, ledIntensity));
             }
@@ -164,8 +179,8 @@ class CtrlLED
 
     void pileUp()
     {
-        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * (numpixels);
-        for (int i = 0; i < numpixels; i++)
+        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * (this->p_settings->num_pixels);
+        for (int i = 0; i < this->p_settings->num_pixels; i++)
         {
             int intensity = 0;
             if (i <= offset)
@@ -181,21 +196,21 @@ class CtrlLED
     void modeRainbow(void)
     {
         // Determine parameters according to the number of configured leds and colors.
-        unsigned int nbChases = max(1, this->NB_PRESET_COLORS);
-        unsigned int trainLength = max(1, this->numpixels / nbChases);
-        unsigned int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * numpixels;
+        unsigned int nbChases = constrain(this->NB_PRESET_COLORS, 1, this->p_settings->num_pixels);
+        unsigned int trainLength = constrain(this->p_settings->num_pixels / nbChases, 1, this->p_settings->num_pixels);
+        unsigned int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * this->p_settings->num_pixels;
 
         /* Two partitions have to be distinguished.
-        * Chases might have different trainLength due to a non-null rest of the divison numpixels/nbChases.
+        * Chases might have different trainLength due to a non-null rest of the divison this->p_settings->num_pixels/nbChases.
         * The left-hand-side of the partition will have a (trainLength + 1) length to use the pixels left. */
-        unsigned int partitionIdx = floor(this->numpixels / nbChases);
+        unsigned int partitionIdx = floor(this->p_settings->num_pixels / nbChases);
 
         this->setPixelsOff(); // Init: switch evertyhing off.
 
         for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
             Color rgb = this->presetColors[chaseIdx];
-            int leaderIdx = (offset + (chaseIdx * trainLength)) % this->numpixels; // Chase start.
+            int leaderIdx = (offset + (chaseIdx * trainLength)) % this->p_settings->num_pixels; // Chase start.
             unsigned int lastIdx = leaderIdx + trainLength;
             if (chaseIdx < partitionIdx) {
                 lastIdx += 1;
@@ -204,7 +219,7 @@ class CtrlLED
             // Switch on the leds.
             for (int i = leaderIdx; i < lastIdx; ++i)
             {
-                int ledIdx = i % this->numpixels;
+                int ledIdx = i % this->p_settings->num_pixels;
                 strip.setPixelColor(ledIdx, rgbiToColor(rgb.r, rgb.g, rgb.b, 0xFF));
             }
         }
@@ -255,6 +270,24 @@ class CtrlLED
             switchOff();
         }
     }
+    
+    void modeTraffic(void)
+    {
+        this->setPixelsOff(); // Init: switch evertyhing off.
+
+        // Front.
+        for (int i = std::max(this->p_settings->traffic_front_lower - 1, 0U); i < this->p_settings->traffic_front_upper; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(255, 255, 255));
+        }
+        // Rear.
+        for (int i = std::max(this->p_settings->traffic_rear_lower - 1, 0U); i < this->p_settings->traffic_rear_upper; ++i)
+        {
+            strip.setPixelColor(i, strip.Color(255, 0, 0));
+        }
+        
+        strip.show();
+    }
 
     void setTimeOffset(int utc_millis)
     {
@@ -298,7 +331,7 @@ class CtrlLED
 
     void writeEach(uint32_t color)
     {
-        for (int i = 0; i < numpixels; i++)
+        for (int i = 0; i < this->p_settings->num_pixels; i++)
         {
             strip.setPixelColor(i, color);
         }
@@ -311,15 +344,6 @@ class CtrlLED
         g = map(g, 0, 255, 0, intensity);
         b = map(b, 0, 255, 0, intensity);
         return strip.Color(r, g, b);
-    }
-    
-    // Set all pixels off. Not calling show.
-    void setPixelsOff(void)
-    {
-        for (unsigned int i = 0; i < numpixels; ++i)
-        {
-            strip.setPixelColor(i, strip.Color(0, 0, 0));
-        }
     }
 };
 

@@ -6,6 +6,7 @@ import { Platform } from 'ionic-angular';
 import { LocationAccuracy } from '@ionic-native/location-accuracy';
 
 import { Periph } from '../classes/periph';
+import { Mode } from '../classes/mode';
 
 const SERVICE_UUID_UART = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const CHARAC_UUID_UART_RX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
@@ -21,17 +22,6 @@ export const BLE_SERVICES = {
     TEMPO: 'T',
     DEV_SETTINGS: 'D'
 }
-
-var MODES =
-    [
-        "OFF",
-        "ON",
-        "FLASH",
-        "PULSE",
-        "HUE_FLOW",
-        "THEATER",
-        "PILE_UP"
-    ];
 
 @Injectable()
 export class BleServiceProvider {
@@ -49,35 +39,38 @@ export class BleServiceProvider {
         public platform: Platform,
         private locationAccuracy: LocationAccuracy) {
         console.log('Hello BleServiceProvider Provider');
+        
+        // If the device is not a computer
+        if (!this.platform.is('core')) {
+            // Bluetooth activation.
+            this.ble.isEnabled().then(() => {
+                console.log('Bluetooth already enabled.');
+            },
+                (err) => { // Bluetooth disabled, try to enable it.
+                    // Android only.
+                    if (this.platform.is('android')) {
+                        this.ble.enable().then(() => {
+                            console.log('Bluetooth now enabled.');
+                        },
+                            (err) => {
+                                console.log('Cannot enable Bluetooth: ' + err);
+                            });
+                    }
+                });
 
-        // Bluetooth activation.
-        this.ble.isEnabled().then(() => {
-            console.log('Bluetooth already enabled.');
-        },
-            (err) => { // Bluetooth disabled, try to enable it.
-                // Android only.
-                if (this.platform.is('android')) {
-                    this.ble.enable().then(() => {
-                        console.log('Bluetooth now enabled.');
-                    },
-                        (err) => {
-                            console.log('Cannot enable Bluetooth: ' + err);
-                        });
+            // Localization activation.
+            // https://ionicframework.com/docs/native/location-accuracy/
+            this.locationAccuracy.canRequest().then((canRequest: boolean) => {
+                if (canRequest) {
+                    // the accuracy option will be ignored by iOS
+                    this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
+                        () => console.log('Request successful'),
+                        error => console.log('Error requesting location permissions', error)
+                    );
                 }
+
             });
-
-        // Localization activation.
-        // https://ionicframework.com/docs/native/location-accuracy/
-        this.locationAccuracy.canRequest().then((canRequest: boolean) => {
-            if (canRequest) {
-                // the accuracy option will be ignored by iOS
-                this.locationAccuracy.request(this.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY).then(
-                    () => console.log('Request successful'),
-                    error => console.log('Error requesting location permissions', error)
-                );
-            }
-
-        });
+        }
     }
 
     private connect(periph: Periph) {
@@ -177,6 +170,10 @@ export class BleServiceProvider {
         });
     }
 
+    public isScanningNewPeriphs(){
+        return this.intervalScanNewDevices_ID != -1;
+    }
+
     public writeBLE(periph: Periph, service: string, message: string) {
         var uart_message = CHAR_START + service + message + CHAR_END;
 
@@ -208,7 +205,7 @@ export class BleServiceProvider {
                     periph.globalTimerModulusMs = payload;
                 }
                 else if (this.isService(string_received, BLE_SERVICES.MODE)) {
-                    periph.mode = MODES[Number(payload)];
+                    periph.mode = Mode.list[Number(payload)];
                 }
                 else if (this.isService(string_received, BLE_SERVICES.COLOR)) {
                     var colors = payload.split(",");
@@ -222,15 +219,78 @@ export class BleServiceProvider {
                 }
                 else if (this.isService(string_received, BLE_SERVICES.DEV_SETTINGS)) {
                     var settings = payload.split(";");
-                    periph.num_pixels = parseInt(settings[0]);
-                    periph.name = String(settings[1]);
+                    switch (settings[0])
+                    {
+                        case "1":
+                            periph.num_pixels = parseInt(settings[1]);
+                            periph.name = String(settings[2]);
+                            console.log("[DEV_SETTINGS] Received param. "
+                                        + "num_pixel (" + String(periph.num_pixels) +  "), "
+                                        + "name (" + periph.name + ").");
+                            this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, settings[0])
+                                .then(data => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                })
+                                .catch(err => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                })
+                            break;
+                        case "2":
+                            periph.traffic_front_lower = parseInt(settings[1]);
+                            periph.traffic_front_upper = parseInt(settings[2]);
+                            periph.traffic_rear_lower = parseInt(settings[3]);
+                            periph.traffic_rear_upper = parseInt(settings[4]);
+                            console.log("[DEV_SETTINGS] Received param: traffic param."
+                                        + "traffic_front_lower (" + String(periph.traffic_front_lower) + "), "
+                                        + "traffic_front_upper (" + String(periph.traffic_front_upper) + "), "
+                                        + "traffic_rear_lower (" + String(periph.traffic_rear_lower) + "), "
+                                        + "traffic_rear_upper (" + String(periph.traffic_rear_upper) + ").");
+                            this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, settings[0])
+                                .then(data => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                })
+                                .catch(err => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                })
+                            break;
+                            case "A":
+                                console.log("[DEV_SETTINGS] Sending param: num_pixel, name.");
+                                this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
+                                            settings[0] + String.fromCharCode(periph.num_pixels) + ";"
+                                            + periph.name)
+                                    .then(data => {
+                                        console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                    })
+                                    .catch(err => {
+                                        console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                    })
+                                    break;
+                        case "B":
+                            console.log("[DEV_SETTINGS] Sending param: traffic indices.");
+                            this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
+                                        settings[0]
+                                        + String.fromCharCode(periph.traffic_front_lower) + ";"
+                                        + String.fromCharCode(periph.traffic_front_upper) + ";"
+                                        + String.fromCharCode(periph.traffic_rear_lower) + ";"
+                                        + String.fromCharCode(periph.traffic_rear_upper))
+                                .then(data => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);
+                                })
+                                .catch(err => {
+                                    console.log("[DEV_SETTINGS] " + settings[0] + " failed.", data);
+                                })
+                                break;
+                        default:
+                            console.log("[DEV_SETTINGS] Received " + settings[0] + ", do nothing.");
+                            break;
+                    }
                 }
                 else {
                     console.log("unknown service", string_received);
                 }
             }
             else {
-                console.log("non supported message", string_received);
+                console.log("non supported message (note: only 20 Bytes can be sent over BLE.)", string_received);
             }
 
         });

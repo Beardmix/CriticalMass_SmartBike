@@ -9,14 +9,20 @@ import { LocationAccuracy } from '@ionic-native/location-accuracy';
 import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
+import { TabsPage } from '../pages/tabs/tabs';
 import { HomePage } from '../pages/home/home';
-import { PopoverSettings } from '../pages/home/popover-settings';
+import { PeripheralsPage } from '../pages/peripherals/peripherals';
+import { SingleUserPage } from '../pages/single_user/single_user';
+import { PopoverSettings } from '../pages/peripherals/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
 
 @NgModule({
   declarations: [
     MyApp,
+    TabsPage,
     HomePage,
+    PeripheralsPage,
+    SingleUserPage,
     PopoverSettings
   ],
   imports: [
@@ -26,7 +32,10 @@ import { BleServiceProvider } from '../providers/ble-service';
   bootstrap: [IonicApp],
   entryComponents: [
     MyApp,
+    TabsPage,
     HomePage,
+    PeripheralsPage,
+    SingleUserPage,
     PopoverSettings
   ],
   providers: [

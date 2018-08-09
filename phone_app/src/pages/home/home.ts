@@ -1,60 +1,47 @@
 import { Component, NgZone } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { PopoverController } from 'ionic-angular';
-import { PopoverSettings } from './popover-settings';
 
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
-
-var LEDMode =
-{
-    OFF_MODE: '0',
-    ON_MODE: '1',
-    FLASH_MODE: '2',
-    PULSE_MODE: '3',
-    HUE_FLOW: '4',
-    THEATER_CHASE_MODE: '5',
-    PILE_UP_MODE: '6',
-    RAINBOW_MODE: '7'
-};
+import { Color } from '../../classes/color';
+import { Mode } from '../../classes/mode';
 
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html'
 })
 export class HomePage {
-    displayConnectedPeriphs: boolean = false; // Display the list of connected devices with their properties.
-    isScanning: any = false;
     tempo: number = 60;
     hue = 0;
-    brightness = 100;
-    saturation = 0;
-    hexcolor = "rgb(255,255,255)";
-    r = 255;
-    g = 255;
-    b = 255;
-    mode = LEDMode.PULSE_MODE;
+    rgb = new Color(255, 255, 255);
+    mode = "PULSE";
+    isAuto: boolean = false;
+    isControlling: boolean = false;
+    private intervalAutomode_ID = -1;
+    private intervalAutomode_s = 2;
+    private NB_TAPS = 10;
+    private taps_idx = 0;
+    private taps = new Array(this.NB_TAPS);
 
+    public colorsPresetsList: Color[] = [
+        new Color(255, 0, 0), // red
+        new Color(0, 255, 0), // green
+        new Color(0, 0, 255), // blue
+        new Color(255, 255, 255), // white
+        new Color(255, 128, 0), // orange
+        new Color(255, 255, 0), // yellow
+        new Color(51, 153, 255), // lightblue
+        new Color(255, 0, 255), // fuschia
+        new Color(0, 255, 255) // aqua
+    ];
 
     constructor(public navCtrl: NavController,
-        private popoverCtrl: PopoverController,
         private bleService: BleServiceProvider,
         private zone: NgZone, // UI updated when wrapped up in this.zone.run().
     ) {
         this.bleService.newPeriphObs.subscribe(
             value => {
                 this.callbackNewPeriph(value);
-            },
-            error => {
-                console.log('Observer: onError: ', error)
-            },
-            () => {
-                console.log('Observer: onCompleted');
-            }
-        );
-        this.bleService.scanObs.subscribe(
-            value => {
-                this.isScanning = value;
             },
             error => {
                 console.log('Observer: onError: ', error)
@@ -74,101 +61,97 @@ export class HomePage {
         this.changeColor(periph);
         this.changeMode(periph);
         this.requestSettings(periph);
-
-        // To refresh the UI
-        this.zone.run(() => {
-            this.displayConnectedPeriphs = this.displayConnectedPeriphs;
-        });
     }
 
-    connectAll() {
-        console.log("Connecting all new devices");
-        this.bleService.connectAll();
+    showColorPicker() {
+        return Mode.list[this.mode].color_picker;
     }
 
-    disconnectAll() {
-        console.log("Disconnecting all devices");
-        this.bleService.disconnectAll();
+    showTempo() {
+        return Mode.list[this.mode].tempo_picker;
     }
 
-    switchOff() {
-        console.log("switchOff");
-        this.mode = LEDMode.OFF_MODE;
+    scanToggle() {
+        if (this.bleService.isScanningNewPeriphs()) {
+            console.log("Disconnecting all devices");
+            this.bleService.disconnectAll();
+            this.isControlling = false;
+        }
+        else {
+            console.log("Connecting all new devices");
+            this.bleService.connectAll();
+            this.isControlling = true;
+        }
+    }
+
+    modeChanged(mode) {
+        console.log("Mode changed to " + mode);
+        this.mode = mode;
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeMode(periph);
         });
     }
-    switchOn() {
-        console.log("switchOn");
-        this.mode = LEDMode.ON_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    flash() {
-        console.log("flash");
-        this.mode = LEDMode.FLASH_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    pulse() {
-        console.log("pulse");
-        this.mode = LEDMode.PULSE_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    hueFlow() {
-        console.log("hueFlow");
-        this.mode = LEDMode.HUE_FLOW;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    theaterChase() {
-        console.log("theaterChase");
-        this.mode = LEDMode.THEATER_CHASE_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    pileUp() {
-        console.log("pileUp");
-        this.mode = LEDMode.PILE_UP_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    rainbowMode() {
-        console.log("rainbowMode");
-        this.mode = LEDMode.RAINBOW_MODE;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
-    }
-    setColor() {
-        var rgb = this.hue2rgb(this.hue);
-        var r = rgb[0];
-        var g = rgb[1];
-        var b = rgb[2];
-        var max_val = Math.max(r, g, b);
-        r = r + (max_val - r) * (100 - this.saturation) / 100.0;
-        g = g + (max_val - g) * (100 - this.saturation) / 100.0;
-        b = b + (max_val - b) * (100 - this.saturation) / 100.0;
-        r = r * this.brightness / 100.0;
-        g = g * this.brightness / 100.0;
-        b = b * this.brightness / 100.0;
-        this.r = Math.round(r * 255);
-        this.g = Math.round(g * 255);
-        this.b = Math.round(b * 255);
-        console.log("changeColor", this.r, this.g, this.b);
+
+    setColor(in_color: Color) {
+        this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
 
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.changeColor(periph);
         });
-        this.hexcolor = "rgb(" + this.r + "," + this.g + "," + this.b + ")";
     }
+
+    setBrightness(brightness) {
+        this.rgb.setBrightness(brightness);
+
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.changeColor(periph);
+        });
+    }
+
+    isColorSelected(color: Color) {
+        var style = "4px solid #f4f4f4";
+
+        if ((color.r == this.rgb.r) && (color.g == this.rgb.g) && (color.b == this.rgb.b)) {
+            style = "4px solid grey";
+        }
+
+        return style;
+    }
+
+    isBrightnessSelected(brightness: number) {
+        var style = "4px solid #f4f4f4";
+
+        if (brightness == this.rgb.brightness) {
+            style = "4px solid #0096ff";
+        }
+
+        return style;
+    }
+
+    automatic() {
+        clearTimeout(this.intervalAutomode_ID);
+        if (this.isAuto) {
+            this.intervalAutomode_ID = setTimeout(() => {
+                var modes = Object.keys(Mode.list);
+                var idx_color = Math.round(Math.random() * (this.colorsPresetsList.length - 1));
+                this.setColor(this.colorsPresetsList[idx_color]);
+                var idx = 2 + Math.round(Math.random() * (modes.length - 1 - 2));
+                this.modeChanged(modes[idx]);
+                this.automatic();
+            }, this.intervalAutomode_s * 1000);
+        }
+    }
+
+    isModeSelected(mode: string) {
+        var style = "4px solid #f4f4f4";
+
+        if (mode == this.mode) {
+            style = "4px solid #0096ff";
+        }
+
+        return style;
+    }
+
     private hue2rgb(h) {
         var r, g, b;
         h = h / 60.0;
@@ -218,42 +201,74 @@ export class HomePage {
         });
     }
 
+    tapTempo(){
+        this.taps[this.taps_idx] = new Date().getTime();
+        this.taps_idx = (this.taps_idx + 1) % this.NB_TAPS;
+        var bpms = [];
+        for (var i = 1; i < this.NB_TAPS; i++) {
+            var delta = this.taps[i] - this.taps[i-1];
+            if(delta > 0 && (new Date().getTime() - this.taps[i]) < 5000)
+            {
+                var bpm = (60 * 1000) / delta;
+                bpms.push(bpm);
+            }
+        }
+        if(bpms.length > 2)
+        {
+            var average = 0;
+            bpms.forEach((bpm) => {
+                average += bpm;
+            })
+            average = average / bpms.length;
+            average = Math.round(average * 100) / 100.0;
+            this.tempo = average;
+            console.log(average);
+        }
+    }
+
+    // Attribute a different color from colorsPresetsList[] to each Peripheral.
+    // If there are Peripherals than preset colors, attributed colors are not unique.
+    attributeRdmColors() {
+        // Fisher-Yates Shuffle over [0..presets]
+        let shuffled = Array.from(Array(this.colorsPresetsList.length - 1).keys());
+        let cnt = shuffled.length;
+        while (cnt > 0) {
+            let index = Math.floor(Math.random() * cnt);
+            cnt--;
+            let temp = shuffled[cnt];
+            shuffled[cnt] = shuffled[index];
+            shuffled[index] = temp;
+        }
+        // Send each Peripheral a different color, starting from 0 and looping over.
+        let colorIdx = 0;
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.bleService.writeBLE(periph,
+                BLE_SERVICES.COLOR,
+                String.fromCharCode(this.colorsPresetsList[colorIdx].r_final,
+                                    this.colorsPresetsList[colorIdx].g_final,
+                                    this.colorsPresetsList[colorIdx].b_final))
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+                colorIdx++;
+                colorIdx %= shuffled.length;
+            }
+        );
+    }
+
     requestSettings(periph: Periph) {
         console.log("requestSettings");
         // check again that only one device is connected
-        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "")
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "?")
             .then(data => {
                 console.log("success", data);
             })
             .catch(err => {
                 console.log("error", err);
             })
-    }
-
-    setSettings(periph: Periph) {
-        console.log("changeSettings");
-        // check again that only one device is connected
-        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
-            String.fromCharCode(periph.num_pixels) + ";" + periph.name)
-            .then(data => {
-                console.log("success", data);
-            })
-            .catch(err => {
-                console.log("error", err);
-            })
-    }
-
-
-    openPopoverSettings(clickEvent, periph: Periph) {
-        let popover = this.popoverCtrl.create(PopoverSettings, { "periph": periph });
-        popover.present({
-            ev: clickEvent
-        });
-        popover.onDidDismiss((periph: Periph) => {
-            if (periph != null) {
-                this.setSettings(periph);
-            }
-        });
     }
 
     private changeTempo(periph) {
@@ -267,7 +282,9 @@ export class HomePage {
     }
 
     private changeColor(periph) {
-        this.bleService.writeBLE(periph, BLE_SERVICES.COLOR, String.fromCharCode(this.r, this.g, this.b))
+        this.bleService.writeBLE(periph,
+            BLE_SERVICES.COLOR,
+            String.fromCharCode(this.rgb.r_final, this.rgb.g_final, this.rgb.b_final))
             .then(data => {
                 console.log("success", data);
             })
@@ -277,19 +294,12 @@ export class HomePage {
     }
 
     private changeMode(periph) {
-        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, this.mode)
+        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[this.mode].val)
             .then(data => {
                 console.log("success", data);
             })
             .catch(err => {
                 console.log("error", err);
             })
-    }
-
-    /*
-    *   Buttons actions.
-    */
-    public displayConnectedPeriphsClick() {
-        this.displayConnectedPeriphs = !this.displayConnectedPeriphs;
     }
 }
