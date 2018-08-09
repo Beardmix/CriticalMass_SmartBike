@@ -212,6 +212,50 @@ class CtrlLED
         strip.show();
     }
 
+    // Mode Music Drum: imitates a regular electronic drum pattern
+    void modeMusicDrum(void)
+    {
+        float max_duration_ms = period_ms / 10;
+        int max_intensity = 0;
+
+        int time_pattern = global_millis() % (int)(period_ms * 2);
+        if (time_pattern < (int)(period_ms/2))
+        {
+            max_intensity = 255;
+        }
+        else if (time_pattern < (int)(period_ms * 2/2))
+        {
+            max_intensity = 10;
+        }
+        else if (time_pattern < (int)(3 * period_ms/2))
+        {
+            max_intensity = 30;
+        }
+        else
+        {
+            max_intensity = 10;
+        }
+        if (global_millis() % (int)(period_ms/2) < max_duration_ms)
+        {
+            int valR = 0;
+            int valG = 0;
+            int valB = 0;
+            int intensity = 0;
+
+            intensity = (sin(3.1415f * (float)(global_millis()) / max_duration_ms)) * max_intensity;
+            valR = map(intensity, 0, 255, 0, this->valRed);
+            valG = map(intensity, 0, 255, 0, this->valGreen);
+            valB = map(intensity, 0, 255, 0, this->valBlue);
+
+            analogWrite(pinDebug, valR);
+            writeEach(strip.Color(valR, valG, valB));
+        }
+        else
+        {
+            switchOff();
+        }
+    }
+
     void setTimeOffset(int utc_millis)
     {
         time_offset = utc_millis - millis();
