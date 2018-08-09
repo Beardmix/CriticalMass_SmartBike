@@ -244,9 +244,9 @@ export class HomePage {
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.bleService.writeBLE(periph,
                 BLE_SERVICES.COLOR,
-                String.fromCharCode(this.colorsPresetsList[colorIdx].r_final,
-                                    this.colorsPresetsList[colorIdx].g_final,
-                                    this.colorsPresetsList[colorIdx].b_final))
+                String.fromCharCode(this.colorsPresetsList[shuffled[colorIdx]].r_final,
+                                    this.colorsPresetsList[shuffled[colorIdx]].g_final,
+                                    this.colorsPresetsList[shuffled[colorIdx]].b_final))
                 .then(data => {
                     console.log("success", data);
                 })
