@@ -60,6 +60,12 @@
                     <ion-icon name="md-color-palette"></ion-icon>Rainbow
                 </button>
             </ion-col>
+            <ion-col>
+                <button ion-button block icon-left color="light" (click)="modeChanged('TRAFFIC_MODE')" [ngStyle]="{'border': isModeSelected('TRAFFIC_MODE')}"
+                    [disabled]="isAuto">
+                    <ion-icon name="md-car"></ion-icon>Traffic
+                </button>
+            </ion-col>
         </ion-row>
     </ion-grid>
     <ion-grid>

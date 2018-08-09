@@ -54,9 +54,8 @@ export class PeripheralsPage {
 
     setSettings(periph: Periph) {
         console.log("changeSettings");
-        // check again that only one device is connected
-        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
-            String.fromCharCode(periph.num_pixels) + ";" + periph.name)
+        // todo: ? check again that only one device is connected
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, String("="))
             .then(data => {
                 console.log("success", data);
             })

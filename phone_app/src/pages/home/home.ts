@@ -3,67 +3,8 @@ import { NavController } from 'ionic-angular';
 
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
 import { Periph } from '../../classes/periph';
-
-var LED_MODE =
-    {
-        "OFF": { val: '0', color_picker: false, tempo_picker: false },
-        "ON": { val: '1', color_picker: true, tempo_picker: false },
-        "FLASH": { val: '2', color_picker: true, tempo_picker: true },
-        "PULSE": { val: '3', color_picker: true, tempo_picker: true },
-        "HUE_FLOW": { val: '4', color_picker: false, tempo_picker: true },
-        "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
-        "PILE_UP": { val: '6', color_picker: true, tempo_picker: true },
-        "RAINBOW_MODE": { val: '7', color_picker: false, tempo_picker: true }
-    };
-
-
-class Color {
-    r = 0;
-    g = 0;
-    b = 0;
-    brightness = 100;
-    saturation = 100;
-    r_final = 0;
-    g_final = 0;
-    b_final = 0;
-
-    constructor(r, g, b) {
-        this.setRGB(r, g, b);
-    }
-
-    setRGB(r, g, b) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.computeFinalRGB();
-    }
-
-    setBrightness(brightness) {
-        this.brightness = brightness;
-        this.computeFinalRGB();
-    }
-
-    computeFinalRGB() {
-        var r = this.r;
-        var g = this.g;
-        var b = this.b;
-        var max_val = Math.max(r, g, b);
-        r = r + (max_val - r) * (100 - this.saturation) / 100.0;
-        g = g + (max_val - g) * (100 - this.saturation) / 100.0;
-        b = b + (max_val - b) * (100 - this.saturation) / 100.0;
-        r = r * this.brightness / 100.0;
-        g = g * this.brightness / 100.0;
-        b = b * this.brightness / 100.0;
-        this.r_final = Math.round(r);
-        this.g_final = Math.round(g);
-        this.b_final = Math.round(b);
-        console.log("changeColor", this.r_final, this.g_final, this.b_final);
-    }
-
-    getRGBstring() {
-        return "rgb(" + String(this.r_final) + "," + String(this.g_final) + "," + String(this.b_final) + ")";
-    }
-}
+import { Color } from '../../classes/color';
+import { Mode } from '../../classes/mode';
 
 @Component({
     selector: 'page-home',
@@ -123,11 +64,11 @@ export class HomePage {
     }
 
     showColorPicker() {
-        return LED_MODE[this.mode].color_picker;
+        return Mode.list[this.mode].color_picker;
     }
 
     showTempo() {
-        return LED_MODE[this.mode].tempo_picker;
+        return Mode.list[this.mode].tempo_picker;
     }
 
     scanToggle() {
@@ -191,7 +132,7 @@ export class HomePage {
         clearTimeout(this.intervalAutomode_ID);
         if (this.isAuto) {
             this.intervalAutomode_ID = setTimeout(() => {
-                var modes = Object.keys(LED_MODE);
+                var modes = Object.keys(Mode.list);
                 var idx_color = Math.round(Math.random() * (this.colorsPresetsList.length - 1));
                 this.setColor(this.colorsPresetsList[idx_color]);
                 var idx = 2 + Math.round(Math.random() * (modes.length - 1 - 2));
@@ -288,7 +229,7 @@ export class HomePage {
     requestSettings(periph: Periph) {
         console.log("requestSettings");
         // check again that only one device is connected
-        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "")
+        this.bleService.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, "?")
             .then(data => {
                 console.log("success", data);
             })
@@ -320,7 +261,7 @@ export class HomePage {
     }
 
     private changeMode(periph) {
-        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, LED_MODE[this.mode].val)
+        this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[this.mode].val)
             .then(data => {
                 console.log("success", data);
             })

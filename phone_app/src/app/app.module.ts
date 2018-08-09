@@ -12,6 +12,7 @@ import { MyApp } from './app.component';
 import { TabsPage } from '../pages/tabs/tabs';
 import { HomePage } from '../pages/home/home';
 import { PeripheralsPage } from '../pages/peripherals/peripherals';
+import { SingleUserPage } from '../pages/single_user/single_user';
 import { PopoverSettings } from '../pages/peripherals/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
 
@@ -21,6 +22,7 @@ import { BleServiceProvider } from '../providers/ble-service';
     TabsPage,
     HomePage,
     PeripheralsPage,
+    SingleUserPage,
     PopoverSettings
   ],
   imports: [
@@ -33,6 +35,7 @@ import { BleServiceProvider } from '../providers/ble-service';
     TabsPage,
     HomePage,
     PeripheralsPage,
+    SingleUserPage,
     PopoverSettings
   ],
   providers: [

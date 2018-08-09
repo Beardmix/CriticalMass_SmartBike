@@ -4,13 +4,9 @@
 #include "ble_handler.h"
 #include "eeprom_handler.h"
 
-/* Need to undefine min and max in order to compile <String>. */
-#undef max
-#undef min
 #include <String>
 
 #define READ_BUFSIZE (40) /* Size of the read buffer for incoming packets */
-
 
 enum LEDMode
 {
@@ -21,7 +17,8 @@ enum LEDMode
     HUE_FLOW = '4',
     THEATER_CHASE_MODE = '5',
     PILE_UP_MODE = '6',
-    RAINBOW_MODE = '7'
+    RAINBOW_MODE = '7',
+    TRAFFIC_MODE = '8'
 };
 
 bool debug = true;
@@ -32,10 +29,10 @@ const int pinData = 2;
 long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 
-CtrlLED led(pinData, pinDebug);
 BLE_Handler ble;
 EEPROM_Handler eeprom;
 Settings settings;
+CtrlLED led(pinData, pinDebug, &settings);
 
 void setup()
 {
@@ -46,6 +43,7 @@ void setup()
     Bluefruit.begin(1, 0);
     // Bluefruit module must be initialized for Nffs to work 
     // since Bluefruit's SOC event handling task is required for flash operation (creating the FS the first time)
+    eeprom.configure();
     eeprom.load(settings);
     
     ble.configure_ble(&settings);
@@ -54,7 +52,7 @@ void setup()
     ble.startAdv();
 
     // Initialise the LED strip.
-    led.configure(settings.num_pixels);
+    led.configure();
 }
 
 void readUART(uint8_t *const p_ledMode)
@@ -108,21 +106,59 @@ void readUART(uint8_t *const p_ledMode)
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
     case ble.Services::DEV_SETTINGS:
-        // Serial.println("DEV_SETTINGS");
-        // If the central just sends the Service without payload, it means that it requests for an update.
-        // Else, read the new values for the settings.
-        if(len_payload > 0)
+        // As BLE allows us to only transfer 20 Bytes, we split the config in chunks.
+        switch (packetPayload[0])
         {
-            settings.num_pixels = packetPayload[0];
-            settings.device_name = "";
-            for (int i = 2; i < len_payload; i++)
-            {
-                settings.device_name += char(packetPayload[i]);
-            }
-            Serial.println(settings.device_name);
-            eeprom.save(settings);
+            case '?': // The Central asks for values.
+                Serial.println("[SETTINGS] request cfg, will send chunk#1");
+                ble.sendPacket(ble.Services::DEV_SETTINGS,
+                               String("1;")
+                               + String(settings.num_pixels) + ";" + settings.device_name);
+                break;
+            case '1':
+                Serial.println("[SETTINGS] request cfg, will send chunk#2");
+                ble.sendPacket(ble.Services::DEV_SETTINGS,
+                               String("2;")
+                               + settings.traffic_front_lower + ";"
+                               + settings.traffic_front_upper + ";"
+                               + settings.traffic_rear_lower + ";"
+                               + settings.traffic_rear_upper);
+                break;
+            case '2':
+                Serial.println("[SETTINGS] request cfg done.");
+            case '=': // The Central tells us values.
+                Serial.println("[SETTINGS] ready to get cfg chunk#1");
+                ble.sendPacket(ble.Services::DEV_SETTINGS, "A");
+                break;
+            case 'A':
+                Serial.println("[SETTINGS] getting cfg chunk#1 ask for chunk#2");
+                settings.num_pixels = packetPayload[1];
+                //Serial.println(String(settings.num_pixels));
+                settings.device_name = "";
+                for (int i = 3; i < len_payload; i++)
+                {
+                    settings.device_name += char(packetPayload[i]);
+                }
+                //Serial.println(settings.device_name);
+                ble.sendPacket(ble.Services::DEV_SETTINGS, "B");
+                break;
+            case 'B':
+                Serial.println("[SETTINGS] getting chunk#2");
+                settings.traffic_front_lower = packetPayload[1];
+                //Serial.println(String(settings.traffic_front_lower));
+                settings.traffic_front_upper = packetPayload[3];
+                //Serial.println(String(settings.traffic_front_upper));
+                settings.traffic_rear_lower = packetPayload[5];
+                //Serial.println(String(settings.traffic_rear_lower));
+                settings.traffic_rear_upper = packetPayload[7];
+                //Serial.println(String(settings.traffic_rear_upper));
+                // Save all settings once done.
+                eeprom.save(settings);
+                break;
+            default:
+                Serial.println("[SETTINGS] unknown");
+                break;
         }
-        ble.sendPacket(ble.Services::DEV_SETTINGS, String(settings.num_pixels) + ";" + settings.device_name);
         break;
     default:
         Serial.println("[SERVICE] unknown");
@@ -170,6 +206,9 @@ void loop()
         break;
     case RAINBOW_MODE:
         led.modeRainbow();
+        break;
+    case TRAFFIC_MODE:
+        led.modeTraffic();
         break;
     default:
         Serial.println("[MODE] unknown");
