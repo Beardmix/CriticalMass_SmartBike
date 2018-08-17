@@ -9,6 +9,10 @@
         <ion-label stacked>Number of Pixels</ion-label>
         <ion-input type="number" [(ngModel)]="periph.num_pixels"></ion-input>
     </ion-item>
+    <ion-item>
+        <ion-label>Strip reversed</ion-label>
+        <ion-checkbox [(ngModel)]="periph.strip_reversed"></ion-checkbox>
+    </ion-item>
     <ion-card>
         TrafficMode: Front
         <ion-range id="range-sig-front" dualKnobs="true" min="{{ signalisationBoundaries.min }}" max="{{ signalisationBoundaries.max }}" step="1" pin="true" debounce="500" [(ngModel)]="signalisationValues.front" >

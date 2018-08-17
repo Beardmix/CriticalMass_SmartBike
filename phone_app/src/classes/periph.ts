@@ -4,6 +4,7 @@ export class Periph {
     name: string = "";
     id: string = "";
     num_pixels: number = 0;
+    strip_reversed: boolean = false; // Lightning direction.
     globalTimerModulusMs;
     mode: string = "";
     color_r: number = 0;
