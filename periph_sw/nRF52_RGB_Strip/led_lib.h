@@ -183,7 +183,6 @@ class CtrlLED
         trainLength = constrain(trainLength, 1, this->p_settings->num_pixels);
 
         // Compute useful info.
-        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * this->p_settings->num_pixels;
         int gapBetweenChases = (this->p_settings->num_pixels / nbChases);
         int intensityStep = 0xFF / trainLength;
 
@@ -191,8 +190,7 @@ class CtrlLED
         
         for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
-            // Get first chase
-            int leaderIdx = (offset + (chaseIdx * gapBetweenChases)) % this->p_settings->num_pixels;
+            int leaderIdx = (running_pxl + (chaseIdx * gapBetweenChases)) % p_settings->num_pixels;
             // Switch on the leds.
             for (int followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
             {
@@ -207,16 +205,23 @@ class CtrlLED
 
     void pileUp()
     {
-        int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * (this->p_settings->num_pixels);
-        for (int i = 0; i < this->p_settings->num_pixels; i++)
+        const unsigned int stop_pxl = prevPixel(running_pxl);
+
+        for (int pxl = running_pxl; pxl != stop_pxl; pxl = nextPixel(pxl))
         {
-            int intensity = 0;
-            if (i <= offset)
+            int intensity = 0x00;
+            if (true == p_settings->strip_reversed)
             {
-                intensity = 255;
+                intensity = (pxl >= running_pxl) ? 0xFF : 0x00;
             }
-            strip.setPixelColor(i, rgbiToColor(valRed, valGreen, valBlue, intensity));
+            else
+            {
+                intensity = (pxl <= running_pxl) ? 0xFF : 0x00;
+            }
+
+            strip.setPixelColor(pxl, rgbiToColor(valRed, valGreen, valBlue, intensity));
         }
+
         strip.show(); // This sends the updated pixel color to the hardware.
     }
 
@@ -226,7 +231,6 @@ class CtrlLED
         // Determine parameters according to the number of configured leds and colors.
         unsigned int nbChases = constrain(this->NB_PRESET_COLORS, 1, this->p_settings->num_pixels);
         unsigned int trainLength = constrain(this->p_settings->num_pixels / nbChases, 1, this->p_settings->num_pixels);
-        unsigned int offset = ((global_millis() % (int)period_ms) / (float)period_ms) * this->p_settings->num_pixels;
 
         /* Two partitions have to be distinguished.
         * Chases might have different trainLength due to a non-null rest of the divison this->p_settings->num_pixels/nbChases.
@@ -237,8 +241,8 @@ class CtrlLED
 
         for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
-            Color rgb = this->presetColors[chaseIdx];
-            int leaderIdx = (offset + (chaseIdx * trainLength)) % this->p_settings->num_pixels; // Chase start.
+            Color rgb = presetColors[chaseIdx];
+            int leaderIdx = (running_pxl + (chaseIdx * trainLength)) % p_settings->num_pixels; // Chase start.
             unsigned int lastIdx = leaderIdx + trainLength;
             if (chaseIdx < partitionIdx) {
                 lastIdx += 1;
