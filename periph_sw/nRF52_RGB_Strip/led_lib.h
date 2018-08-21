@@ -247,7 +247,9 @@ class CtrlLED
 
     void setTimeOffset(int utc_millis)
     {
-        time_offset = utc_millis - millis();
+        time_offset = (utc_millis - millis() % 1000);
+        // Serial.print("time_offset: ");
+        // Serial.println(time_offset);
     }
 
     void setTempo(uint8_t tempo)
