@@ -186,6 +186,8 @@ void loop()
         readUART(&ledMode);
     }
 
+    led.update();
+
     switch (ledMode)
     {
     case OFF_MODE:

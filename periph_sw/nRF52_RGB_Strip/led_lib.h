@@ -20,7 +20,6 @@ class CtrlLED
     int valBlue;
 
     long time_offset = 0;
-    float period_ms = 1000;
 
     Adafruit_NeoPixel strip;
 
@@ -51,6 +50,35 @@ class CtrlLED
         strip.updateLength(this->p_settings->num_pixels);
         strip.updateType(pixelType);
         strip.setPin(this->pinData);
+    }
+
+    // Cyclic update from the library.
+    void update(void)
+    {
+        int idx = ((global_millis() % (int)period_ms) / (float)period_ms) * p_settings->num_pixels;
+        
+        if (true == p_settings->strip_reversed)
+        {
+            running_pxl = (p_settings->num_pixels - 1) - idx;
+        }
+        else
+        {
+            running_pxl = idx;
+        }
+    }
+    
+    // Return the index of the pixel following pxl wrt the strip orientation.
+    const unsigned int nextPixel(const int pxl)
+    {   
+        int strip_dir = (true == p_settings->strip_reversed) ? (-1) : (+1);
+        return (pxl + strip_dir + p_settings->num_pixels) % p_settings->num_pixels;
+    }
+
+    // Return the index of the pixel preceding pxl wrt the strip orientation.
+    const unsigned int prevPixel(const int pxl)
+    {   
+        int strip_dir = (true == p_settings->strip_reversed) ? (-1) : (+1);
+        return (pxl + (-strip_dir) + p_settings->num_pixels) % p_settings->num_pixels;
     }
 
     void randomColor()
@@ -276,6 +304,9 @@ class CtrlLED
                 this->b = b;
             }
     };
+
+    float period_ms = 1000; // Strip period.
+    unsigned int running_pxl = 0; // Pixel running along the strip based on the period and current timestamp wrt strip direction.
 
     static const unsigned int NB_PRESET_COLORS = 9;
     static const Color presetColors[NB_PRESET_COLORS];
