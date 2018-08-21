@@ -223,9 +223,11 @@ export class BleServiceProvider {
                     {
                         case "1":
                             periph.num_pixels = parseInt(settings[1]);
-                            periph.name = String(settings[2]);
+                            periph.strip_reversed = Boolean(parseInt(settings[2]));
+                            periph.name = String(settings[3]);
                             console.log("[DEV_SETTINGS] Received param. "
                                         + "num_pixel (" + String(periph.num_pixels) +  "), "
+                                        + "strip_reversed (" + String(periph.strip_reversed) +  "), "
                                         + "name (" + periph.name + ").");
                             this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS, settings[0])
                                 .then(data => {
@@ -254,9 +256,11 @@ export class BleServiceProvider {
                                 })
                             break;
                             case "A":
-                                console.log("[DEV_SETTINGS] Sending param: num_pixel, name.");
+                                console.log("[DEV_SETTINGS] Sending param: num_pixel, strip_reversed, name.");
                                 this.writeBLE(periph, BLE_SERVICES.DEV_SETTINGS,
-                                            settings[0] + String.fromCharCode(periph.num_pixels) + ";"
+                                            settings[0]
+                                            + String.fromCharCode(periph.num_pixels) + ";"
+                                            + ((true == periph.strip_reversed) ? "1" : "0") + ";"
                                             + periph.name)
                                     .then(data => {
                                         console.log("[DEV_SETTINGS] " + settings[0] + " success.", data);

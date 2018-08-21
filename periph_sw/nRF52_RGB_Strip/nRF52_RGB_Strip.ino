@@ -113,7 +113,9 @@ void readUART(uint8_t *const p_ledMode)
                 Serial.println("[SETTINGS] request cfg, will send chunk#1");
                 ble.sendPacket(ble.Services::DEV_SETTINGS,
                                String("1;")
-                               + String(settings.num_pixels) + ";" + settings.device_name);
+                               + String(settings.num_pixels) + ";"
+                               + String(settings.strip_reversed) + ";"
+                               + settings.device_name);
                 break;
             case '1':
                 Serial.println("[SETTINGS] request cfg, will send chunk#2");
@@ -135,8 +137,10 @@ void readUART(uint8_t *const p_ledMode)
                 led.setPixelsOff(); // First switch pixels off to avoid reminiscence.
                 settings.num_pixels = packetPayload[1];
                 //Serial.println(String(settings.num_pixels));
+                settings.strip_reversed = (packetPayload[3] != '0');
+                Serial.println(String(settings.strip_reversed));
                 settings.device_name = "";
-                for (int i = 3; i < len_payload; i++)
+                for (int i = 5; i < len_payload; i++)
                 {
                     settings.device_name += char(packetPayload[i]);
                 }
@@ -181,6 +185,8 @@ void loop()
     {
         readUART(&ledMode);
     }
+
+    led.update();
 
     switch (ledMode)
     {
