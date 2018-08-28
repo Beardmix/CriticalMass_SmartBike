@@ -105,7 +105,10 @@
                         Tempo
                     </ion-col>
                     <ion-col>
-                        <ion-badge item-end>{{ tempo }}bpm</ion-badge>
+                        <ion-badge item-end (click)="tapTempo()">{{ tempo }}bpm</ion-badge>
+                    </ion-col>
+                    <ion-col>
+                        <ion-badge item-end (click)="cueTime()">&#9658;</ion-badge>
                     </ion-col>
                 </ion-row>
             </ion-grid>

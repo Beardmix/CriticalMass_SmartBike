@@ -35,6 +35,8 @@ export class BleServiceProvider {
     public newPeriphObs = new Subject();
     public scanObs = new Subject();
 
+    public time_offset_cue = 0;
+
     constructor(private ble: BLE,
         public platform: Platform,
         private locationAccuracy: LocationAccuracy) {
@@ -119,7 +121,7 @@ export class BleServiceProvider {
         if (this.intervalSendServerTime_ID == -1) {
             this.intervalSendServerTime_ID = setInterval(() => {
                 console.log("Sending server time to devices");
-                var startTstamp = (new Date()).getTime(); // Time milliseconds
+                var startTstamp = (new Date()).getTime() - this.time_offset_cue; // Time milliseconds
                 let devicesTstamp = [0, 0, 0, 0, 0, 0, 0, 0]; // TODO: MAX 8 devices
                 this.listConnectedPeriphs.forEach((periph, idx) => {
                     this.writeBLE(periph, BLE_SERVICES.TIME_SERVER, "" + (startTstamp % 1000))

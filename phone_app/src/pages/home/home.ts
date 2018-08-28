@@ -213,17 +213,21 @@ export class HomePage {
                 bpms.push(bpm);
             }
         }
-        if(bpms.length > 2)
+        if(bpms.length > 3)
         {
             var average = 0;
             bpms.forEach((bpm) => {
                 average += bpm;
             })
             average = average / bpms.length;
-            average = Math.round(average * 100) / 100.0;
+            average = Math.round(average);
             this.tempo = average;
             console.log(average);
         }
+    }
+
+    cueTime(){
+        this.bleService.time_offset_cue = (new Date()).getTime();
     }
 
     // Attribute a different color from colorsPresetsList[] to each Peripheral.
