@@ -20,6 +20,9 @@ class CtrlLED
     int valBlue;
 
     long time_offset = 0;
+    long time_overflow_offset = 0;
+    long time_offsets[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    char time_offset_idx = 0;
 
     Adafruit_NeoPixel strip;
 
@@ -279,7 +282,33 @@ class CtrlLED
 
     void setTimeOffset(int utc_millis)
     {
-        time_offset = utc_millis - millis();
+        bool first_sync = false;
+        long new_time_offset = (millis() - utc_millis) % 1000;
+        // first sync
+        if (time_overflow_offset == 0)
+        {
+            time_overflow_offset = 500 - new_time_offset; // center around 500 millis to avoid overflows
+            first_sync = true;
+        }
+        new_time_offset = time_overflow_offset - (new_time_offset + time_overflow_offset) % 1000;
+        time_offsets[time_offset_idx] = new_time_offset;
+        time_offset_idx = (time_offset_idx + 1) % 10;
+
+        time_offset = 0;
+        if (first_sync == true)
+        {
+            for (size_t i = 1; i < 10; i++)
+            {
+                time_offsets[i] = time_offsets[0];
+            }
+        }
+
+        for (size_t i = 0; i < 10; i++)
+        {
+            time_offset += time_offsets[i];
+        }
+        time_offset = time_offset / 10;
+        // Serial.println(time_offset);
     }
 
     void setTempo(uint8_t tempo)
