@@ -26,7 +26,6 @@ bool debug = true;
 const int pinDebug = LED_BUILTIN;
 const int pinData = 2;
 
-long local_time_offset = 0;
 unsigned long server_clock_ms = 0;
 
 BLE_Handler ble;
@@ -75,16 +74,15 @@ void readUART(uint8_t *const p_ledMode)
     case ble.Services::TIME:
         // Serial.println("TIME");
         server_clock_ms = 0;
-        for (uint16_t i = 0; i < 3; i++)
-        {
-            server_clock_ms += (packetPayload[i]) * pow(10, 2 - i);
-        }
-        local_time_offset = server_clock_ms;
-        led.setTimeOffset(local_time_offset);
+        server_clock_ms += (packetPayload[2] - '0') * 1;
+        server_clock_ms += (packetPayload[1] - '0') * 10;
+        server_clock_ms += (packetPayload[0] - '0') * 100;
+        led.setTimeOffset(server_clock_ms);
         ble.sendPacket(ble.Services::TIME, String(led.getGlobalTimerModulusMs() % 10) +
                            String((led.getGlobalTimerModulusMs() / 10) % 10) +
                            String((led.getGlobalTimerModulusMs() / 100) % 10));
-        // Serial.println(local_time_offset);
+        // Serial.print("server_clock_ms: ");
+        // Serial.println(server_clock_ms);
         break;
     case ble.Services::MODE:
         // Serial.println("MODE");
@@ -113,7 +111,9 @@ void readUART(uint8_t *const p_ledMode)
                 Serial.println("[SETTINGS] request cfg, will send chunk#1");
                 ble.sendPacket(ble.Services::DEV_SETTINGS,
                                String("1;")
-                               + String(settings.num_pixels) + ";" + settings.device_name);
+                               + String(settings.num_pixels) + ";"
+                               + String(settings.strip_reversed) + ";"
+                               + settings.device_name);
                 break;
             case '1':
                 Serial.println("[SETTINGS] request cfg, will send chunk#2");
@@ -135,8 +135,10 @@ void readUART(uint8_t *const p_ledMode)
                 led.setPixelsOff(); // First switch pixels off to avoid reminiscence.
                 settings.num_pixels = packetPayload[1];
                 //Serial.println(String(settings.num_pixels));
+                settings.strip_reversed = (packetPayload[3] != '0');
+                Serial.println(String(settings.strip_reversed));
                 settings.device_name = "";
-                for (int i = 3; i < len_payload; i++)
+                for (int i = 5; i < len_payload; i++)
                 {
                     settings.device_name += char(packetPayload[i]);
                 }
@@ -181,6 +183,8 @@ void loop()
     {
         readUART(&ledMode);
     }
+
+    led.update();
 
     switch (ledMode)
     {
