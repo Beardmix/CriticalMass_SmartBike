@@ -259,7 +259,8 @@ class CtrlLED
             time_overflow_offset = 500 - new_time_offset; // center around 500 millis to avoid overflows
             first_sync = true;
         }
-        time_offsets[time_offset_idx] = time_overflow_offset - (new_time_offset + time_overflow_offset) % 1000;
+        new_time_offset = time_overflow_offset - (new_time_offset + time_overflow_offset) % 1000;
+        time_offsets[time_offset_idx] = new_time_offset;
         time_offset_idx = (time_offset_idx + 1) % 10;
 
         time_offset = 0;
