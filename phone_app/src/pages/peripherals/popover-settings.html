@@ -3,11 +3,15 @@
 
     <ion-item>
         <ion-label stacked>Device Name</ion-label>
-        <ion-input type="text" [(ngModel)]="periph.name"></ion-input>
+        <ion-input type="text" [(ngModel)]="periph.name" (ngModelChange)="validateName($event)"></ion-input>
     </ion-item>
     <ion-item>
         <ion-label stacked>Number of Pixels</ion-label>
-        <ion-input type="number" [(ngModel)]="periph.num_pixels"></ion-input>
+        <ion-input type="number" [(ngModel)]="periph.num_pixels" (ngModelChange)="validatePixels($event)"></ion-input>
+    </ion-item>
+    <ion-item>
+        <ion-label>Strip reversed</ion-label>
+        <ion-checkbox [(ngModel)]="periph.strip_reversed"></ion-checkbox>
     </ion-item>
     <ion-card>
         TrafficMode: Front

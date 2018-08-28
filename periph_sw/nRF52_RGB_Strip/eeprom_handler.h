@@ -13,6 +13,7 @@ class Settings
 {
   public:
     unsigned int num_pixels;
+    bool strip_reversed;
     String device_name;
     // TrafficMode indices, [1; num_pixels].
     unsigned int traffic_front_lower;
@@ -28,6 +29,7 @@ class Settings
     void set_defaults()
     {
         num_pixels = 50;
+        strip_reversed = false;
         device_name = "MyFahrrad";
         traffic_front_lower = 1;
         traffic_rear_upper = num_pixels;
@@ -88,6 +90,7 @@ class EEPROM_Handler
         {
             file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));
+            write_setting(file, "strip_rev", String(settings.strip_reversed));
             write_setting(file, "d_name", settings.device_name);
             write_setting(file, "traffic_fl", String(settings.traffic_front_lower));
             write_setting(file, "traffic_fu", String(settings.traffic_front_upper));
@@ -142,6 +145,10 @@ class EEPROM_Handler
             if (setting_name == "num_pixels")
             {
                 settings.num_pixels = setting_val.toInt();
+            }
+            else if (setting_name == "strip_rev")
+            {
+                settings.strip_reversed = (bool)setting_val.toInt();
             }
             else if (setting_name == "d_name")
             {
