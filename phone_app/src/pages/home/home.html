@@ -84,6 +84,12 @@
                     <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
                 </ion-item>
             </ion-col>
+            <ion-col col-6>
+                <ion-item>
+                    <ion-label>Reverse</ion-label>
+                    <ion-toggle [(ngModel)]="isReversed" (ionChange)="reverse()"></ion-toggle>
+                </ion-item>
+            </ion-col>
         </ion-row>
         <ion-row *ngIf="isAuto">
             <ion-col col-3>

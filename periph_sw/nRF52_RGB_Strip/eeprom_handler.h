@@ -36,6 +36,11 @@ class Settings
         traffic_front_upper = int(num_pixels/4) - traffic_front_lower;
         traffic_rear_lower = traffic_rear_upper - int(num_pixels/4);
     }
+
+    void setStripReversed(bool isReversed)
+    {
+        strip_reversed = isReversed;
+    }
 };
 
 class EEPROM_Handler

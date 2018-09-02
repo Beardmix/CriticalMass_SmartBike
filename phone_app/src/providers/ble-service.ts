@@ -20,7 +20,8 @@ export const BLE_SERVICES = {
     MODE: 'M',
     COLOR: 'C',
     TEMPO: 'T',
-    DEV_SETTINGS: 'D'
+    DEV_SETTINGS: 'D',
+    REVERSE: 'R'
 }
 
 @Injectable()
