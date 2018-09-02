@@ -138,7 +138,7 @@ void readUART(uint8_t *const p_ledMode)
                 led.setPixelsOff(); // First switch pixels off to avoid reminiscence.
                 settings.num_pixels = packetPayload[1];
                 //Serial.println(String(settings.num_pixels));
-                settings.strip_reversed = (packetPayload[3] != '0');
+                settings.setStripReversed(packetPayload[3] != '0');
                 Serial.println(String(settings.strip_reversed));
                 settings.device_name = "";
                 for (int i = 5; i < len_payload; i++)

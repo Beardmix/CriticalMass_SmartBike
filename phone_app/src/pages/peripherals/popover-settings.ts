@@ -11,17 +11,17 @@ import { Periph } from '../../classes/periph';
 export class PopoverSettings {
     periph: Periph;
     
-    signalisationBoundaries = { min: 1, max: 1 };
-    signalisationValues = {
-        front: { lower: this.signalisationBoundaries.min, upper: this.signalisationBoundaries.min },
-        rear: { lower: this.signalisationBoundaries.min, upper: this.signalisationBoundaries.min}
+    trafficBoundaries = { min: 1, max: 1 };
+    trafficValues = {
+        front: { lower: this.trafficBoundaries.min, upper: this.trafficBoundaries.min },
+        rear: { lower: this.trafficBoundaries.min, upper: this.trafficBoundaries.min}
     };
 
     constructor(public viewCtrl: ViewController,
                 public params: NavParams,
                 private cdr: ChangeDetectorRef) { 
         this.periph = this.params.get('periph');
-        this.signalisationValues = {
+        this.trafficValues = {
             front: {
                 lower: this.periph.traffic_front_lower,
                 upper: this.periph.traffic_front_upper
@@ -32,7 +32,7 @@ export class PopoverSettings {
             }
         };
 
-        this.signalisationBoundaries.max = this.periph.num_pixels;
+        this.trafficBoundaries.max = this.periph.num_pixels;
     }
 
     close() {
@@ -49,10 +49,10 @@ export class PopoverSettings {
         this.periph.num_pixels = Math.max(this.periph.num_pixels, 1);
         this.periph.num_pixels = Math.min(this.periph.num_pixels, 99);
         // Traffic mode.
-        this.periph.traffic_front_lower = this.signalisationValues.front.lower;
-        this.periph.traffic_front_upper = this.signalisationValues.front.upper;
-        this.periph.traffic_rear_lower = this.signalisationValues.rear.lower;
-        this.periph.traffic_rear_upper = this.signalisationValues.rear.upper;
+        this.periph.traffic_front_lower = this.trafficValues.front.lower;
+        this.periph.traffic_front_upper = this.trafficValues.front.upper;
+        this.periph.traffic_rear_lower = this.trafficValues.rear.lower;
+        this.periph.traffic_rear_upper = this.trafficValues.rear.upper;
         this.viewCtrl.dismiss(this.periph);
     }
 
