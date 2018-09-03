@@ -201,34 +201,31 @@ export class HomePage {
         });
     }
 
-    tapTempo(){
-        this.bleService.time_offset_cue = (new Date()).getTime();
-        this.taps[this.taps_idx] = new Date().getTime();
+    tapTempo() {
+        var current_millis = (new Date()).getTime();
+        this.bleService.time_offset_cue = current_millis;
+        this.taps[this.taps_idx] = current_millis;
         this.taps_idx = (this.taps_idx + 1) % this.NB_TAPS;
         var bpms = [];
-        for (var i = 1; i < this.NB_TAPS; i++) {
-            var delta_ms = this.taps[i] - this.taps[i-1];
-            if(delta_ms > 0 && (new Date().getTime() - this.taps[i]) < 60000)
-            {
-                var beats_elapsed = Math.round(this.tempo * delta_ms / (60 * 1000)); 
-                var click_predicted_offset_ms = this.taps[i-1] + beats_elapsed * (60 * 1000) / this.tempo;
+        for (var i = 0; i < this.NB_TAPS; i++) {
+            var prev_tap = this.taps[(i > 0) ? (i - 1) : (this.NB_TAPS - 1)];
+            var delta_ms = this.taps[i] - prev_tap;
+            if (delta_ms > 0 && (current_millis - this.taps[i]) < 60000) {
+                var beats_elapsed = Math.round(this.tempo * delta_ms / (60 * 1000));
+                var click_predicted_offset_ms = prev_tap + beats_elapsed * (60 * 1000) / this.tempo;
                 var error_rel = (click_predicted_offset_ms - this.taps[i]) / delta_ms;
                 var bpm = (error_rel + 1) * this.tempo;
                 bpms.push(bpm);
             }
         }
-        if(bpms.length >= 3)
-        {
+        if (bpms.length >= 3) {
             var average = 0;
-            var av_str = "";
             bpms.forEach((bpm) => {
                 average += bpm;
-                av_str += " " +  Math.round(bpm);
             })
             average = average / bpms.length;
             average = Math.round(average);
             this.tempo = average;
-            console.log(av_str, average);
         }
     }
 
