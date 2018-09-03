@@ -261,7 +261,7 @@ class CtrlLED
 
         strip.show();
     }
-
+    
     void modeTraffic(void)
     {
         setPixelsOff(); // Init: switch evertyhing off.
