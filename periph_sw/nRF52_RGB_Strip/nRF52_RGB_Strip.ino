@@ -103,6 +103,9 @@ void readUART(uint8_t *const p_ledMode)
         led.setTempo(tempo);
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
+    case ble.Services::REVERSE:
+        settings.setStripReversed(packetPayload[0] - '0');
+        break;
     case ble.Services::DEV_SETTINGS:
         // As BLE allows us to only transfer 20 Bytes, we split the config in chunks.
         switch (packetPayload[0])
@@ -135,7 +138,7 @@ void readUART(uint8_t *const p_ledMode)
                 led.setPixelsOff(); // First switch pixels off to avoid reminiscence.
                 settings.num_pixels = packetPayload[1];
                 //Serial.println(String(settings.num_pixels));
-                settings.strip_reversed = (packetPayload[3] != '0');
+                settings.setStripReversed(packetPayload[3] != '0');
                 Serial.println(String(settings.strip_reversed));
                 settings.device_name = "";
                 for (int i = 5; i < len_payload; i++)
@@ -165,6 +168,7 @@ void readUART(uint8_t *const p_ledMode)
         break;
     default:
         Serial.println("[SERVICE] unknown");
+        Serial.print("Payload: ");
         for (int i = 0; i < len_payload; i++)
         {
             Serial.print(packetPayload[i]);

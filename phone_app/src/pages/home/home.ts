@@ -17,6 +17,7 @@ export class HomePage {
     mode = "PULSE";
     isAuto: boolean = false;
     isControlling: boolean = false;
+    isReversed = false; // Strip logical direction.
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
@@ -140,6 +141,20 @@ export class HomePage {
                 this.automatic();
             }, this.intervalAutomode_s * 1000);
         }
+    }
+
+    // Reverse the strip logical direction.
+    reverse() {
+        console.log("Strip reversed for: " + this.isReversed.toString());
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.bleService.writeBLE(periph, BLE_SERVICES.REVERSE, this.isReversed ? "1" : "0")
+            .then(data => {
+                console.log("Strip direction reversed.", data);
+            })
+            .catch(err => {
+                console.log("! Strip direction could not be reversed.", err);
+            })
+        });
     }
 
     isModeSelected(mode: string) {

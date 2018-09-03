@@ -25,7 +25,8 @@ class BLE_Handler
         MODE = 'M',
         TIME = 'S',
         TEMPO = 'T',
-        DEV_SETTINGS = 'D'
+        DEV_SETTINGS = 'D',
+        REVERSE = 'R'
     };
 
     BLE_Handler() {}
