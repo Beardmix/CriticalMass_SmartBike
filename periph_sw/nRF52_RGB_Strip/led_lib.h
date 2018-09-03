@@ -261,60 +261,6 @@ class CtrlLED
 
         strip.show();
     }
-
-    // Mode Music Drum: imitates a regular electronic drum pattern
-    void modeMusicDrum(void)
-    {
-        int intensity_hihat = 20;
-        int intensity_snare = 100;
-        int pattern_duration = (int)(period_ms * 2);
-        int cell_duration = pattern_duration / 8;
-        int max_intensity = 0;
-
-        int grid [8];
-
-        grid[0] = 255;
-        grid[1] = 0;
-        grid[2] = intensity_hihat;
-        grid[3] = 0;
-        grid[4] = intensity_snare;
-        grid[5] = 0;
-        grid[6] = intensity_hihat;
-        grid[7] = 0;
-
-        int time_cursor = global_millis() % pattern_duration;
-        int cell_idx = (time_cursor * 8) / pattern_duration;
-        max_intensity = grid[cell_idx];
-
-        float max_duration_ms = cell_duration * max_intensity / 255.0;
-        int time_cursor_cell = time_cursor % (int)(pattern_duration / 8);
-        if (time_cursor_cell < max_duration_ms)
-        {
-            int valR = this->valRed;
-            int valG = this->valGreen;
-            int valB = this->valBlue;
-            int intensity = 0;
-
-            if (grid[cell_idx] == intensity_hihat)
-            {
-                valR = valR > valG ? ((valR > valB) ? valR : valB) : valG;
-                valG = valR;
-                valB = valR;
-            }
-
-            intensity = (sin(3.1415f * (float)(time_cursor_cell) / (float)cell_duration)) * max_intensity;
-            valR = map(intensity, 0, 255, 0, valR);
-            valG = map(intensity, 0, 255, 0, valG);
-            valB = map(intensity, 0, 255, 0, valB);
-
-            analogWrite(pinDebug, valR);
-            writeEach(strip.Color(valR, valG, valB));
-        }
-        else
-        {
-            switchOff();
-        }
-    }
     
     void modeTraffic(void)
     {
