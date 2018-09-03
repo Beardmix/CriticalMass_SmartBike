@@ -202,32 +202,34 @@ export class HomePage {
     }
 
     tapTempo(){
+        this.bleService.time_offset_cue = (new Date()).getTime();
         this.taps[this.taps_idx] = new Date().getTime();
         this.taps_idx = (this.taps_idx + 1) % this.NB_TAPS;
         var bpms = [];
         for (var i = 1; i < this.NB_TAPS; i++) {
-            var delta = this.taps[i] - this.taps[i-1];
-            if(delta > 0 && (new Date().getTime() - this.taps[i]) < 5000)
+            var delta_ms = this.taps[i] - this.taps[i-1];
+            if(delta_ms > 0 && (new Date().getTime() - this.taps[i]) < 60000)
             {
-                var bpm = (60 * 1000) / delta;
+                var beats_elapsed = Math.round(this.tempo * delta_ms / (60 * 1000)); 
+                var click_predicted_offset_ms = this.taps[i-1] + beats_elapsed * (60 * 1000) / this.tempo;
+                var error_rel = (click_predicted_offset_ms - this.taps[i]) / delta_ms;
+                var bpm = (error_rel + 1) * this.tempo;
                 bpms.push(bpm);
             }
         }
-        if(bpms.length > 3)
+        if(bpms.length >= 3)
         {
             var average = 0;
+            var av_str = "";
             bpms.forEach((bpm) => {
                 average += bpm;
+                av_str += " " +  Math.round(bpm);
             })
             average = average / bpms.length;
             average = Math.round(average);
             this.tempo = average;
-            console.log(average);
+            console.log(av_str, average);
         }
-    }
-
-    cueTime(){
-        this.bleService.time_offset_cue = (new Date()).getTime();
     }
 
     // Attribute a different color from colorsPresetsList[] to each Peripheral.
