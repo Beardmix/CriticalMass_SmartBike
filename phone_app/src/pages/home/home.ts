@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
@@ -37,8 +37,7 @@ export class HomePage {
     ];
 
     constructor(public navCtrl: NavController,
-        private bleService: BleServiceProvider,
-        private zone: NgZone, // UI updated when wrapped up in this.zone.run().
+        private bleService: BleServiceProvider
     ) {
         this.bleService.newPeriphObs.subscribe(
             value => {
@@ -169,7 +168,8 @@ export class HomePage {
 
         return style;
     }
-
+    
+    /*
     private hue2rgb(h) {
         var r, g, b;
         h = h / 60.0;
@@ -211,6 +211,7 @@ export class HomePage {
         }
         return [r, g, b];
     }
+    */
 
     setTempo() {
         console.log("changeTempo", this.tempo);

@@ -22,7 +22,7 @@ class CtrlLED
     long time_offset = 0;
     long time_overflow_offset = 0;
     long time_offsets[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    char time_offset_idx = 0;
+    unsigned char time_offset_idx = 0;
 
     Adafruit_NeoPixel strip;
 
@@ -58,7 +58,7 @@ class CtrlLED
     // Cyclic update from the library.
     void update(void)
     {
-        int idx = ((global_millis() % (int)period_ms) / (float)period_ms) * p_settings->num_pixels;
+        pixel_t idx = ((global_millis() % (int)period_ms) / (float)period_ms) * p_settings->num_pixels;
         
         if (true == p_settings->strip_reversed)
         {
@@ -71,14 +71,14 @@ class CtrlLED
     }
     
     // Return the index of the pixel following pxl wrt the strip orientation.
-    const unsigned int nextPixel(const int pxl)
+    pixel_t nextPixel(pixel_t pxl)
     {   
         int strip_dir = (true == p_settings->strip_reversed) ? (-1) : (+1);
         return (pxl + strip_dir + p_settings->num_pixels) % p_settings->num_pixels;
     }
 
     // Return the index of the pixel preceding pxl wrt the strip orientation.
-    const unsigned int prevPixel(const int pxl)
+    pixel_t prevPixel(pixel_t pxl)
     {   
         int strip_dir = (true == p_settings->strip_reversed) ? (-1) : (+1);
         return (pxl + (-strip_dir) + p_settings->num_pixels) % p_settings->num_pixels;
@@ -150,7 +150,7 @@ class CtrlLED
     // Set all pixels off. Not calling show.
     void setPixelsOff(void)
     {
-        for (unsigned int i = 0; i < p_settings->num_pixels; ++i)
+        for (pixel_t i = 0; i < p_settings->num_pixels; ++i)
         {
             strip.setPixelColor(i, strip.Color(0, 0, 0));
         }
@@ -191,13 +191,13 @@ class CtrlLED
 
         setPixelsOff(); // Init: switch evertyhing off.
         
-        for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
+        for (pixel_t chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
-            int leaderIdx = (running_pxl + (chaseIdx * gapBetweenChases)) % p_settings->num_pixels;
+            pixel_t leaderIdx = (running_pxl + (chaseIdx * gapBetweenChases)) % p_settings->num_pixels;
             // Switch on the leds.
-            for (int followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
+            for (pixel_t followerIdx = 1; followerIdx < (trainLength + 1); ++followerIdx)
             {
-                int ledIdx = (leaderIdx + followerIdx) % p_settings->num_pixels;
+                pixel_t ledIdx = (leaderIdx + followerIdx) % p_settings->num_pixels;
                 int ledIntensity = intensityStep * followerIdx;
                 strip.setPixelColor(ledIdx, rgbiToColor(valRed, valGreen, valBlue, ledIntensity));
             }
@@ -208,9 +208,9 @@ class CtrlLED
 
     void pileUp()
     {
-        const unsigned int stop_pxl = prevPixel(running_pxl);
+        const pixel_t stop_pxl = prevPixel(running_pxl);
 
-        for (int pxl = running_pxl; pxl != stop_pxl; pxl = nextPixel(pxl))
+        for (pixel_t pxl = running_pxl; pxl != stop_pxl; pxl = nextPixel(pxl))
         {
             int intensity = 0x00;
             if (true == p_settings->strip_reversed)
@@ -242,19 +242,19 @@ class CtrlLED
 
         setPixelsOff(); // Init: switch evertyhing off.
 
-        for (int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
+        for (unsigned int chaseIdx = 0; chaseIdx < nbChases; ++chaseIdx)
         {
             Color rgb = presetColors[chaseIdx];
-            int leaderIdx = (running_pxl + (chaseIdx * trainLength)) % p_settings->num_pixels; // Chase start.
-            unsigned int lastIdx = leaderIdx + trainLength;
+            pixel_t leaderIdx = (running_pxl + (chaseIdx * trainLength)) % p_settings->num_pixels; // Chase start.
+            pixel_t lastIdx = leaderIdx + trainLength;
             if (chaseIdx < partitionIdx) {
                 lastIdx += 1;
             }
 
             // Switch on the leds.
-            for (int i = leaderIdx; i < lastIdx; ++i)
+            for (pixel_t i = leaderIdx; i < lastIdx; ++i)
             {
-                int ledIdx = i % p_settings->num_pixels;
+                pixel_t ledIdx = i % p_settings->num_pixels;
                 strip.setPixelColor(ledIdx, rgbiToColor(rgb.r, rgb.g, rgb.b, 0xFF));
             }
         }
@@ -266,10 +266,10 @@ class CtrlLED
     {
         setPixelsOff(); // Init: switch everything off.
 
-        unsigned int front_lower = p_settings->traffic_front_lower;
-        unsigned int front_upper = p_settings->traffic_front_upper;
-        unsigned int rear_lower = p_settings->traffic_rear_lower;
-        unsigned int rear_upper = p_settings->traffic_rear_upper;
+        pixel_t front_lower = p_settings->traffic_front_lower;
+        pixel_t front_upper = p_settings->traffic_front_upper;
+        pixel_t rear_lower = p_settings->traffic_rear_lower;
+        pixel_t rear_upper = p_settings->traffic_rear_upper;
 
         if (true == p_settings->strip_reversed)
         {
@@ -280,12 +280,12 @@ class CtrlLED
         }
 
         // Front.
-        for (int i = std::max(front_lower - 1, 0U); i < front_upper; ++i)
+        for (pixel_t i = std::max(front_lower - 1, 0U); i < front_upper; ++i)
         {
             strip.setPixelColor(i, strip.Color(255, 180, 50));
         }
         // Rear.
-        for (int i = std::max(rear_lower - 1, 0U); i < rear_upper; ++i)
+        for (pixel_t i = std::max(rear_lower - 1, 0U); i < rear_upper; ++i)
         {
             strip.setPixelColor(i, strip.Color(255, 0, 0));
         }
@@ -335,7 +335,6 @@ class CtrlLED
     }
 
   private:
-
     class Color
     {
         public:
@@ -364,7 +363,7 @@ class CtrlLED
 
     void writeEach(uint32_t color)
     {
-        for (int i = 0; i < p_settings->num_pixels; i++)
+        for (pixel_t i = 0; i < p_settings->num_pixels; i++)
         {
             strip.setPixelColor(i, color);
         }

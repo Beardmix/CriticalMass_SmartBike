@@ -9,17 +9,19 @@
 
 #define FILENAME "/settings.txt"
 
+typedef unsigned int pixel_t;
+
 class Settings
 {
   public:
-    unsigned int num_pixels;
+    pixel_t num_pixels;
     bool strip_reversed;
     String device_name;
     // TrafficMode indices, [1; num_pixels].
-    unsigned int traffic_front_lower;
-    unsigned int traffic_front_upper;
-    unsigned int traffic_rear_lower;
-    unsigned int traffic_rear_upper;
+    pixel_t traffic_front_lower;
+    pixel_t traffic_front_upper;
+    pixel_t traffic_rear_lower;
+    pixel_t traffic_rear_upper;
 
     Settings()
     {
@@ -111,7 +113,7 @@ class EEPROM_Handler
     {
         String setting = name + "=" + val + ";";
         Serial.println("Writting Setting: " + setting);
-        int len_written = file.write(setting.c_str(), setting.length());
+        size_t len_written = file.write(setting.c_str(), setting.length());
         if (len_written != setting.length())
         {
             Serial.println("Error - len_written: " + String(len_written) + " | file.errnum: " + String(file.errnum));
