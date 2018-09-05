@@ -261,15 +261,15 @@ class CtrlLED
 
         strip.show();
     }
-    
+
     void modeTraffic(void)
     {
-        setPixelsOff(); // Init: switch evertyhing off.
+        setPixelsOff(); // Init: switch everything off.
 
         // Front.
         for (int i = std::max(p_settings->traffic_front_lower - 1, 0U); i < p_settings->traffic_front_upper; ++i)
         {
-            strip.setPixelColor(i, strip.Color(255, 255, 255));
+            strip.setPixelColor(i, strip.Color(255, 180, 50));
         }
         // Rear.
         for (int i = std::max(p_settings->traffic_rear_lower - 1, 0U); i < p_settings->traffic_rear_upper; ++i)
