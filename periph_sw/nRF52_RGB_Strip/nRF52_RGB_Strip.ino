@@ -104,7 +104,7 @@ void readUART(uint8_t *const p_ledMode)
         ble.sendPacket(ble.Services::TEMPO, String(tempo));
         break;
     case ble.Services::REVERSE:
-        settings.setStripReversed(packetPayload[0] - '0');
+        settings.strip_reversed = (bool)(packetPayload[0] - '0');
         break;
     case ble.Services::DEV_SETTINGS:
         // As BLE allows us to only transfer 20 Bytes, we split the config in chunks.
@@ -138,10 +138,8 @@ void readUART(uint8_t *const p_ledMode)
                 led.setPixelsOff(); // First switch pixels off to avoid reminiscence.
                 settings.num_pixels = packetPayload[1];
                 //Serial.println(String(settings.num_pixels));
-                settings.setStripReversed(packetPayload[3] != '0');
-                Serial.println(String(settings.strip_reversed));
                 settings.device_name = "";
-                for (int i = 5; i < len_payload; i++)
+                for (int i = 3; i < len_payload; i++)
                 {
                     settings.device_name += char(packetPayload[i]);
                 }
@@ -158,6 +156,9 @@ void readUART(uint8_t *const p_ledMode)
                 //Serial.println(String(settings.traffic_rear_lower));
                 settings.traffic_rear_upper = packetPayload[7];
                 //Serial.println(String(settings.traffic_rear_upper));
+                /* Once traffic indices are updated, we can eventually update the strip reverse flag. */
+                settings.strip_reversed = (bool)(packetPayload[9] - '0');
+                //Serial.println(String(settings.strip_reversed));
                 // Save all settings once done.
                 eeprom.save(settings);
                 break;

@@ -36,19 +36,6 @@ class Settings
         traffic_front_upper = int(num_pixels/4) - traffic_front_lower;
         traffic_rear_lower = traffic_rear_upper - int(num_pixels/4);
     }
-
-    void setStripReversed(bool isReversed)
-    {
-        // Change strip direction.
-        strip_reversed = isReversed;
-        // Adapt traffic boundaries.
-        unsigned int save_traffic_rear_lower = traffic_rear_lower;
-        unsigned int save_traffic_rear_upper = traffic_rear_upper;
-        traffic_rear_lower  = traffic_front_lower;
-        traffic_rear_upper  = traffic_front_upper;
-        traffic_front_lower = save_traffic_rear_lower;
-        traffic_front_upper = save_traffic_rear_upper;
-    }
 };
 
 class EEPROM_Handler
@@ -161,7 +148,7 @@ class EEPROM_Handler
             }
             else if (setting_name == "strip_rev")
             {
-                settings.setStripReversed((bool)setting_val.toInt());
+                settings.strip_reversed = (bool)setting_val.toInt();
             }
             else if (setting_name == "d_name")
             {

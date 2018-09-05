@@ -266,13 +266,26 @@ class CtrlLED
     {
         setPixelsOff(); // Init: switch everything off.
 
+        unsigned int front_lower = p_settings->traffic_front_lower;
+        unsigned int front_upper = p_settings->traffic_front_upper;
+        unsigned int rear_lower = p_settings->traffic_rear_lower;
+        unsigned int rear_upper = p_settings->traffic_rear_upper;
+
+        if (true == p_settings->strip_reversed)
+        {
+            rear_lower  = p_settings->traffic_front_lower;
+            rear_upper  = p_settings->traffic_front_upper;
+            front_lower = p_settings->traffic_rear_lower;
+            front_upper = p_settings->traffic_rear_upper;
+        }
+
         // Front.
-        for (int i = std::max(p_settings->traffic_front_lower - 1, 0U); i < p_settings->traffic_front_upper; ++i)
+        for (int i = std::max(front_lower - 1, 0U); i < front_upper; ++i)
         {
             strip.setPixelColor(i, strip.Color(255, 180, 50));
         }
         // Rear.
-        for (int i = std::max(p_settings->traffic_rear_lower - 1, 0U); i < p_settings->traffic_rear_upper; ++i)
+        for (int i = std::max(rear_lower - 1, 0U); i < rear_upper; ++i)
         {
             strip.setPixelColor(i, strip.Color(255, 0, 0));
         }
