@@ -1,15 +1,24 @@
 
 export class Mode {
+    public static craft(index: string, colorPicker: boolean, tempoPicker: boolean, autoPicker: boolean) {
+        return {
+            val: index,
+            color_picker: colorPicker,
+            tempo_picker: tempoPicker,
+            auto_picker: autoPicker
+        };
+    };
+
     public static list = {
-        "OFF": { val: '0', color_picker: false, tempo_picker: false },
-        "ON": { val: '1', color_picker: true, tempo_picker: false },
-        "FLASH": { val: '2', color_picker: true, tempo_picker: true },
-        "PULSE": { val: '3', color_picker: true, tempo_picker: true },
-        "HUE_FLOW": { val: '4', color_picker: false, tempo_picker: true },
-        "THEATER_CHASE": { val: '5', color_picker: true, tempo_picker: true },
-        "PILE_UP": { val: '6', color_picker: true, tempo_picker: true },
-        "RAINBOW_MODE": { val: '7', color_picker: false, tempo_picker: true },
-        "TRAFFIC_MODE": { val: '8', color_picker: false, tempo_picker: false }
+        "OFF":          Mode.craft('0', false, false, false),
+        "ON":           Mode.craft('1', true, false, false),
+        "FLASH":        Mode.craft('2', true, true, true),
+        "PULSE":        Mode.craft('3', true, true, true),
+        "HUE_FLOW":     Mode.craft('4', false, true, true),
+        "THEATER_CHASE":Mode.craft('5', true, true, true),
+        "PILE_UP":      Mode.craft('6', true, true, true),
+        "RAINBOW_MODE": Mode.craft('7', false, true, true),
+        "TRAFFIC_MODE": Mode.craft('8', false, false, false)
     };
 
     constructor() {}

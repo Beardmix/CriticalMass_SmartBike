@@ -133,10 +133,13 @@ export class HomePage {
         clearTimeout(this.intervalAutomode_ID);
         if (this.isAuto) {
             this.intervalAutomode_ID = setTimeout(() => {
-                var modes = Object.keys(Mode.list);
+                var modes = Object.keys(Object.keys(Mode.list).reduce(function (filtered, key) {
+                    if (Mode.list[key].auto_picker == true) filtered[key] = Mode.list[key];
+                    return filtered;
+                }, {}));
                 var idx_color = Math.round(Math.random() * (this.colorsPresetsList.length - 1));
                 this.setColor(this.colorsPresetsList[idx_color]);
-                var idx = 2 + Math.round(Math.random() * (modes.length - 1 - 2));
+                var idx = Math.round(Math.random() * (modes.length - 1));
                 this.modeChanged(modes[idx]);
                 this.automatic();
             }, this.intervalAutomode_s * 1000);
