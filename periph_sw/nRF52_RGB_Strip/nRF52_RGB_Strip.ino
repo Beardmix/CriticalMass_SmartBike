@@ -129,6 +129,7 @@ void readUART(uint8_t *const p_ledMode)
                 break;
             case '2':
                 Serial.println("[SETTINGS] request cfg done.");
+                break;
             case '=': // The Central tells us values.
                 Serial.println("[SETTINGS] ready to get cfg chunk#1");
                 ble.sendPacket(ble.Services::DEV_SETTINGS, "A");
@@ -161,6 +162,8 @@ void readUART(uint8_t *const p_ledMode)
                 //Serial.println(String(settings.strip_reversed));
                 // Save all settings once done.
                 eeprom.save(settings);
+                // Reconfigure to update the max number of pixels
+                led.configure();
                 break;
             default:
                 Serial.println("[SETTINGS] unknown");

@@ -112,11 +112,10 @@ class EEPROM_Handler
     void static write_setting(NffsFile &file, String name, String val)
     {
         String setting = name + "=" + val + ";";
-        Serial.println("Writting Setting: " + setting);
         size_t len_written = file.write(setting.c_str(), setting.length());
         if (len_written != setting.length())
         {
-            Serial.println("Error - len_written: " + String(len_written) + " | file.errnum: " + String(file.errnum));
+            Serial.println("Error writting: " + setting + "- len_written: " + String(len_written) + " | file.errnum: " + String(file.errnum));
         }
     }
 
