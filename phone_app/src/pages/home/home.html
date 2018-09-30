@@ -11,63 +11,63 @@
     <ion-grid>
         <ion-row>
             <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('OFF')" [ngStyle]="{'border': isModeSelected('OFF')}"
+                <button ion-button block icon-start color="light" (click)="modeChanged('OFF')" [ngStyle]="{'border': isModeSelected('OFF')}"
                     [disabled]="isAuto">
                     <ion-icon color="dark" name="md-power"></ion-icon>Off
                 </button>
             </ion-col>
             <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('ON')" [ngStyle]="{'border': isModeSelected('ON')}"
+                <button ion-button block icon-start color="light" (click)="modeChanged('ON')" [ngStyle]="{'border': isModeSelected('ON')}"
                     [disabled]="isAuto">
                     <ion-icon color="dark" name="md-bulb"></ion-icon>On
                 </button>
             </ion-col>
         </ion-row>
         <ion-row>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('FLASH')" [ngStyle]="{'border': isModeSelected('FLASH')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('FLASH')" [ngStyle]="{'border': isModeSelected('FLASH')}"
                     [disabled]="isAuto">
                     <ion-icon color="danger" name="md-sunny"></ion-icon>Flash
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('PULSE')" [ngStyle]="{'border': isModeSelected('PULSE')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('PULSE')" [ngStyle]="{'border': isModeSelected('PULSE')}"
                     [disabled]="isAuto">
                     <ion-icon color="secondary" name="md-infinite"></ion-icon>Pulse
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('HUE_FLOW')" [ngStyle]="{'border': isModeSelected('HUE_FLOW')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('HUE_FLOW')" [ngStyle]="{'border': isModeSelected('HUE_FLOW')}"
                     [disabled]="isAuto">
                     <ion-icon color="primary" name="md-refresh"></ion-icon>Hue Flow
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('THEATER_CHASE')" [ngStyle]="{'border': isModeSelected('THEATER_CHASE')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('THEATER_CHASE')" [ngStyle]="{'border': isModeSelected('THEATER_CHASE')}"
                     [disabled]="isAuto">
                     <ion-icon color="sunny" name="ios-analytics"></ion-icon>Theater
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('PILE_UP')" [ngStyle]="{'border': isModeSelected('PILE_UP')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('PILE_UP')" [ngStyle]="{'border': isModeSelected('PILE_UP')}"
                     [disabled]="isAuto">
                     <ion-icon color="pink" name="md-barcode"></ion-icon>Pile Up
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('RAINBOW_MODE')" [ngStyle]="{'border': isModeSelected('RAINBOW_MODE')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('RAINBOW_MODE')" [ngStyle]="{'border': isModeSelected('RAINBOW_MODE')}"
                     [disabled]="isAuto">
                     <ion-icon name="md-color-palette"></ion-icon>Rainbow
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="modeChanged('TRAFFIC_MODE')" [ngStyle]="{'border': isModeSelected('TRAFFIC_MODE')}"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="modeChanged('TRAFFIC_MODE')" [ngStyle]="{'border': isModeSelected('TRAFFIC_MODE')}"
                     [disabled]="isAuto">
                     <ion-icon name="md-car"></ion-icon>Traffic
                 </button>
             </ion-col>
-            <ion-col>
-                <button ion-button block icon-left color="light" (click)="attributeRdmColors()"
+            <ion-col col-4>
+                <button ion-button block icon-start color="light" (click)="attributeRdmColors()"
                     [disabled]="isAuto">
                     <ion-icon name="md-color-wand"></ion-icon>Magic wand
                 </button>
