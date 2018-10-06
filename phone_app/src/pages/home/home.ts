@@ -74,37 +74,46 @@ export class HomePage {
     }
 
     cloudEvent(event) {
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[event.mode].val)
-                .then(data => {
-                    console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                })
-        });
+        var now = new Date().getTime();
+        var delay_ms = event.time - now;
+        
+        if (delay_ms < 0) {
+            delay_ms = 0; // it means that we already missed the event date, but we sync with the last received.
+        }
 
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.bleService.writeBLE(periph,
-                BLE_SERVICES.COLOR,
-                String.fromCharCode(event.rgb[0], event.rgb[1], event.rgb[2]))
-                .then(data => {
-                    console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                })
-        });
+        setTimeout(() => {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[event.mode].val)
+                    .then(data => {
+                        console.log("success", data);
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    })
+            });
 
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(event.tempo))
-                .then(data => {
-                    console.log("success", data);
-                })
-                .catch(err => {
-                    console.log("error", err);
-                })
-        });
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.bleService.writeBLE(periph,
+                    BLE_SERVICES.COLOR,
+                    String.fromCharCode(event.rgb[0], event.rgb[1], event.rgb[2]))
+                    .then(data => {
+                        console.log("success", data);
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    })
+            });
+
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(event.tempo))
+                    .then(data => {
+                        console.log("success", data);
+                    })
+                    .catch(err => {
+                        console.log("error", err);
+                    })
+            });
+        }, delay_ms);
     }
 
     showColorPicker() {
@@ -132,8 +141,8 @@ export class HomePage {
         console.log("Mode changed to " + mode);
         this.mode = mode;
         
-        var time = new Date();
-        time = new Date(time.getTime() + 2000)
+        var time = new Date().getTime();
+        time = time + 500 // offset of 500ms for synchronisation
 
         var json = {
             "time": time, // ISO format: "2018-09-16T09:48:16.388Z"
