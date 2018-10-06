@@ -6,6 +6,9 @@ import { Periph } from '../../classes/periph';
 import { Color } from '../../classes/color';
 import { Mode } from '../../classes/mode';
 
+
+import * as firebase from 'Firebase';
+
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html'
@@ -50,6 +53,13 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
+        var starCountRef = firebase.database().ref('events/');
+        var ref = this;
+        starCountRef.on('child_added', function (snapshot) {
+            let value = snapshot.val();
+            console.log(value); 
+            ref.cloudEvent(value); 
+        });
     }
 
     listConnectedPeriphs() {
@@ -61,6 +71,40 @@ export class HomePage {
         this.changeColor(periph);
         this.changeMode(periph);
         this.requestSettings(periph);
+    }
+
+    cloudEvent(event) {
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[event.mode].val)
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+        });
+
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.bleService.writeBLE(periph,
+                BLE_SERVICES.COLOR,
+                String.fromCharCode(event.rgb[0], event.rgb[1], event.rgb[2]))
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+        });
+
+        this.bleService.listConnectedPeriphs.forEach(periph => {
+            this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(event.tempo))
+                .then(data => {
+                    console.log("success", data);
+                })
+                .catch(err => {
+                    console.log("error", err);
+                })
+        });
     }
 
     showColorPicker() {
@@ -87,25 +131,43 @@ export class HomePage {
     modeChanged(mode) {
         console.log("Mode changed to " + mode);
         this.mode = mode;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
+        
+        var time = new Date();
+        time = new Date(time.getTime() + 2000)
+
+        var json = {
+            "time": time, // ISO format: "2018-09-16T09:48:16.388Z"
+            "mode": this.mode,
+            "rgb": [this.rgb.r_final, this.rgb.g_final, this.rgb.b_final],
+            "tempo": this.tempo
+        }
+        console.log(json);
+
+        let newInfo = firebase.database().ref('events/').push();
+        newInfo.set(json, function (error) {
+            if (error) {
+                console.error(error);
+            }
         });
+        // this.bleService.listConnectedPeriphs.forEach(periph => {
+        //     this.changeMode(periph);
+        // });
     }
 
     setColor(in_color: Color) {
         this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
 
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeColor(periph);
-        });
+        // this.bleService.listConnectedPeriphs.forEach(periph => {
+        //     this.changeColor(periph);
+        // });
     }
 
     setBrightness(brightness) {
         this.rgb.setBrightness(brightness);
 
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeColor(periph);
-        });
+        // this.bleService.listConnectedPeriphs.forEach(periph => {
+        //     this.changeColor(periph);
+        // });
     }
 
     isColorSelected(color: Color) {
