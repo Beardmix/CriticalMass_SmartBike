@@ -142,7 +142,7 @@ export class HomePage {
         this.mode = mode;
         
         var time = new Date().getTime();
-        time = time + 500 // offset of 500ms for synchronisation
+        time = time + 500;  // offset of 500ms for synchronisation
 
         var json = {
             "time": time, // ISO format: "2018-09-16T09:48:16.388Z"
