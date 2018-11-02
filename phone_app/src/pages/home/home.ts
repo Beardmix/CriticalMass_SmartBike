@@ -21,6 +21,7 @@ export class HomePage {
     isAuto: boolean = false;
     isControlling: boolean = false;
     isReversed = false; // Strip logical direction.
+    isCloud = true;
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
@@ -57,8 +58,10 @@ export class HomePage {
         var ref = this;
         starCountRef.on('child_added', function (snapshot) {
             let value = snapshot.val();
-            console.log(value); 
-            ref.cloudEvent(value); 
+            console.log(value);
+            if (ref.isCloud) {
+                ref.cloudEvent(value);
+            }
         });
     }
 
@@ -160,31 +163,39 @@ export class HomePage {
     modeChanged(mode) {
         console.log("Mode changed to " + mode);
         this.mode = mode;
-        
-        this.sendEvent();
-        // this.bleService.listConnectedPeriphs.forEach(periph => {
-        //     this.changeMode(periph);
-        // });
+
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeMode(periph);
+            });
+        }
+
     }
 
     setColor(in_color: Color) {
         this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
 
-        this.sendEvent();
-
-        // this.bleService.listConnectedPeriphs.forEach(periph => {
-        //     this.changeColor(periph);
-        // });
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeColor(periph);
+            });
+        }
     }
 
     setBrightness(brightness) {
         this.rgb.setBrightness(brightness);
 
-        this.sendEvent();
-        
-        // this.bleService.listConnectedPeriphs.forEach(periph => {
-        //     this.changeColor(periph);
-        // });
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeColor(periph);
+            });
+        }
     }
 
     isColorSelected(color: Color) {
