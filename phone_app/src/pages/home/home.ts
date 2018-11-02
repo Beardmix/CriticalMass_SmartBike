@@ -137,10 +137,7 @@ export class HomePage {
         }
     }
 
-    modeChanged(mode) {
-        console.log("Mode changed to " + mode);
-        this.mode = mode;
-        
+    sendEvent() {
         var time = new Date().getTime();
         time = time + 500;  // offset of 500ms for synchronisation
 
@@ -158,6 +155,13 @@ export class HomePage {
                 console.error(error);
             }
         });
+    }
+
+    modeChanged(mode) {
+        console.log("Mode changed to " + mode);
+        this.mode = mode;
+        
+        this.sendEvent();
         // this.bleService.listConnectedPeriphs.forEach(periph => {
         //     this.changeMode(periph);
         // });
@@ -165,6 +169,8 @@ export class HomePage {
 
     setColor(in_color: Color) {
         this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
+
+        this.sendEvent();
 
         // this.bleService.listConnectedPeriphs.forEach(periph => {
         //     this.changeColor(periph);
@@ -174,6 +180,8 @@ export class HomePage {
     setBrightness(brightness) {
         this.rgb.setBrightness(brightness);
 
+        this.sendEvent();
+        
         // this.bleService.listConnectedPeriphs.forEach(periph => {
         //     this.changeColor(periph);
         // });
