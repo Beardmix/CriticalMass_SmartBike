@@ -13,6 +13,7 @@ import { Periph } from '../../classes/periph';
 })
 export class PeripheralsPage {
     isScanning: any = false;
+    isControlling: boolean = false;
 
     constructor(public navCtrl: NavController,
         private popoverCtrl: PopoverController,
@@ -51,6 +52,19 @@ export class PeripheralsPage {
         return this.bleService.listConnectedPeriphs;
     }
 
+
+    scanToggle() {
+        if (this.bleService.isScanningNewPeriphs()) {
+            console.log("Disconnecting all devices");
+            this.bleService.disconnectAll();
+            this.isControlling = false;
+        }
+        else {
+            console.log("Connecting all new devices");
+            this.bleService.connectAll();
+            this.isControlling = true;
+        }
+    }
 
     setSettings(periph: Periph) {
         console.log("changeSettings");

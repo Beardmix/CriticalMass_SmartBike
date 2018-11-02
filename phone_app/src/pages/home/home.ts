@@ -127,16 +127,14 @@ export class HomePage {
         return Mode.list[this.mode].tempo_picker;
     }
 
-    scanToggle() {
-        if (this.bleService.isScanningNewPeriphs()) {
-            console.log("Disconnecting all devices");
-            this.bleService.disconnectAll();
-            this.isControlling = false;
+    cloudToggle() {
+        if (this.isCloud) {
+            console.log("Disconnecting from the Cloud");
+            this.isCloud = false;
         }
         else {
-            console.log("Connecting all new devices");
-            this.bleService.connectAll();
-            this.isControlling = true;
+            console.log("Connecting to the cloud");
+            this.isCloud = true;
         }
     }
 

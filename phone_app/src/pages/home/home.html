@@ -1,8 +1,8 @@
 <ion-header>
     <ion-navbar>
-        <ion-label (click)="scanToggle()">Control Devices</ion-label>
+        <ion-label (click)="cloudToggle()">Cloud Sync</ion-label>
         <ion-buttons end>
-            <ion-toggle [(ngModel)]="isControlling" (ionChange)="scanToggle()"></ion-toggle>
+            <ion-toggle [(ngModel)]="isCloud"></ion-toggle>
         </ion-buttons>
     </ion-navbar>
 </ion-header>

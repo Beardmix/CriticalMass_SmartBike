@@ -1,8 +1,9 @@
 <ion-header>
     <ion-navbar>
-        <ion-title>
-            Connected devices
-        </ion-title>
+        <ion-label (click)="scanToggle()">Control Devices</ion-label>
+        <ion-buttons end>
+            <ion-toggle [(ngModel)]="isControlling"></ion-toggle>
+        </ion-buttons>
     </ion-navbar>
 </ion-header>
 
