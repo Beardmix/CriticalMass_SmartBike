@@ -123,8 +123,12 @@ export class BleServiceProvider {
             this.intervalSendServerTime_ID = setInterval(() => {
                 console.log("Sending server time to devices");
                 var startTstamp = (new Date()).getTime() - this.time_offset_cue; // Time milliseconds
+                var timestamp_str = "" + (startTstamp % 1000);
+                while (timestamp_str.length < 3) {
+                    timestamp_str = "0" + timestamp_str;
+                }
                 this.listConnectedPeriphs.forEach((periph, idx) => {
-                    this.writeBLE(periph, BLE_SERVICES.TIME_SERVER, "" + (startTstamp % 1000))
+                    this.writeBLE(periph, BLE_SERVICES.TIME_SERVER, timestamp_str)
                         .then(data => {
                             // console.log("success", data);
                         })
