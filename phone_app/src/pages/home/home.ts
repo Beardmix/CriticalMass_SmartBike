@@ -22,6 +22,7 @@ export class HomePage {
     isControlling: boolean = false;
     isReversed = false; // Strip logical direction.
     isCloud = true;
+    private mode_cloud_key: string = "MyGroup";
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
@@ -54,11 +55,20 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
-        var starCountRef = firebase.database().ref('events/');
+        var starCountRef = firebase.database().ref('last_mode/' + this.mode_cloud_key);
         var ref = this;
+        // Get the data on a post that has changed
+        starCountRef.on("child_changed", function(snapshot) {
+            var value = snapshot.val();
+            console.log("The updated mode is ", value);
+            if (ref.isCloud) {
+                ref.cloudEvent(value);
+            }
+        });
         starCountRef.on('child_added', function (snapshot) {
+            // ref.mode_cloud_key = snapshot.key;
             let value = snapshot.val();
-            console.log(value);
+            console.log("The added mode is ", value);
             if (ref.isCloud) {
                 ref.cloudEvent(value);
             }
@@ -150,12 +160,9 @@ export class HomePage {
         }
         console.log(json);
 
-        let newInfo = firebase.database().ref('events/').push();
-        newInfo.set(json, function (error) {
-            if (error) {
-                console.error(error);
-            }
-        });
+        var updates = {};
+        updates['/last_mode/' + this.mode_cloud_key] = json;
+        firebase.database().ref().update(updates);
     }
 
     modeChanged(mode) {
