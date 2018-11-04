@@ -346,11 +346,11 @@ export class BleServiceProvider {
                 index = idx;
             }
         });
+        periph.last_scan = (new Date()).getTime();
         if (index == -1) {
-            periph.last_scan = (new Date()).getTime();
             list.push(periph);
         } else {
-            list[index].last_scan = (new Date()).getTime();
+            list[index] = periph;
         }
     }
 
