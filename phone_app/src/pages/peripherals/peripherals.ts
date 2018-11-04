@@ -33,38 +33,33 @@ export class PeripheralsPage {
     }
 
     ionViewDidEnter() {
-        this.doRefresh(null)
+        this.bleService.startScan();
     }
 
-    doRefresh(refresher) {
-        if (this.bleService.isScanningNewPeriphs()) {
-            console.log("Rescanning all new devices");
-            this.bleService.connectAll();
-        }
-        if (refresher) {
-            setTimeout(() => {
-                refresher.complete();
-            }, 500);
-        }
+    ionViewWillLeave() {
+        this.bleService.stopScan();
+    }
+
+    connect(periph) {
+        this.bleService.connect(periph)
+    }
+
+    disconnect(periph) {
+        this.bleService.disconnect(periph)
     }
 
     listConnectedPeriphs() {
         return this.bleService.listConnectedPeriphs;
     }
 
-
-    scanToggle() {
-        if (this.bleService.isScanningNewPeriphs()) {
-            console.log("Disconnecting all devices");
-            this.bleService.disconnectAll();
-            this.isControlling = false;
-        }
-        else {
-            console.log("Connecting all new devices");
-            this.bleService.connectAll();
-            this.isControlling = true;
-        }
+    listAvailablePeriphs() {
+        return this.bleService.listAvailablePeriphs;
     }
+
+    isOld(periph: Periph) {
+        return ((new Date()).getTime() - periph.last_scan) > this.bleService.intervalScanNewDevices_ms * 2.2;
+    }
+
 
     setSettings(periph: Periph) {
         console.log("changeSettings");

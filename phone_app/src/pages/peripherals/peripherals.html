@@ -1,21 +1,17 @@
 <ion-header>
     <ion-navbar>
-        <ion-label (click)="scanToggle()">Control Devices</ion-label>
-        <ion-buttons end>
-            <ion-toggle [(ngModel)]="isControlling"></ion-toggle>
-        </ion-buttons>
+        <ion-title>
+            Devices
+        </ion-title>
     </ion-navbar>
 </ion-header>
 
 <ion-content padding>
 
-    <ion-refresher (ionRefresh)="doRefresh($event)">
-        <ion-refresher-content>
-        </ion-refresher-content>
-    </ion-refresher>
-    <ng-container *ngIf="listConnectedPeriphs()?.length > 0">
+    <h2>Connected devices</h2>
+    <ion-card>
         <ion-list *ngFor="let periph of listConnectedPeriphs()">
-            <ion-card>
+            <ion-item-sliding #item (ionSwipe)="disconnect(periph)">
                 <ion-item (click)="openPopoverSettings($event, periph)">
                     <ion-grid>
                         <ion-row>
@@ -43,9 +39,37 @@
                         </ion-row>
                     </ion-grid>
                 </ion-item>
-            </ion-card>
+                <ion-item-options>
+                    <button ion-button expandable (click)="disconnect(periph)"><ion-icon name="md-unlock"></ion-icon></button>
+                </ion-item-options>
+            </ion-item-sliding>
         </ion-list>
-    </ng-container>
-    <h2 *ngIf="listConnectedPeriphs()?.length == 0">No connected devices</h2>
+    </ion-card>
+
+    <h2>Available devices</h2>
+    <ion-card>
+        <ion-list *ngFor="let periph of listAvailablePeriphs()">
+            <ion-item (click)="connect(periph)">
+                <ion-grid>
+                    <ion-row>
+                        <ion-col col-2>
+                            <ion-chip>
+                                <ion-icon name="bicycle" *ngIf="!isOld(periph)" color="primary"></ion-icon>
+                                <ion-icon name="bicycle" *ngIf="isOld(periph)" color="danger"></ion-icon>
+                            </ion-chip>
+                        </ion-col>
+                        <ion-col>
+                            <ion-row>
+                                <h2>{{ periph.name }}</h2>
+                            </ion-row>
+                            <ion-row>
+                                <h3>Id: {{ periph.id }}</h3>
+                            </ion-row>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-item>
+        </ion-list>
+    </ion-card>
     <ion-spinner name="dots" *ngIf="isScanning"></ion-spinner>
 </ion-content>

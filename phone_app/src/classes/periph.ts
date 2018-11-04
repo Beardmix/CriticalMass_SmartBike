@@ -3,6 +3,7 @@
 export class Periph {
     name: string = "";
     id: string = "";
+    last_scan: number = 0;
     num_pixels: number = 0;
     strip_reversed: boolean = false; // Lightning direction.
     globalTimerModulusMs;
