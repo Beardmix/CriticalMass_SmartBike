@@ -1,7 +1,7 @@
 #ifndef EEPROM_HANDLER_H
 #define EEPROM_HANDLER_H
 
-#include <Nffs.h>
+#include <FileIO.h>
 /* Need to undefine min and max in order to compile <String>. */
 #undef max
 #undef min
@@ -49,16 +49,15 @@ class EEPROM_Handler
 
     void static configure(void)
     {
-        // Initialize Nffs
-        Nffs.begin();
+        InternalFS.begin();
     }
 
     void static load(Settings &settings)
     {
-        NffsFile file;
-        file.open(FILENAME, FS_ACCESS_READ);
+        File file(InternalFS);
+        file.open(FILENAME, FILE_READ);
 
-        if (file.exists())
+        if (file)
         {
             Serial.println(FILENAME " file exists. List of the settings:");
             String content = read_content(file);
@@ -84,11 +83,11 @@ class EEPROM_Handler
 
     void static save(Settings &settings)
     {
-        NffsFile file;
+        File file(InternalFS);
         
         Serial.println("Open " FILENAME " file to write ... ");
 
-        if (file.open(FILENAME, FS_ACCESS_WRITE))
+        if (file.open(FILENAME, FILE_WRITE))
         {
             file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));
@@ -102,24 +101,22 @@ class EEPROM_Handler
         }
         else
         {
-            Serial.println("Failed (hint: error 3 means not enough memory space left) ");
-            Serial.print("errnum = ");
-            Serial.println(file.errnum);
+            Serial.println("Failed to open the file to save the settings to");
         }
     }
 
   private:
-    void static write_setting(NffsFile &file, String name, String val)
+    void static write_setting(File &file, String name, String val)
     {
         String setting = name + "=" + val + ";";
         size_t len_written = file.write(setting.c_str(), setting.length());
         if (len_written != setting.length())
         {
-            Serial.println("Error writting: " + setting + "- len_written: " + String(len_written) + " | file.errnum: " + String(file.errnum));
+            Serial.println("Error writting: " + setting + "- len_written: " + String(len_written));
         }
     }
 
-    String static read_content(NffsFile &file)
+    String static read_content(File &file)
     {
         String content = "";
         uint32_t readlen;

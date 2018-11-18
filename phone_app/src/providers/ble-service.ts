@@ -27,9 +27,10 @@ export const BLE_SERVICES = {
 @Injectable()
 export class BleServiceProvider {
     public listConnectedPeriphs: Periph[] = [];
+    public listAvailablePeriphs: Periph[] = [];
 
     private intervalScanNewDevices_ID = -1;
-    private intervalScanNewDevices_ms = 20000;
+    public intervalScanNewDevices_ms = 5000;
     private intervalSendServerTime_ID = -1;
     private intervalSendServerTime_ms = 4000;
 
@@ -76,11 +77,12 @@ export class BleServiceProvider {
         }
     }
 
-    private connect(periph: Periph) {
+    connect(periph: Periph) {
+        this.removePeriphFromList(this.listAvailablePeriphs, periph);
         this.ble.connect(periph.id).subscribe(
             data => {
                 console.log("connected", data);
-                this.listConnectedPeriphs.push(periph);
+                this.addPeriphToList(this.listConnectedPeriphs, periph);
                 this.startNotificationUART(periph);
                 this.newPeriphObs.next(periph);
             },
@@ -93,8 +95,20 @@ export class BleServiceProvider {
             });
     }
 
+    disconnect(periph: Periph) {
+        this.ble.disconnect(periph.id)
+            .then(() => {
+                this.removePeriphFromList(this.listConnectedPeriphs, periph);
+                periph.last_scan = 0;
+                this.addPeriphToList(this.listAvailablePeriphs, periph);
+            })
+            .catch(() => {
+                this.removePeriphFromList(this.listConnectedPeriphs, periph);
+            })
+    }
+
     // connects to all devices that are compatible
-    private scanAndConnectAll() {
+    private scan() {
         this.scanObs.next(true);
         this.ble.startScan([]).subscribe(
             periph => {
@@ -103,7 +117,8 @@ export class BleServiceProvider {
                     if (adv.indexOf("MF@CM") >= 0) // searches for MF@CM in the advertising of the device
                     {
                         console.log("scan", periph);
-                        this.connect(new Periph(periph.id, periph.name));
+                        var new_periph = new Periph(periph.id, periph.name);
+                        this.addPeriphToList(this.listAvailablePeriphs, new_periph);
                     }
                 }
             },
@@ -114,14 +129,14 @@ export class BleServiceProvider {
         setTimeout(() => {
             this.ble.stopScan();
             this.scanObs.next(false);
-        }, 5000);
+        }, this.intervalScanNewDevices_ms * 0.8);
     }
 
     sendServerTime() {
         // If no interval has been set yet, start sending Time at regular intervals
         if (this.intervalSendServerTime_ID == -1) {
             this.intervalSendServerTime_ID = setInterval(() => {
-                console.log("Sending server time to devices");
+                // console.log("Sending server time to devices");
                 var startTstamp = (new Date()).getTime() - this.time_offset_cue; // Time milliseconds
                 var timestamp_str = "" + (startTstamp % 1000);
                 while (timestamp_str.length < 3) {
@@ -140,17 +155,17 @@ export class BleServiceProvider {
         }
     }
 
-    connectAll() {
-        this.scanAndConnectAll();
+    startScan() {
+        this.scan();
         if (this.intervalScanNewDevices_ID == -1) {
             this.sendServerTime();
             this.intervalScanNewDevices_ID = setInterval(() => {
-                this.scanAndConnectAll();
+                this.scan();
             }, this.intervalScanNewDevices_ms);
         }
     }
 
-    disconnectAll() {
+    stopScan() {
         this.ble.stopScan();
         this.scanObs.next(false);
         // remove interval to stop connecting to new devices
@@ -158,20 +173,11 @@ export class BleServiceProvider {
             clearTimeout(this.intervalScanNewDevices_ID);
             this.intervalScanNewDevices_ID = -1;
         }
-        // remove interval to save battery
-        if (this.intervalSendServerTime_ID != -1) {
-            clearTimeout(this.intervalSendServerTime_ID);
-            this.intervalSendServerTime_ID = -1;
-        }
-        this.listConnectedPeriphs.forEach((periph, idx) => {
-            this.ble.disconnect(periph.id)
-                .then(() => {
-                    this.removePeriphFromList(this.listConnectedPeriphs, periph);
-                })
-                .catch(() => {
-                    this.removePeriphFromList(this.listConnectedPeriphs, periph);
-                })
-        });
+        // // remove interval to save battery
+        // if (this.intervalSendServerTime_ID != -1) {
+        //     clearTimeout(this.intervalSendServerTime_ID);
+        //     this.intervalSendServerTime_ID = -1;
+        // }
     }
 
     public isScanningNewPeriphs(){
@@ -331,6 +337,21 @@ export class BleServiceProvider {
     // ASCII only
     private bytesToString(buffer) {
         return String.fromCharCode.apply(null, new Uint8Array(buffer));
+    }
+
+    private addPeriphToList(list, periph) {
+        var index = -1;
+        list.forEach((periphlist, idx) => {
+            if (periph.id == periphlist.id) {
+                index = idx;
+            }
+        });
+        periph.last_scan = (new Date()).getTime();
+        if (index == -1) {
+            list.push(periph);
+        } else {
+            list[index] = periph;
+        }
     }
 
     private removePeriphFromList(list, periph) {

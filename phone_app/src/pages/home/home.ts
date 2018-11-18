@@ -6,6 +6,9 @@ import { Periph } from '../../classes/periph';
 import { Color } from '../../classes/color';
 import { Mode } from '../../classes/mode';
 
+
+import * as firebase from 'Firebase';
+
 @Component({
     selector: 'page-home',
     templateUrl: 'home.html'
@@ -18,6 +21,8 @@ export class HomePage {
     isAuto: boolean = false;
     isControlling: boolean = false;
     isReversed = false; // Strip logical direction.
+    isCloud = true;
+    private mode_cloud_key: string = "MyGroup";
     private intervalAutomode_ID = -1;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
@@ -50,6 +55,24 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
+        var starCountRef = firebase.database().ref('groups/' + this.mode_cloud_key);
+        var ref = this;
+        // Get the data on a post that has changed
+        starCountRef.on("child_changed", function(snapshot) {
+            var value = snapshot.val();
+            console.log("The updated mode is ", value);
+            if (ref.isCloud) {
+                ref.cloudEvent(value);
+            }
+        });
+        starCountRef.on('child_added', function (snapshot) {
+            // ref.mode_cloud_key = snapshot.key;
+            let value = snapshot.val();
+            console.log("The added mode is ", value);
+            if (ref.isCloud) {
+                ref.cloudEvent(value);
+            }
+        });
     }
 
     listConnectedPeriphs() {
@@ -63,6 +86,29 @@ export class HomePage {
         this.requestSettings(periph);
     }
 
+    cloudEvent(event) {
+        var now = new Date().getTime();
+        var delay_ms = event.time - now;
+        
+        if (delay_ms < 0) {
+            delay_ms = 0; // it means that we already missed the event date, but we sync with the last received.
+        }
+
+        // Update local variables with Cloud data.
+        this.mode = event.mode;
+        this.rgb.setRGB(event.rgb[0], event.rgb[1], event.rgb[2]);
+        this.tempo = event.tempo;
+
+        // Update all Peripherals.
+        setTimeout(() => {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeMode(periph);
+                this.changeColor(periph);
+                this.changeTempo(periph);
+            });
+        }, delay_ms);
+    }
+
     showColorPicker() {
         return Mode.list[this.mode].color_picker;
     }
@@ -71,41 +117,70 @@ export class HomePage {
         return Mode.list[this.mode].tempo_picker;
     }
 
-    scanToggle() {
-        if (this.bleService.isScanningNewPeriphs()) {
-            console.log("Disconnecting all devices");
-            this.bleService.disconnectAll();
-            this.isControlling = false;
+    cloudToggle() {
+        if (this.isCloud) {
+            console.log("Disconnecting from the Cloud");
+            this.isCloud = false;
         }
         else {
-            console.log("Connecting all new devices");
-            this.bleService.connectAll();
-            this.isControlling = true;
+            console.log("Connecting to the cloud");
+            this.isCloud = true;
         }
+    }
+
+    sendEvent() {
+        var time = new Date().getTime();
+        time = time + 500;  // offset of 500ms for synchronisation
+
+        var json = {
+            "time": time, // ISO format: "2018-09-16T09:48:16.388Z"
+            "mode": this.mode,
+            "rgb": [this.rgb.r_final, this.rgb.g_final, this.rgb.b_final],
+            "tempo": this.tempo
+        }
+        console.log(json);
+
+        var updates = {};
+        updates['groups/' + this.mode_cloud_key + '/last_mode/'] = json;
+        firebase.database().ref().update(updates);
     }
 
     modeChanged(mode) {
         console.log("Mode changed to " + mode);
         this.mode = mode;
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeMode(periph);
-        });
+
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeMode(periph);
+            });
+        }
+
     }
 
     setColor(in_color: Color) {
         this.rgb.setRGB(in_color.r, in_color.g, in_color.b);
 
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeColor(periph);
-        });
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeColor(periph);
+            });
+        }
     }
 
     setBrightness(brightness) {
         this.rgb.setBrightness(brightness);
 
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeColor(periph);
-        });
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeColor(periph);
+            });
+        }
     }
 
     isColorSelected(color: Color) {
@@ -215,9 +290,14 @@ export class HomePage {
 
     setTempo() {
         console.log("changeTempo", this.tempo);
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeTempo(periph);
-        });
+        
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeTempo(periph);
+            });
+        }
     }
 
     tapTempo() {

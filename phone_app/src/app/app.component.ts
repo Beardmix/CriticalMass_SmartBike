@@ -5,6 +5,17 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { TabsPage } from '../pages/tabs/tabs';
 
+import * as firebase from 'firebase';
+
+const config = {
+    apiKey: "AIzaSyCbd5CsJn2oZv2mWXX3wSqzRNS_J4FVqhQ",
+    authDomain: "criticalmass-smartbike.firebaseapp.com",
+    databaseURL: "https://criticalmass-smartbike.firebaseio.com",
+    projectId: "criticalmass-smartbike",
+    storageBucket: "criticalmass-smartbike.appspot.com",
+    messagingSenderId: "604346175605"
+  };
+
 @Component({
   templateUrl: 'app.html'
 })
@@ -18,6 +29,7 @@ export class MyApp {
       statusBar.styleDefault();
       splashScreen.hide();
     });
+    firebase.initializeApp(config);
   }
 }
 

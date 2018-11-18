@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
-import { PopoverController } from 'ionic-angular';
+import { ModalController } from 'ionic-angular';
 import { PopoverSettings } from './popover-settings';
 
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
@@ -13,9 +13,10 @@ import { Periph } from '../../classes/periph';
 })
 export class PeripheralsPage {
     isScanning: any = false;
+    isControlling: boolean = false;
 
     constructor(public navCtrl: NavController,
-        private popoverCtrl: PopoverController,
+        private modalCtrl: ModalController,
         private bleService: BleServiceProvider) {
         this.bleService.scanObs.subscribe(
             value => {
@@ -32,23 +33,31 @@ export class PeripheralsPage {
     }
 
     ionViewDidEnter() {
-        this.doRefresh(null)
+        this.bleService.startScan();
     }
 
-    doRefresh(refresher) {
-        if (this.bleService.isScanningNewPeriphs()) {
-            console.log("Rescanning all new devices");
-            this.bleService.connectAll();
-        }
-        if (refresher) {
-            setTimeout(() => {
-                refresher.complete();
-            }, 500);
-        }
+    ionViewWillLeave() {
+        this.bleService.stopScan();
+    }
+
+    connect(periph) {
+        this.bleService.connect(periph)
+    }
+
+    disconnect(periph) {
+        this.bleService.disconnect(periph)
     }
 
     listConnectedPeriphs() {
         return this.bleService.listConnectedPeriphs;
+    }
+
+    listAvailablePeriphs() {
+        return this.bleService.listAvailablePeriphs;
+    }
+
+    isOld(periph: Periph) {
+        return ((new Date()).getTime() - periph.last_scan) > this.bleService.intervalScanNewDevices_ms * 2.2;
     }
 
 
@@ -65,7 +74,7 @@ export class PeripheralsPage {
     }
 
     openPopoverSettings(clickEvent, periph: Periph) {
-        let popover = this.popoverCtrl.create(PopoverSettings, { "periph": periph });
+        let popover = this.modalCtrl.create(PopoverSettings, { "periph": periph });
         popover.present({
             ev: clickEvent
         });
