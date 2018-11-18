@@ -55,7 +55,7 @@ export class HomePage {
                 console.log('Observer: onCompleted');
             }
         );
-        var starCountRef = firebase.database().ref('last_mode/' + this.mode_cloud_key);
+        var starCountRef = firebase.database().ref('groups/' + this.mode_cloud_key);
         var ref = this;
         // Get the data on a post that has changed
         starCountRef.on("child_changed", function(snapshot) {
@@ -161,7 +161,7 @@ export class HomePage {
         console.log(json);
 
         var updates = {};
-        updates['/last_mode/' + this.mode_cloud_key] = json;
+        updates['groups/' + this.mode_cloud_key + '/last_mode/'] = json;
         firebase.database().ref().update(updates);
     }
 

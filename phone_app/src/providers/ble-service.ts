@@ -136,7 +136,7 @@ export class BleServiceProvider {
         // If no interval has been set yet, start sending Time at regular intervals
         if (this.intervalSendServerTime_ID == -1) {
             this.intervalSendServerTime_ID = setInterval(() => {
-                console.log("Sending server time to devices");
+                // console.log("Sending server time to devices");
                 var startTstamp = (new Date()).getTime() - this.time_offset_cue; // Time milliseconds
                 var timestamp_str = "" + (startTstamp % 1000);
                 while (timestamp_str.length < 3) {
