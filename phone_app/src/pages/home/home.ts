@@ -94,37 +94,17 @@ export class HomePage {
             delay_ms = 0; // it means that we already missed the event date, but we sync with the last received.
         }
 
+        // Update local variables with Cloud data.
+        this.mode = event.mode;
+        this.rgb.setRGB(event.rgb[0], event.rgb[1], event.rgb[2]);
+        this.tempo = event.tempo;
+
+        // Update all Peripherals.
         setTimeout(() => {
             this.bleService.listConnectedPeriphs.forEach(periph => {
-                this.bleService.writeBLE(periph, BLE_SERVICES.MODE, Mode.list[event.mode].val)
-                    .then(data => {
-                        console.log("success", data);
-                    })
-                    .catch(err => {
-                        console.log("error", err);
-                    })
-            });
-
-            this.bleService.listConnectedPeriphs.forEach(periph => {
-                this.bleService.writeBLE(periph,
-                    BLE_SERVICES.COLOR,
-                    String.fromCharCode(event.rgb[0], event.rgb[1], event.rgb[2]))
-                    .then(data => {
-                        console.log("success", data);
-                    })
-                    .catch(err => {
-                        console.log("error", err);
-                    })
-            });
-
-            this.bleService.listConnectedPeriphs.forEach(periph => {
-                this.bleService.writeBLE(periph, BLE_SERVICES.TEMPO, String.fromCharCode(event.tempo))
-                    .then(data => {
-                        console.log("success", data);
-                    })
-                    .catch(err => {
-                        console.log("error", err);
-                    })
+                this.changeMode(periph);
+                this.changeColor(periph);
+                this.changeTempo(periph);
             });
         }, delay_ms);
     }
@@ -310,9 +290,14 @@ export class HomePage {
 
     setTempo() {
         console.log("changeTempo", this.tempo);
-        this.bleService.listConnectedPeriphs.forEach(periph => {
-            this.changeTempo(periph);
-        });
+        
+        if (this.isCloud) {
+            this.sendEvent();
+        } else {
+            this.bleService.listConnectedPeriphs.forEach(periph => {
+                this.changeTempo(periph);
+            });
+        }
     }
 
     tapTempo() {
