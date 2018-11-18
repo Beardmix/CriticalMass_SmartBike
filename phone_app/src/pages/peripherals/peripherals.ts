@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
-import { PopoverController } from 'ionic-angular';
+import { ModalController } from 'ionic-angular';
 import { PopoverSettings } from './popover-settings';
 
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
@@ -16,7 +16,7 @@ export class PeripheralsPage {
     isControlling: boolean = false;
 
     constructor(public navCtrl: NavController,
-        private popoverCtrl: PopoverController,
+        private modalCtrl: ModalController,
         private bleService: BleServiceProvider) {
         this.bleService.scanObs.subscribe(
             value => {
@@ -74,7 +74,7 @@ export class PeripheralsPage {
     }
 
     openPopoverSettings(clickEvent, periph: Periph) {
-        let popover = this.popoverCtrl.create(PopoverSettings, { "periph": periph });
+        let popover = this.modalCtrl.create(PopoverSettings, { "periph": periph });
         popover.present({
             ev: clickEvent
         });
