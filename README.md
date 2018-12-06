@@ -29,7 +29,7 @@ There are two methods that you can use to install this BSP. We highly recommend 
  3. Go into Preferences
  4. Add https://www.adafruit.com/package_adafruit_index.json as an 'Additional Board Manager URL'
  5. Restart the Arduino IDE
- 6. Open the Boards Manager from the Tools -> Board menu and install 'Adafruit nRF52 by Adafruit'
+ 6. Open the Boards Manager from the Tools -> Board menu and install 'Adafruit nRF52 by Adafruit' 0.9.0 version(last tested)
  7. Once the BSP is installed, select 'Adafruit Bluefruit nRF52 Feather' from the Tools -> Board menu, which will update your system config to use the right compiler and settings for the nRF52.
 
 ### nrfutil
@@ -115,6 +115,10 @@ $ ionic cordova run android --device
 $ ionic cordova run ios --device
 
 nota: the parameter '--device' is to start the build and run on a device if no device connected or detected, it won't try anything else and just quit
+
+### Known issues
++ **Could not find play-services-basement.aar (com.google.android.gms:play-services-basement:15.0.1)** 
+ + Please move jcenter() below google() within allprojects.repositories in android/build.gradle.
 
 ### Activate developer mode on your Android
 
