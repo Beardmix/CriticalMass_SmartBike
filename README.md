@@ -23,14 +23,16 @@ Link to the [Hardware Guide](periph_hw/README.md)
 There are two methods that you can use to install this BSP. We highly recommend the first option unless you wish to participate in active development of this codebase via Github.
 
 ### Recommended: Adafruit nRF52 BSP via the Arduino Board Manager
+https://learn.adafruit.com/bluefruit-nrf52-feather-learning-guide
 
- 1. [Download and install the Arduino IDE](https://www.arduino.cc/en/Main/Software) (At least v1.6.12)
- 2. Start the Arduino IDE
- 3. Go into Preferences
- 4. Add https://www.adafruit.com/package_adafruit_index.json as an 'Additional Board Manager URL'
- 5. Restart the Arduino IDE
- 6. Open the Boards Manager from the Tools -> Board menu and install 'Adafruit nRF52 by Adafruit' 0.9.0 version(last tested)
- 7. Once the BSP is installed, select 'Adafruit Bluefruit nRF52 Feather' from the Tools -> Board menu, which will update your system config to use the right compiler and settings for the nRF52.
+ 1. [Download and install the Arduino IDE](https://www.arduino.cc/en/Main/Software) (at least v1.8.8)
+ 2. Start Arduino IDE
+ 3. In your 'Preferences', add https://www.adafruit.com/package_adafruit_index.json as an 'Additional Board Manager URL'
+ 4. Restart Arduino IDE
+ 5. Open the 'Boards Manager' from Tools -> Board menu and install 'Adafruit nRF52 by Adafruit' 0.9.1 version (latest tested) - for more information check the releases notes https://github.com/adafruit/Adafruit_nRF52_Arduino/releases
+ 6. Once the Board SUpport Package (BSP) is installed, select 'Adafruit Bluefruit nRF52 Feather' from Tools -> Board menu, which will update your system config to use the right compiler and settings for the nRF52.
+ 7. Select the latest bootloader e.g. "s132 6.1.1 r0".
+ 7. This project uses "Adafruit NeoPixel by Adafruit" library, download it via the IDE: "Tool > Manage Libraries...". As of today we are using the version 1.1.7.
 
 ### nrfutil
 

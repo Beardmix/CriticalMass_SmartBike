@@ -1,7 +1,7 @@
 #ifndef EEPROM_HANDLER_H
 #define EEPROM_HANDLER_H
 
-#include <FileIO.h>
+#include <Bluefruit_FileIO.h>
 /* Need to undefine min and max in order to compile <String>. */
 #undef max
 #undef min
