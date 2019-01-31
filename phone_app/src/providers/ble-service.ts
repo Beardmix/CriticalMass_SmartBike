@@ -5,6 +5,10 @@ import { Platform } from 'ionic-angular';
 
 import { LocationAccuracy } from '@ionic-native/location-accuracy';
 
+import { BackgroundMode } from '@ionic-native/background-mode';
+
+import { CommonServiceProvider } from './common-service';
+
 import { Periph } from '../classes/periph';
 import { Mode } from '../classes/mode';
 
@@ -29,9 +33,9 @@ export class BleServiceProvider {
     public listConnectedPeriphs: Periph[] = [];
     public listAvailablePeriphs: Periph[] = [];
 
-    private intervalScanNewDevices_ID = -1;
+    private intervalScanNewDevices = null;
     public intervalScanNewDevices_ms = 5000;
-    private intervalSendServerTime_ID = -1;
+    private intervalSendServerTime = -1;
     private intervalSendServerTime_ms = 4000;
 
     public newPeriphObs = new Subject();
@@ -41,6 +45,8 @@ export class BleServiceProvider {
 
     constructor(private ble: BLE,
         public platform: Platform,
+        private common: CommonServiceProvider,
+        private backgroundMode: BackgroundMode,
         private locationAccuracy: LocationAccuracy) {
         console.log('Hello BleServiceProvider Provider');
         
@@ -85,9 +91,11 @@ export class BleServiceProvider {
                 this.addPeriphToList(this.listConnectedPeriphs, periph);
                 this.startNotificationUART(periph);
                 this.newPeriphObs.next(periph);
+                this.autoactivateBackgroundMode();
             },
             error => {
                 this.removePeriphFromList(this.listConnectedPeriphs, periph);
+                this.autoactivateBackgroundMode();
                 console.log("error", error);
             },
             () => {
@@ -101,10 +109,20 @@ export class BleServiceProvider {
                 this.removePeriphFromList(this.listConnectedPeriphs, periph);
                 periph.last_scan = 0;
                 this.addPeriphToList(this.listAvailablePeriphs, periph);
+                this.autoactivateBackgroundMode();
             })
             .catch(() => {
                 this.removePeriphFromList(this.listConnectedPeriphs, periph);
+                this.autoactivateBackgroundMode();
             })
+    }
+
+    autoactivateBackgroundMode() {
+        if(this.listConnectedPeriphs.length > 0) {
+            this.backgroundMode.enable();
+        } else {
+            this.backgroundMode.disable();
+        }
     }
 
     // connects to all devices that are compatible
@@ -126,24 +144,27 @@ export class BleServiceProvider {
                 console.log("scan_error", error);
                 this.scanObs.next(false);
             });
-        setTimeout(() => {
-            this.ble.stopScan();
-            this.scanObs.next(false);
+
+        var ref = this;
+        this.common.setTimeout(() => {
+            ref.ble.stopScan();
+            ref.scanObs.next(false);
         }, this.intervalScanNewDevices_ms * 0.8);
     }
 
     sendServerTime() {
         // If no interval has been set yet, start sending Time at regular intervals
-        if (this.intervalSendServerTime_ID == -1) {
-            this.intervalSendServerTime_ID = setInterval(() => {
+        if (this.intervalSendServerTime == null) {
+            var ref = this;
+            this.intervalSendServerTime = this.common.setInterval(() => {
                 // console.log("Sending server time to devices");
-                var startTstamp = (new Date()).getTime() - this.time_offset_cue; // Time milliseconds
+                var startTstamp = (new Date()).getTime() - ref.time_offset_cue; // Time milliseconds
                 var timestamp_str = "" + (startTstamp % 1000);
                 while (timestamp_str.length < 3) {
                     timestamp_str = "0" + timestamp_str;
                 }
-                this.listConnectedPeriphs.forEach((periph, idx) => {
-                    this.writeBLE(periph, BLE_SERVICES.TIME_SERVER, timestamp_str)
+                ref.listConnectedPeriphs.forEach((periph, idx) => {
+                    ref.writeBLE(periph, BLE_SERVICES.TIME_SERVER, timestamp_str)
                         .then(data => {
                             // console.log("success", data);
                         })
@@ -157,10 +178,11 @@ export class BleServiceProvider {
 
     startScan() {
         this.scan();
-        if (this.intervalScanNewDevices_ID == -1) {
+        if (this.intervalScanNewDevices == null) {
             this.sendServerTime();
-            this.intervalScanNewDevices_ID = setInterval(() => {
-                this.scan();
+            var ref = this;
+            this.intervalScanNewDevices = this.common.setInterval(() => {
+                ref.scan();
             }, this.intervalScanNewDevices_ms);
         }
     }
@@ -169,9 +191,9 @@ export class BleServiceProvider {
         this.ble.stopScan();
         this.scanObs.next(false);
         // remove interval to stop connecting to new devices
-        if (this.intervalScanNewDevices_ID != -1) {
-            clearTimeout(this.intervalScanNewDevices_ID);
-            this.intervalScanNewDevices_ID = -1;
+        if (this.intervalScanNewDevices != null) {
+            this.intervalScanNewDevices.stop();
+            this.intervalScanNewDevices = null;
         }
         // // remove interval to save battery
         // if (this.intervalSendServerTime_ID != -1) {
@@ -181,7 +203,7 @@ export class BleServiceProvider {
     }
 
     public isScanningNewPeriphs(){
-        return this.intervalScanNewDevices_ID != -1;
+        return this.intervalScanNewDevices != null;
     }
 
     public writeBLE(periph: Periph, service: string, message: string) {

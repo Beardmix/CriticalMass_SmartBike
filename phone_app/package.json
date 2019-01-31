@@ -21,6 +21,7 @@
     "@angular/http": "5.2.9",
     "@angular/platform-browser": "5.2.9",
     "@angular/platform-browser-dynamic": "5.2.9",
+    "@ionic-native/background-mode": "^4.17.0",
     "@ionic-native/ble": "^4.6.0",
     "@ionic-native/core": "4.5.3",
     "@ionic-native/diagnostic": "^4.7.0",
@@ -36,6 +37,7 @@
     "cordova-plugin-ionic-webview": "^1.2.1",
     "cordova-plugin-request-location-accuracy": "^2.2.3",
     "cordova-plugin-splashscreen": "^5.0.2",
+    "cordova-plugin-timer": "^1.0.1",
     "cordova-plugin-whitelist": "^1.3.3",
     "firebase": "^5.5.3",
     "ionic-angular": "3.9.2",
@@ -57,7 +59,9 @@
       "cordova-plugin-ionic-webview": {},
       "cordova-plugin-ionic-keyboard": {},
       "cordova-plugin-ble-central": {},
-      "cordova-plugin-request-location-accuracy": {}
+      "cordova-plugin-request-location-accuracy": {},
+      "cordova-plugin-background-mode": {},
+      "cordova-plugin-timer": {}
     },
     "platforms": [
       "android"

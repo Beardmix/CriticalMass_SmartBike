@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
 
 import { BleServiceProvider, BLE_SERVICES } from '../../providers/ble-service';
+import { CommonServiceProvider } from '../../providers/common-service';
 import { Periph } from '../../classes/periph';
 import { Color } from '../../classes/color';
 import { Mode } from '../../classes/mode';
@@ -23,7 +24,7 @@ export class HomePage {
     isReversed = false; // Strip logical direction.
     isCloud = true;
     private mode_cloud_key: string = "MyGroup";
-    private intervalAutomode_ID = -1;
+    private intervalAutomode = null;
     private intervalAutomode_s = 2;
     private NB_TAPS = 10;
     private taps_idx = 0;
@@ -42,7 +43,8 @@ export class HomePage {
     ];
 
     constructor(public navCtrl: NavController,
-        private bleService: BleServiceProvider
+        private bleService: BleServiceProvider,
+        private common: CommonServiceProvider,
     ) {
         this.bleService.newPeriphObs.subscribe(
             value => {
@@ -99,14 +101,17 @@ export class HomePage {
         this.rgb.setRGB(event.rgb[0], event.rgb[1], event.rgb[2]);
         this.tempo = event.tempo;
 
-        // Update all Peripherals.
-        setTimeout(() => {
-            this.bleService.listConnectedPeriphs.forEach(periph => {
-                this.changeMode(periph);
-                this.changeColor(periph);
-                this.changeTempo(periph);
+        var ref = this;
+        this.common.setTimeout(() => {
+            // console.log("Update All Peripherals");            
+            ref.bleService.listConnectedPeriphs.forEach(periph => {
+                // console.log("Update peripheral: ", periph.id);  
+                ref.changeMode(periph);
+                ref.changeColor(periph);
+                ref.changeTempo(periph);
             });
         }, delay_ms);
+
     }
 
     showColorPicker() {
@@ -204,18 +209,23 @@ export class HomePage {
     }
 
     automatic() {
-        clearTimeout(this.intervalAutomode_ID);
+        if(this.intervalAutomode != null){ 
+            this.intervalAutomode.stop();
+            this.intervalAutomode = null;
+        }
+
         if (this.isAuto) {
-            this.intervalAutomode_ID = setTimeout(() => {
+            var ref = this;
+            this.intervalAutomode = this.common.setInterval(() => {
                 var modes = Object.keys(Object.keys(Mode.list).reduce(function (filtered, key) {
                     if (Mode.list[key].auto_picker == true) filtered[key] = Mode.list[key];
                     return filtered;
                 }, {}));
-                var idx_color = Math.round(Math.random() * (this.colorsPresetsList.length - 1));
-                this.setColor(this.colorsPresetsList[idx_color]);
+                var idx_color = Math.round(Math.random() * (ref.colorsPresetsList.length - 1));
+                ref.setColor(ref.colorsPresetsList[idx_color]);
                 var idx = Math.round(Math.random() * (modes.length - 1));
-                this.modeChanged(modes[idx]);
-                this.automatic();
+                ref.modeChanged(modes[idx]);
+                ref.automatic();
             }, this.intervalAutomode_s * 1000);
         }
     }

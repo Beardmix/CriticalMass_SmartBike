@@ -6,6 +6,9 @@ import { StatusBar } from '@ionic-native/status-bar';
 
 import { LocationAccuracy } from '@ionic-native/location-accuracy';
 
+import { BackgroundMode } from '@ionic-native/background-mode';
+
+
 import { BLE } from '@ionic-native/ble';
 
 import { MyApp } from './app.component';
@@ -15,6 +18,7 @@ import { PeripheralsPage } from '../pages/peripherals/peripherals';
 import { SingleUserPage } from '../pages/single_user/single_user';
 import { PopoverSettings } from '../pages/peripherals/popover-settings';
 import { BleServiceProvider } from '../providers/ble-service';
+import { CommonServiceProvider } from '../providers/common-service';
 
 @NgModule({
   declarations: [
@@ -42,8 +46,10 @@ import { BleServiceProvider } from '../providers/ble-service';
     StatusBar,
     SplashScreen,
     BLE,
+    BackgroundMode,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     BleServiceProvider,
+    CommonServiceProvider,
     LocationAccuracy
   ]
 })
