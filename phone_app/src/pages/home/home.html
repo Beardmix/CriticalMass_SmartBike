@@ -121,44 +121,6 @@
             <ion-icon range-right name="md-pulse"></ion-icon>
         </ion-range>
     </ion-card>
-    <!-- First version of the RGB selection. -->
-    <!--<ion-card>
-        <ion-grid>
-            <ion-row>
-                <ion-chip id="color-preview" [ngStyle]="{'background-color': hexcolor}">
-                </ion-chip>
-            </ion-row>
-            <ion-row>
-                <ion-item>
-                    <ion-label stacked>Hue</ion-label>
-                    <ion-range min="0" max="360" debounce="500" (ionChange)="setColor()" [(ngModel)]="hue">
-                        <ion-icon range-left small name="md-color-palette"></ion-icon>
-                        <ion-icon range-right name="md-color-palette"></ion-icon>
-                    </ion-range>
-                </ion-item>
-            </ion-row>
-            <ion-row>
-                <ion-item>
-                    <ion-label stacked>Brightness</ion-label>
-                    <ion-range min="0" max="100" debounce="500" (ionChange)="setColor()" [(ngModel)]="brightness">
-                        <ion-icon range-left small name="md-sunny"></ion-icon>
-                        <ion-icon range-right name="md-sunny"></ion-icon>
-                    </ion-range>
-                </ion-item>
-            </ion-row>
-            <ion-row>
-                <ion-item>
-                    <ion-label stacked>Saturation</ion-label>
-                    <ion-range min="0" max="100" debounce="500" (ionChange)="setColor()" [(ngModel)]="saturation">
-                        <ion-icon range-left small name="md-brush"></ion-icon>
-                        <ion-icon range-right name="md-brush"></ion-icon>
-                    </ion-range>
-                </ion-item>
-            </ion-row>
-        </ion-grid>
-    </ion-card>
-    -->
-    <!-- Second version of the RGB selection. -->
     <ion-card *ngIf="isAuto && showColorPicker()">
         <ion-item [ngStyle]="{'background-color': rgb.getRGBstring()}">
         </ion-item>
@@ -180,21 +142,21 @@
                     <ion-grid>
                         <ion-row>
                             <ion-col>
-                                <button ion-button item-right color="light" (click)="setBrightness(100)" [ngStyle]="{'border': isBrightnessSelected(100)}">
+                                <button ion-button item-right color="light" (click)="setIntensity(100)" [ngStyle]="{'border': isIntensitySelected(100)}">
                                     <img src="assets/icon/baseline_brightness_high_white_18dp.png" style="background: transparent !important;">
                                 </button>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <button ion-button item-right color="light" (click)="setBrightness(75)" [ngStyle]="{'border': isBrightnessSelected(75)}">
+                                <button ion-button item-right color="light" (click)="setIntensity(75)" [ngStyle]="{'border': isIntensitySelected(75)}">
                                     <img src="assets/icon/baseline_brightness_medium_white_18dp.png" style="background: transparent !important;">
                                 </button>
                             </ion-col>
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <button ion-button item-right color="light" (click)="setBrightness(25)" [ngStyle]="{'border': isBrightnessSelected(25)}">
+                                <button ion-button item-right color="light" (click)="setIntensity(25)" [ngStyle]="{'border': isIntensitySelected(25)}">
                                     <img src="assets/icon/baseline_brightness_low_white_18dp.png" style="background: transparent !important;">
                                 </button>
                             </ion-col>

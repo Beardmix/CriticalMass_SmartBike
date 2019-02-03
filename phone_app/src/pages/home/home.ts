@@ -18,6 +18,7 @@ export class HomePage {
     tempo: number = 60;
     hue = 0;
     rgb = new Color(255, 255, 255);
+    intensity = 100;
     mode = "PULSE";
     isAuto: boolean = false;
     isControlling: boolean = false;
@@ -98,7 +99,8 @@ export class HomePage {
 
         // Update local variables with Cloud data.
         this.mode = event.mode;
-        this.rgb.setRGB(event.rgb[0], event.rgb[1], event.rgb[2]);
+        this.rgb.setRGB(event.rgbi[0], event.rgbi[1], event.rgbi[2]);
+        this.rgb.setIntensity(event.rgbi[3]);
         this.tempo = event.tempo;
 
         var ref = this;
@@ -140,7 +142,7 @@ export class HomePage {
         var json = {
             "time": time, // ISO format: "2018-09-16T09:48:16.388Z"
             "mode": this.mode,
-            "rgb": [this.rgb.r_final, this.rgb.g_final, this.rgb.b_final],
+            "rgbi": [this.rgb.r, this.rgb.g, this.rgb.b, this.rgb.i],
             "tempo": this.tempo
         }
         console.log(json);
@@ -176,8 +178,8 @@ export class HomePage {
         }
     }
 
-    setBrightness(brightness) {
-        this.rgb.setBrightness(brightness);
+    setIntensity(intensity: number) {
+        this.rgb.setIntensity(intensity);
 
         if (this.isCloud) {
             this.sendEvent();
@@ -198,10 +200,10 @@ export class HomePage {
         return style;
     }
 
-    isBrightnessSelected(brightness: number) {
+    isIntensitySelected(intensity: number) {
         var style = "4px solid #f4f4f4";
 
-        if (brightness == this.rgb.brightness) {
+        if (intensity == this.rgb.i) {
             style = "4px solid #0096ff";
         }
 
@@ -254,50 +256,6 @@ export class HomePage {
         return style;
     }
     
-    /*
-    private hue2rgb(h) {
-        var r, g, b;
-        h = h / 60.0;
-        var t = h - Math.floor(h);
-        if (h < 1) {
-            r = 1;
-            g = t;
-            b = 0;
-        }
-        else if (h < 2) {
-            r = 1 - t;
-            g = 1;
-            b = 0;
-        }
-        else if (h < 3) {
-            r = 0;
-            g = 1;
-            b = t;
-        }
-        else if (h < 4) {
-            r = 0;
-            g = 1 - t;
-            b = 1;
-        }
-        else if (h < 5) {
-            r = t;
-            g = 0;
-            b = 1;
-        }
-        else if (h < 6) {
-            r = 1;
-            g = 0;
-            b = 1 - t;
-        }
-        else {
-            r = 1;
-            g = 0;
-            b = 0;
-        }
-        return [r, g, b];
-    }
-    */
-
     setTempo() {
         console.log("changeTempo", this.tempo);
         
@@ -356,9 +314,10 @@ export class HomePage {
         this.bleService.listConnectedPeriphs.forEach(periph => {
             this.bleService.writeBLE(periph,
                 BLE_SERVICES.COLOR,
-                String.fromCharCode(this.colorsPresetsList[shuffled[colorIdx]].r_final,
-                                    this.colorsPresetsList[shuffled[colorIdx]].g_final,
-                                    this.colorsPresetsList[shuffled[colorIdx]].b_final))
+                String.fromCharCode(this.colorsPresetsList[shuffled[colorIdx]].r,
+                                    this.colorsPresetsList[shuffled[colorIdx]].g,
+                                    this.colorsPresetsList[shuffled[colorIdx]].b,
+                                    this.colorsPresetsList[shuffled[colorIdx]].i))
                 .then(data => {
                     console.log("success", data);
                 })
@@ -396,7 +355,7 @@ export class HomePage {
     private changeColor(periph) {
         this.bleService.writeBLE(periph,
             BLE_SERVICES.COLOR,
-            String.fromCharCode(this.rgb.r_final, this.rgb.g_final, this.rgb.b_final))
+            String.fromCharCode(this.rgb.r, this.rgb.g, this.rgb.b, this.rgb.i))
             .then(data => {
                 console.log("success", data);
             })

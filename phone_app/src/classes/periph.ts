@@ -11,6 +11,7 @@ export class Periph {
     color_r: number = 0;
     color_g: number = 0;
     color_b: number = 0;
+    intensity: number = 100;
     color_rgb: string = "";
     tempo: string = "";
     traffic_front_lower: number = 0;

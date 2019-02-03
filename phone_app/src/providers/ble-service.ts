@@ -244,6 +244,7 @@ export class BleServiceProvider {
                     periph.color_r = Number(colors[0]);
                     periph.color_g = Number(colors[1]);
                     periph.color_b = Number(colors[2]);
+                    periph.intensity = Number(colors[3]);
                     periph.color_rgb = "rgb(" + String(periph.color_r) + "," + String(periph.color_g) + "," + String(periph.color_b) + ")";
                 }
                 else if (this.isService(string_received, BLE_SERVICES.TEMPO)) {

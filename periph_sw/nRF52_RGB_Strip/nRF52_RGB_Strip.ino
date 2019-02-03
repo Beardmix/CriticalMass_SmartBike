@@ -59,6 +59,7 @@ void readUART(uint8_t *const p_ledMode)
     uint8_t r = 0;
     uint8_t g = 0;
     uint8_t b = 0;
+    uint8_t intensity = 0;
     uint8_t tempo = 0;
     /* Buffer to hold incoming characters */
     uint8_t packetService;
@@ -94,8 +95,10 @@ void readUART(uint8_t *const p_ledMode)
         r = packetPayload[0];
         g = packetPayload[1];
         b = packetPayload[2];
-        led.setRGB(r, g, b);
-        ble.sendPacket(ble.Services::COLOR, String(r) + ',' + String(g) + ',' + String(b));
+        intensity = packetPayload[3];
+        led.setRGB(r, g, b, intensity);
+        ble.sendPacket(ble.Services::COLOR,
+                       String(r) + ',' + String(g) + ',' + String(b) + ',' + String(intensity));
         break;
     case ble.Services::TEMPO:
         // Serial.println("TEMPO");

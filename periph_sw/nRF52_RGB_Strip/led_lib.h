@@ -15,10 +15,6 @@ class CtrlLED
     int pinData;
     const Settings * p_settings;
 
-    int valRed;
-    int valGreen;
-    int valBlue;
-
     long time_offset = 0;
     long time_overflow_offset = 0;
     long time_offsets[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -37,10 +33,6 @@ class CtrlLED
         // declare the ledPin as an OUTPUT:
         pinMode(pinData, OUTPUT);
         pinMode(pinDebug, OUTPUT);
-
-        valRed = 0;
-        valGreen = 0;
-        valBlue = 0;
 
         strip.begin(); // This initializes the NeoPixel library.
     }
@@ -86,7 +78,7 @@ class CtrlLED
 
     void randomColor()
     {
-        setRGB(random(256), random(256), random(256));
+        setRGB(random(256), random(256), random(256), this->color.i);
     }
 
     void pulse()
@@ -96,9 +88,9 @@ class CtrlLED
         int valG = 0;
         int valB = 0;
 
-        valR = map(intensity, 0, 255, 0, valRed);
-        valG = map(intensity, 0, 255, 0, valGreen);
-        valB = map(intensity, 0, 255, 0, valBlue);
+        valR = map(intensity, 0, 255, 0, this->color.r);
+        valG = map(intensity, 0, 255, 0, this->color.g);
+        valB = map(intensity, 0, 255, 0, this->color.b);
 
         analogWrite(pinDebug, valR);
         writeEach(strip.Color(valR, valG, valB));
@@ -115,9 +107,9 @@ class CtrlLED
             int intensity = 0;
 
             intensity = (sin(3.1415f * (float)(global_millis()) / max_duration_ms)) * 255;
-            valR = map(intensity, 0, 255, 0, valRed);
-            valG = map(intensity, 0, 255, 0, valGreen);
-            valB = map(intensity, 0, 255, 0, valBlue);
+            valR = map(intensity, 0, 255, 0, this->color.r);
+            valG = map(intensity, 0, 255, 0, this->color.g);
+            valB = map(intensity, 0, 255, 0, this->color.b);
 
             analogWrite(pinDebug, valR);
             writeEach(strip.Color(valR, valG, valB));
@@ -130,15 +122,19 @@ class CtrlLED
 
     void lightLED()
     {
-        analogWrite(pinDebug, valRed);
-        writeEach(strip.Color(valRed, valGreen, valBlue));
+        analogWrite(pinDebug, this->color.r);
+        writeEach(strip.Color(this->color.r, this->color.g, this->color.b));
     }
 
-    void setRGB(int valRed, int valGreen, int valBlue)
+    void setRGB(int r, int g, int b, int i = 100)
     {
-        this->valRed = valRed;
-        this->valGreen = valGreen;
-        this->valBlue = valBlue;
+        // Pre-compute RGB colors.
+        this->color.r = r * i / 100.0;
+        this->color.g = g * i / 100.0;
+        this->color.b = b * i / 100.0;
+
+        // Save intensity.
+        this->color.i = i;
     }
 
     void white()
@@ -199,7 +195,8 @@ class CtrlLED
             {
                 pixel_t ledIdx = (leaderIdx + followerIdx) % p_settings->num_pixels;
                 int ledIntensity = intensityStep * followerIdx;
-                strip.setPixelColor(ledIdx, rgbiToColor(valRed, valGreen, valBlue, ledIntensity));
+                strip.setPixelColor(ledIdx,
+                                    rgbiToColor(this->color.r, this->color.g, this->color.b, ledIntensity));
             }
         }
 
@@ -222,7 +219,8 @@ class CtrlLED
                 intensity = (pxl <= running_pxl) ? 0xFF : 0x00;
             }
 
-            strip.setPixelColor(pxl, rgbiToColor(valRed, valGreen, valBlue, intensity));
+            strip.setPixelColor(pxl,
+                                rgbiToColor(this->color.r, this->color.g, this->color.b, intensity));
         }
 
         strip.show(); // This sends the updated pixel color to the hardware.
@@ -338,15 +336,17 @@ class CtrlLED
     class Color
     {
         public:
-            unsigned int r;
-            unsigned int g;
-            unsigned int b;
+            unsigned int r; // Value pre-computed with intensity.
+            unsigned int g; // Value pre-computed with intensity.
+            unsigned int b; // Value pre-computed with intensity.
+            unsigned int i; // Intensity, mainly used for the rainbow mode.
 
-            Color(unsigned int r, unsigned int g, unsigned int b)
+            Color(unsigned int r=255, unsigned int g=255, unsigned int b=255, unsigned int i=100)
             {
                 this->r = r;
                 this->g = g;
                 this->b = b;
+                this->i = i;
             }
     };
 
@@ -355,6 +355,7 @@ class CtrlLED
 
     static const unsigned int NB_PRESET_COLORS = 9;
     static const Color presetColors[NB_PRESET_COLORS];
+    Color color;
 
     unsigned long global_millis()
     {
@@ -370,25 +371,25 @@ class CtrlLED
         strip.show(); // This sends the updated pixel color to the hardware.
     }
 
-    uint32_t rgbiToColor(int r, int g, int b, int intensity)
+    uint32_t rgbiToColor(int r, int g, int b, int i)
     {
-        r = map(r, 0, 255, 0, intensity);
-        g = map(g, 0, 255, 0, intensity);
-        b = map(b, 0, 255, 0, intensity);
+        r = map(r, 0, 255, 0, i);
+        g = map(g, 0, 255, 0, i);
+        b = map(b, 0, 255, 0, i);
         return strip.Color(r, g, b);
     }
 };
 
 const CtrlLED::Color CtrlLED::presetColors[CtrlLED::NB_PRESET_COLORS] = {
-    CtrlLED::Color(255, 0, 0), // red
-    CtrlLED::Color(0, 255, 0), // green
-    CtrlLED::Color(0, 0, 255), // blue
-    CtrlLED::Color(255, 255, 255), // white
-    CtrlLED::Color(255, 128, 0), // orange
-    CtrlLED::Color(255, 255, 0), // yellow
-    CtrlLED::Color(51, 153, 255), // lightblue
-    CtrlLED::Color(255, 0, 255), // fuschia
-    CtrlLED::Color(0, 255, 255) // aqua
+    Color(255, 0, 0), // red
+    Color(0, 255, 0), // green
+    Color(0, 0, 255), // blue
+    Color(255, 255, 255), // white
+    Color(255, 128, 0), // orange
+    Color(255, 255, 0), // yellow
+    Color(51, 153, 255), // lightblue
+    Color(255, 0, 255), // fuschia
+    Color(0, 255, 255) // aqua
 };
 
 #endif
