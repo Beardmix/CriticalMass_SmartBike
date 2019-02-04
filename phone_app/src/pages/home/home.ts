@@ -120,6 +120,10 @@ export class HomePage {
         return Mode.list[this.mode].color_picker;
     }
 
+    showIntensityPicker() {
+        return Mode.list[this.mode].intensity_picker;
+    }
+
     showTempo() {
         return Mode.list[this.mode].tempo_picker;
     }

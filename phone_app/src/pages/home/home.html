@@ -125,10 +125,10 @@
         <ion-item [ngStyle]="{'background-color': rgb.getRGBstring()}">
         </ion-item>
     </ion-card>
-    <ion-card *ngIf="!isAuto && showColorPicker()">
+    <ion-card>
         <ion-grid>
             <ion-row>
-                <ion-col>
+                <ion-col *ngIf="!isAuto && showColorPicker()">
                     <ion-grid>
                         <ion-row>
                             <ion-col col-4 *ngFor="let color of colorsPresetsList">
@@ -138,7 +138,7 @@
                         </ion-row>
                     </ion-grid>
                 </ion-col>
-                <ion-col col-3>
+                <ion-col col-3 *ngIf="!isAuto && showIntensityPicker()">
                     <ion-grid>
                         <ion-row>
                             <ion-col>
