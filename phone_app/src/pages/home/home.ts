@@ -18,7 +18,6 @@ export class HomePage {
     tempo: number = 60;
     hue = 0;
     rgb = new Color(255, 255, 255);
-    intensity = 100;
     mode = "PULSE";
     isAuto: boolean = false;
     isControlling: boolean = false;
@@ -321,7 +320,7 @@ export class HomePage {
                 String.fromCharCode(this.colorsPresetsList[shuffled[colorIdx]].r,
                                     this.colorsPresetsList[shuffled[colorIdx]].g,
                                     this.colorsPresetsList[shuffled[colorIdx]].b,
-                                    this.colorsPresetsList[shuffled[colorIdx]].i))
+                                    this.rgb.i))
                 .then(data => {
                     console.log("success", data);
                 })

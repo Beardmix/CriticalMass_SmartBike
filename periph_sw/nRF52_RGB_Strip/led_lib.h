@@ -112,7 +112,7 @@ class CtrlLED
             valB = map(intensity, 0, 255, 0, this->color.b);
 
             analogWrite(pinDebug, valR);
-            writeEach(strip.Color(valR, valG, valB));
+            writeEach(this->rgbiToColor(valR, valG, valB, this->color.i));
         }
         else
         {
@@ -171,7 +171,7 @@ class CtrlLED
         valB = map(valB, 0, 255, 0, intensity);
 
         analogWrite(pinDebug, valR);
-        writeEach(strip.Color(valR, valG, valB));
+        writeEach(this->rgbiToColor(valR, valG, valB, this->color.i));
     }
 
     /* Dimmed multi chase. */
@@ -212,11 +212,11 @@ class CtrlLED
             int intensity = 0x00;
             if (true == p_settings->strip_reversed)
             {
-                intensity = (pxl >= running_pxl) ? 0xFF : 0x00;
+                intensity = (pxl >= running_pxl) ? this->color.i : 0x00;
             }
             else
             {
-                intensity = (pxl <= running_pxl) ? 0xFF : 0x00;
+                intensity = (pxl <= running_pxl) ? this->color.i : 0x00;
             }
 
             strip.setPixelColor(pxl,
@@ -253,7 +253,7 @@ class CtrlLED
             for (pixel_t i = leaderIdx; i < lastIdx; ++i)
             {
                 pixel_t ledIdx = i % p_settings->num_pixels;
-                strip.setPixelColor(ledIdx, rgbiToColor(rgb.r, rgb.g, rgb.b, 0xFF));
+                strip.setPixelColor(ledIdx, rgbiToColor(rgb.r, rgb.g, rgb.b, this->color.i));
             }
         }
 
@@ -280,12 +280,12 @@ class CtrlLED
         // Front.
         for (pixel_t i = std::max(front_lower - 1, 0U); i < front_upper; ++i)
         {
-            strip.setPixelColor(i, strip.Color(255, 180, 50));
+            strip.setPixelColor(i, this->rgbiToColor(255, 180, 50, this->color.i));
         }
         // Rear.
         for (pixel_t i = std::max(rear_lower - 1, 0U); i < rear_upper; ++i)
         {
-            strip.setPixelColor(i, strip.Color(255, 0, 0));
+            strip.setPixelColor(i, this->rgbiToColor(255, 0, 0, this->color.i));
         }
         
         strip.show();
