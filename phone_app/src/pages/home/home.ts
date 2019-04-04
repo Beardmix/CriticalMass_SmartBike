@@ -221,7 +221,7 @@ export class HomePage {
 
         if (this.isAuto) {
             var ref = this;
-            this.intervalAutomode = this.common.setInterval(() => {
+            this.intervalAutomode = this.common.setTimeout(() => {
                 var modes = Object.keys(Object.keys(Mode.list).reduce(function (filtered, key) {
                     if (Mode.list[key].auto_picker == true) filtered[key] = Mode.list[key];
                     return filtered;
