@@ -1,7 +1,12 @@
 #ifndef EEPROM_HANDLER_H
 #define EEPROM_HANDLER_H
 
-#include <Bluefruit_FileIO.h>
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
+
+using namespace Adafruit_LittleFS_Namespace;
+
+
 /* Need to undefine min and max in order to compile <String>. */
 #undef max
 #undef min
@@ -55,7 +60,7 @@ class EEPROM_Handler
     void static load(Settings &settings)
     {
         File file(InternalFS);
-        file.open(FILENAME, FILE_READ);
+        file.open(FILENAME, FILE_O_READ);
 
         if (file)
         {
@@ -87,7 +92,7 @@ class EEPROM_Handler
         
         Serial.println("Open " FILENAME " file to write ... ");
 
-        if (file.open(FILENAME, FILE_WRITE))
+        if (file.open(FILENAME, FILE_O_WRITE))
         {
             file.seek(0);
             write_setting(file, "num_pixels", String(settings.num_pixels));

@@ -6,8 +6,12 @@ Settings *BLE_Handler::p_settings = NULL;
 
 void BLE_Handler::connect_callback(uint16_t conn_handle)
 {
+    // Get the reference to current connection
+    BLEConnection* connection = Bluefruit.Connection(conn_handle);
+
     char central_name[32] = {0};
-    Bluefruit.Gap.getPeerName(conn_handle, central_name, sizeof(central_name));
+    connection->getPeerName(central_name, sizeof(central_name));
+
     Serial.println("+++ Connected +++");
     Serial.println(central_name);
 }
@@ -30,8 +34,8 @@ void BLE_Handler::configure_ble(Settings *f_p_settings)
     Bluefruit.printInfo();
     Bluefruit.setTxPower(4); // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
     Bluefruit.setName(p_settings->device_name.c_str());
-    Bluefruit.setConnectCallback(connect_callback);
-    // Bluefruit.setDisconnectCallback(disconnect_callback);
+    Bluefruit.Periph.setConnectCallback(connect_callback);
+    Bluefruit.Periph.setDisconnectCallback(disconnect_callback);
 
     // BLE UART.
     bleuart.begin();
