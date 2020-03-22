@@ -1,56 +1,39 @@
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ErrorHandler, NgModule } from '@angular/core';
-import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
-import { SplashScreen } from '@ionic-native/splash-screen';
-import { StatusBar } from '@ionic-native/status-bar';
+import { RouteReuseStrategy } from '@angular/router';
 
-import { LocationAccuracy } from '@ionic-native/location-accuracy';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { Plugins } from '@capacitor/core';
+import { BLE } from '@ionic-native/ble/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import { LocationAccuracy } from '@ionic-native/location-accuracy/ngx';
 
-import { BackgroundMode } from '@ionic-native/background-mode';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 
+import { environment } from '../environments/environment';
 
-import { BLE } from '@ionic-native/ble';
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
 
-import { MyApp } from './app.component';
-import { TabsPage } from '../pages/tabs/tabs';
-import { HomePage } from '../pages/home/home';
-import { PeripheralsPage } from '../pages/peripherals/peripherals';
-import { SingleUserPage } from '../pages/single_user/single_user';
-import { PopoverSettings } from '../pages/peripherals/popover-settings';
-import { BleServiceProvider } from '../providers/ble-service';
-import { CommonServiceProvider } from '../providers/common-service';
+const { SplashScreen } = Plugins;
 
 @NgModule({
-  declarations: [
-    MyApp,
-    TabsPage,
-    HomePage,
-    PeripheralsPage,
-    SingleUserPage,
-    PopoverSettings
-  ],
+  declarations: [AppComponent],
+  entryComponents: [],
   imports: [
     BrowserModule,
-    IonicModule.forRoot(MyApp)
-  ],
-  bootstrap: [IonicApp],
-  entryComponents: [
-    MyApp,
-    TabsPage,
-    HomePage,
-    PeripheralsPage,
-    SingleUserPage,
-    PopoverSettings
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireDatabaseModule
   ],
   providers: [
-    StatusBar,
-    SplashScreen,
-    BLE,
     BackgroundMode,
-    {provide: ErrorHandler, useClass: IonicErrorHandler},
-    BleServiceProvider,
-    CommonServiceProvider,
-    LocationAccuracy
-  ]
+    LocationAccuracy,
+    BLE,
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+  ],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

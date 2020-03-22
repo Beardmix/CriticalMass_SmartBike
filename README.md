@@ -6,7 +6,7 @@ https://play.google.com/store/apps/details?id=de.schnitzellab.criticalmass_sb
 
 | Loading | Main controller | Available devices | Connected devices |
 | --- | --- | --- | --- |
-| ![Loading screen](phone_app/resources/app_screenshots/00_loading.jpg "Loading screen") | ![Main controller](phone_app/resources/app_screenshots/01_main.jpg "Main controller") | ![Available devices](phone_app/resources/app_screenshots/02_available.jpg "Main controller") | ![Connected devices](phone_app/resources/app_screenshots/03_connected.jpg "Connected devices")
+| ![Loading screen](phone_app/resources/app_screenshots/00_loading.jpg "Loading screen") | ![Main controller](phone_app/resources/app_screenshots/01_main.jpg "Main controller") | ![Automatic mode](phone_app/resources/app_screenshots/02_automatic.jpg "Automatic mode") | ![Available and connected devices](phone_app/resources/app_screenshots/03_available_connected.jpg "Available and connected devices") | ![Device settings](phone_app/resources/app_screenshots/04_settings.jpg "Device settings")
 
 ## Beta testers
 https://play.google.com/apps/internaltest/4700354087248222113
@@ -117,8 +117,10 @@ Click the ‘Fix Issue’ button, then select your ‘Personal Team’ profile.
 
 ### Compile the App for you phone
 
-$ ionic cordova run android --device
-$ ionic cordova run ios --device
+$ ionic capacitor run android --device
+In Android Studio: select your device and > run 'app' 
+
+$ ionic capacitor run ios --device
 
 nota: the parameter '--device' is to start the build and run on a device if no device connected or detected, it won't try anything else and just quit
 

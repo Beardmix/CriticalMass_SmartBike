@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CriticalMass_SmartBike</string>
+    <string name="title_activity_main">CriticalMass_SmartBike</string>
+    <string name="package_name">de.schnitzellab.criticalmass_sb</string>
+    <string name="custom_url_scheme">de.schnitzellab.criticalmass_sb</string>
+</resources>

@@ -1,0 +1,171 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+  <ion-label (click)="cloudToggle()">Cloud Sync</ion-label>
+  <ion-buttons slot="end">
+    <ion-toggle [(ngModel)]="isCloud"></ion-toggle>
+  </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid class="ion-no-padding">
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('OFF')" [ngStyle]="{'border': isModeSelected('OFF')}"
+          [disabled]="isAuto">
+          <ion-icon slot="icon-only" color="dark" name="power"></ion-icon>Off
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('ON')" [ngStyle]="{'border': isModeSelected('ON')}"
+          [disabled]="isAuto">
+          <ion-icon slot="icon-only" color="dark" name="bulb-outline"></ion-icon>On
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  <ion-row>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('FLASH')" [ngStyle]="{'border': isModeSelected('FLASH')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" color="danger" name="sunny"></ion-icon>Flash
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('PULSE')" [ngStyle]="{'border': isModeSelected('PULSE')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" color="secondary" name="infinite"></ion-icon>Pulse
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('HUE_FLOW')" [ngStyle]="{'border': isModeSelected('HUE_FLOW')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" color="primary" name="refresh"></ion-icon>Hue Flow
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('THEATER_CHASE')" [ngStyle]="{'border': isModeSelected('THEATER_CHASE')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" color="sunny" name="analytics"></ion-icon>Theater
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('PILE_UP')" [ngStyle]="{'border': isModeSelected('PILE_UP')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" color="pink" name="barcode"></ion-icon>Pile Up
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('RAINBOW_MODE')" [ngStyle]="{'border': isModeSelected('RAINBOW_MODE')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" name="color-palette"></ion-icon>Rainbow
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid" color="light" (click)="modeChanged('TRAFFIC_MODE')" [ngStyle]="{'border': isModeSelected('TRAFFIC_MODE')}"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" name="car"></ion-icon>Traffic
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button expand="block" fill="solid"color="light" (click)="attributeRdmColors()"
+        [disabled]="isAuto">
+        <ion-icon slot="icon-only" name="color-wand"></ion-icon>Magic
+      </ion-button>
+    </ion-col>
+  </ion-row>
+  </ion-grid>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <ion-item>
+          <ion-label (click)="isAuto=!isAuto;automatic()">Automatic
+            <ion-icon slot="icon-only" color="sunny" name="beer"></ion-icon>
+          </ion-label>
+          <ion-toggle [(ngModel)]="isAuto" (ionChange)="automatic()"></ion-toggle>
+        </ion-item>
+      </ion-col>
+      <ion-col size="6">
+        <ion-item>
+          <ion-label>Reverse</ion-label>
+          <ion-toggle [(ngModel)]="isReversed" (ionChange)="reverse()"></ion-toggle>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="isAuto">
+      <ion-col size="3">
+        <ion-badge>change mode every {{ automodeInterval_s }}s</ion-badge>
+      </ion-col>
+      <ion-col size="9">
+        <ion-range min="1" max="60" debounce="500" (ionChange)="setAutomodeInterval()" [(ngModel)]="automodeInterval_s">
+          <ion-icon slot="start" size="small" name="time"></ion-icon>
+          <ion-icon slot="end" name="time"></ion-icon>
+        </ion-range>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-card *ngIf="showTempo()">
+    <ion-card-header>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            Tempo
+          </ion-col>
+          <ion-col>
+            <ion-badge (click)="tapTempo()">{{ tempo }}bpm</ion-badge>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-header>
+    <ion-range id="range-tempo" min="30" max="180" debounce="500" (ionChange)="setTempo()" [(ngModel)]="tempo">
+      <ion-icon slot="start" size="small" name="pulse"></ion-icon>
+      <ion-icon slot="end" name="pulse"></ion-icon>
+    </ion-range>
+  </ion-card>
+  <ion-card *ngIf="isAuto && showColorPicker()">
+    <ion-item class="ion-color" [color]='rgb.getCssClassName()'></ion-item>
+  </ion-card>
+  <ion-card *ngIf="!isAuto">
+    <ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col *ngIf="!isAuto && showColorPicker()">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="4" *ngFor="let color of colorsPresetsList">
+                  <ion-button expand="block" shape="round" fill="solid" (click)="setColor(color)" color='{{ color.getCssClassName() }}'>
+                    <span *ngIf='isColorSelected(color)'>x</span>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+          <ion-col size="3" *ngIf="!isAuto && showIntensityPicker()">
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-button color="light" (click)="setIntensity(100)" [ngStyle]="{'border': isIntensitySelected(100)}">
+                    <ion-img src="assets/icon/baseline_brightness_high_white_18dp.png" style="background: transparent !important;"></ion-img>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-button color="light" (click)="setIntensity(75)" [ngStyle]="{'border': isIntensitySelected(75)}">
+                    <ion-img src="assets/icon/baseline_brightness_medium_white_18dp.png" style="background: transparent !important;"></ion-img>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-button color="light" (click)="setIntensity(25)" [ngStyle]="{'border': isIntensitySelected(25)}">
+                    <ion-img src="assets/icon/baseline_brightness_low_white_18dp.png" style="background: transparent !important;"></ion-img>
+                  </ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-item>
+  </ion-card>
+</ion-content>

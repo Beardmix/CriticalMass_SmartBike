@@ -1,0 +1,23 @@
+ion-toolbar > ion-label {
+  margin-left: 10px;
+}
+
+button {
+  margin: none;
+}
+
+#color-preview {
+  width: 100%;
+  border: 1px solid grey;
+}
+
+ion-col{
+  text-align: center;
+}
+
+#range-tempo{
+  padding-top: 0;
+}
+
+.colorSelected  { border-color: 4px solid grey;}
+.colorNotSelected { border: 4px solid #f4f4f4; }

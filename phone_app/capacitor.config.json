@@ -1,0 +1,16 @@
+{
+  "appId": "de.schnitzellab.criticalmass_sb",
+  "appName": "CriticalMass SmartBike",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "cordova": {},
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "showSpinner": true,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    }
+  }
+}

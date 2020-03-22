@@ -1,0 +1,14 @@
+<ion-tabs>
+
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="tabHome">
+      <ion-icon name="home"></ion-icon>
+    </ion-tab-button>
+
+    <ion-tab-button tab="tabPeripherals">
+      <ion-icon name="bicycle"></ion-icon>
+      <ion-badge>{{ listConnectedPeriphs().length }}</ion-badge>
+    </ion-tab-button>
+  </ion-tab-bar>
+
+</ion-tabs>
