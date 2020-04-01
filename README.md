@@ -4,8 +4,8 @@ RGB Lights controled via Bluetooth.
 # Android App
 https://play.google.com/store/apps/details?id=de.schnitzellab.criticalmass_sb
 
-| Loading | Main controller | Available devices | Connected devices |
-| --- | --- | --- | --- |
+| Loading | Main controller | Available devices | Connected devices | Device settings
+| --- | --- | --- | --- | --- |
 | ![Loading screen](phone_app/resources/app_screenshots/00_loading.jpg "Loading screen") | ![Main controller](phone_app/resources/app_screenshots/01_main.jpg "Main controller") | ![Automatic mode](phone_app/resources/app_screenshots/02_automatic.jpg "Automatic mode") | ![Available and connected devices](phone_app/resources/app_screenshots/03_available_connected.jpg "Available and connected devices") | ![Device settings](phone_app/resources/app_screenshots/04_settings.jpg "Device settings")
 
 ## Beta testers
