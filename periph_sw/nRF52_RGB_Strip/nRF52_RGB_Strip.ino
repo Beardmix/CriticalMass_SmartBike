@@ -95,7 +95,7 @@ void readUART(uint8_t *const p_ledMode)
         r = packetPayload[0];
         g = packetPayload[1];
         b = packetPayload[2];
-        intensity = packetPayload[3];
+        intensity = packetPayload[3] * 2.55f;
         led.setRGB(r, g, b, intensity);
         ble.sendPacket(ble.Services::COLOR,
                        String(r) + ',' + String(g) + ',' + String(b) + ',' + String(intensity));

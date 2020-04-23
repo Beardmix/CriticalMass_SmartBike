@@ -126,12 +126,12 @@ class CtrlLED
         writeEach(strip.Color(this->color.r, this->color.g, this->color.b));
     }
 
-    void setRGB(int r, int g, int b, int i = 100)
+    void setRGB(int r, int g, int b, int i = 255)
     {
         // Pre-compute RGB colors.
-        this->color.r = r * i / 100.0;
-        this->color.g = g * i / 100.0;
-        this->color.b = b * i / 100.0;
+        this->color.r = r * i / 255.0f;
+        this->color.g = g * i / 255.0f;
+        this->color.b = b * i / 255.0f;
 
         // Save intensity.
         this->color.i = i;
@@ -341,7 +341,7 @@ class CtrlLED
             unsigned int b; // Value pre-computed with intensity.
             unsigned int i; // Intensity, mainly used for the rainbow mode.
 
-            Color(unsigned int r=255, unsigned int g=255, unsigned int b=255, unsigned int i=100)
+            Color(unsigned int r=255, unsigned int g=255, unsigned int b=255, unsigned int i=255)
             {
                 this->r = r;
                 this->g = g;
